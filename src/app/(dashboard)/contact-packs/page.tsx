@@ -112,22 +112,22 @@ export default function ContactPacksPage() {
   }
 
   return (
-    <div className="container-wide py-8">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-2">Contact Packs</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
+    <div className="container-wide py-6 sm:py-8 px-4 sm:px-6">
+      <div className="text-center mb-8 sm:mb-10 md:mb-12">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2">Contact Packs</h1>
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
           Purchase contact packs to view phone numbers and email addresses of profiles that interest you.
           Perfect for when you need extra connections beyond your subscription.
         </p>
-        <div className="mt-6">
-          <Badge variant="secondary" className="text-lg px-4 py-2">
+        <div className="mt-4 sm:mt-6">
+          <Badge variant="secondary" className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2">
             <Phone className="h-4 w-4 mr-2" />
             Current Balance: {currentBalance} contacts
           </Badge>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto mb-12">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 max-w-5xl mx-auto mb-8 sm:mb-10 md:mb-12">
         {CONTACT_PACKS.map((pack, index) => {
           const isPopular = index === 1; // Value Pack
 
@@ -136,7 +136,7 @@ export default function ContactPacksPage() {
               key={pack.id}
               variant={isPopular ? "elevated" : "default"}
               className={`relative animate-fade-in-up stagger-${index + 1} ${
-                isPopular ? "border-2 border-brand shadow-premium-xl scale-105" : ""
+                isPopular ? "border-2 border-brand shadow-premium-xl md:scale-105" : ""
               }`}
             >
               {isPopular && (
@@ -228,9 +228,9 @@ export default function ContactPacksPage() {
         })}
       </div>
 
-      <div className="mt-12 text-center max-w-3xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">How Contact Packs Work</h2>
-        <div className="grid gap-4 md:grid-cols-3">
+      <div className="mt-8 sm:mt-10 md:mt-12 text-center max-w-3xl mx-auto">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">How Contact Packs Work</h2>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
           <div className="p-4">
             <div className="h-12 w-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-3">
               <span className="text-xl font-bold">1</span>

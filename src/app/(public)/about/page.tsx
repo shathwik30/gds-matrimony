@@ -60,13 +60,13 @@ export default async function AboutPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-brand-light py-16 md:py-24">
-        <div className="container-wide">
+      <section className="bg-brand-light py-10 sm:py-16 md:py-24">
+        <div className="container-wide px-4 sm:px-6 md:px-8">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 tracking-tight">
               About GDS Marriage Links
             </h1>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8">
               For over 15 years, we have been helping families find perfect matches
               through our trusted platform. Our commitment to quality, privacy, and
               personalized service has made us one of India&apos;s most trusted
@@ -80,12 +80,12 @@ export default async function AboutPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 border-b">
-        <div className="container-wide">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <section className="py-8 sm:py-12 border-b">
+        <div className="container-wide px-4 sm:px-6 md:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {stats.map((stat, index) => (
               <div key={index} className={`text-center animate-fade-in-up stagger-${index + 1}`}>
-                <p className="text-4xl font-bold text-brand">{stat.value}</p>
+                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand">{stat.value}</p>
                 <p className="text-muted-foreground mt-1 font-medium">{stat.label}</p>
               </div>
             ))}
@@ -94,11 +94,11 @@ export default async function AboutPage() {
       </section>
 
       {/* Our Story Section */}
-      <section className="py-16 md:py-24">
-        <div className="container-wide">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+      <section className="py-10 sm:py-16 md:py-24">
+        <div className="container-wide px-4 sm:px-6 md:px-8">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-6">Our Story</h2>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6">Our Story</h2>
               <div className="space-y-4 text-muted-foreground">
                 <p>
                   GDS Marriage Links was founded with a simple yet powerful vision:
@@ -132,15 +132,15 @@ export default async function AboutPage() {
       </section>
 
       {/* Values Section */}
-      <section className="py-16 md:py-24 bg-muted/50">
-        <div className="container-wide">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Our Values</h2>
+      <section className="py-10 sm:py-16 md:py-24 bg-muted/50">
+        <div className="container-wide px-4 sm:px-6 md:px-8">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">Our Values</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               These core values guide everything we do at GDS Marriage Links
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {values.map((value, index) => (
               <Card key={index} variant="elevated" className={`group animate-fade-in-up stagger-${index + 1}`}>
                 <CardContent className="pt-6 text-center">
@@ -159,10 +159,10 @@ export default async function AboutPage() {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="py-16 md:py-24">
-        <div className="container-wide">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="order-2 md:order-1 relative h-80 md:h-96 rounded-2xl overflow-hidden">
+      <section className="py-10 sm:py-16 md:py-24">
+        <div className="container-wide px-4 sm:px-6 md:px-8">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
+            <div className="order-2 md:order-1 relative h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden">
               <Image
                 src="/images/about1.jpg"
                 alt="Why choose us"
@@ -171,7 +171,7 @@ export default async function AboutPage() {
               />
             </div>
             <div className="order-1 md:order-2">
-              <h2 className="text-3xl font-bold mb-6">Why Choose Us?</h2>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6">Why Choose Us?</h2>
               <ul className="space-y-4">
                 {[
                   "Verified profiles with identity checks",
@@ -196,12 +196,12 @@ export default async function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-brand text-white">
-        <div className="container-wide text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+      <section className="py-10 sm:py-16 md:py-24 bg-brand text-white">
+        <div className="container-wide text-center px-4 sm:px-6 md:px-8">
+          <h2 className="text-xl sm:text-2xl md:text-4xl font-bold mb-3 sm:mb-4">
             Ready to Find Your Perfect Match?
           </h2>
-          <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-white/80 mb-6 sm:mb-8 max-w-2xl mx-auto">
             Join thousands of families who have found their perfect match through
             GDS Marriage Links.
           </p>

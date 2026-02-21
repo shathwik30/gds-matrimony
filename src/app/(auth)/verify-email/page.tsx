@@ -74,11 +74,11 @@ function VerifyEmailContent() {
 
   if (!email) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8">
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8">
         <Card className="w-full max-w-md text-center">
           <CardContent className="pt-6">
             <p className="text-muted-foreground">Invalid verification link.</p>
-            <Button asChild className="mt-4">
+            <Button asChild className="mt-4 w-full sm:w-auto">
               <Link href="/register">Go to Register</Link>
             </Button>
           </CardContent>
@@ -89,17 +89,17 @@ function VerifyEmailContent() {
 
   if (isVerified) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8 bg-brand-light">
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-brand-light">
         <Card className="w-full max-w-md text-center">
-          <CardContent className="pt-8 pb-8">
+          <CardContent className="pt-6 pb-6 sm:pt-8 sm:pb-8">
             <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="h-10 w-10 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Email Verified!</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-2">Email Verified!</h2>
             <p className="text-muted-foreground mb-6">
               Your email has been verified successfully. Let&apos;s complete your profile...
             </p>
-            <Button asChild>
+            <Button asChild className="w-full sm:w-auto">
               <Link href="/profile/edit?onboarding=true">Complete Profile</Link>
             </Button>
           </CardContent>
@@ -109,7 +109,7 @@ function VerifyEmailContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-8 bg-brand-light">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-brand-light">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
@@ -123,13 +123,13 @@ function VerifyEmailContent() {
           <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <Mail className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl">Verify Your Email</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">Verify Your Email</CardTitle>
           <CardDescription>
             We&apos;ve sent a 6-digit verification code to{" "}
             <span className="font-medium text-foreground">{email}</span>
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6">
           <div className="flex justify-center">
             <InputOTP maxLength={6} value={otp} onChange={setOtp}>
               <InputOTPGroup>

@@ -90,7 +90,7 @@ export function ProfileCard({
                   <TooltipTrigger asChild>
                     <Badge
                       className={cn(
-                        "absolute top-3 right-3 shadow-premium-md cursor-help",
+                        "absolute top-2 right-2 sm:top-3 sm:right-3 shadow-premium-md cursor-help text-[10px] sm:text-xs",
                         getMatchScoreClass(profile.matchScore)
                       )}
                     >
@@ -103,36 +103,36 @@ export function ProfileCard({
                 </Tooltip>
               )}
             {profile.isSuperInterest && (
-              <Badge className="absolute top-3 left-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg">
-                <Sparkles className="h-3 w-3 mr-1" />
+              <Badge className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg text-[10px] sm:text-xs">
+                <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
                 Super Interest
               </Badge>
             )}
             {profile.subscriptionPlan === "platinum" && (
-              <Badge className="absolute bottom-3 left-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-lg">
-                <Crown className="h-3 w-3 mr-1" />
+              <Badge className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-lg text-[10px] sm:text-xs">
+                <Crown className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
                 Featured
               </Badge>
             )}
           </div>
-          <CardContent className="p-5 space-y-2">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="font-semibold text-lg truncate group-hover:text-primary transition-colors flex-1">
+          <CardContent className="p-3 sm:p-5 space-y-1.5 sm:space-y-2">
+            <div className="flex items-start justify-between gap-1.5 sm:gap-2">
+              <h3 className="font-semibold text-base sm:text-lg truncate group-hover:text-primary transition-colors flex-1">
                 {fullName}
               </h3>
               <div className="flex flex-col gap-1 shrink-0">
-                <Badge className={cn(getTrustBadgeClass(profile.trustLevel), "text-xs")}>
+                <Badge className={cn(getTrustBadgeClass(profile.trustLevel), "text-[10px] sm:text-xs")}>
                   {getTrustLabel(profile.trustLevel)}
                 </Badge>
                 {profile.isAadhaarVerified && (
-                  <Badge className="bg-green-50 text-green-700 font-medium text-xs">
-                    <ShieldCheck className="h-3 w-3 mr-1" />
+                  <Badge className="bg-green-50 text-green-700 font-medium text-[10px] sm:text-xs">
+                    <ShieldCheck className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
                     Aadhaar Verified
                   </Badge>
                 )}
               </div>
             </div>
-            <p className="text-sm text-muted-foreground font-medium">
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium">
               {profile.age} yrs, {profile.height ? heightToFeetInches(profile.height) : "-"}
             </p>
             {lastActiveText && (
@@ -162,7 +162,7 @@ export function ProfileCard({
         {/* Profile Image */}
         <Link
           href={`/profile/${profile.userId}`}
-          className="relative w-full sm:w-56 aspect-square sm:aspect-auto sm:h-auto shrink-0 overflow-hidden"
+          className="relative w-full sm:w-44 md:w-56 aspect-[4/3] sm:aspect-auto sm:h-auto shrink-0 overflow-hidden"
         >
           {profile.profileImage ? (
             <Image
@@ -183,7 +183,7 @@ export function ProfileCard({
               <TooltipTrigger asChild>
                 <Badge
                   className={cn(
-                    "absolute top-3 left-3 shadow-premium-md font-semibold cursor-help",
+                    "absolute top-2 left-2 sm:top-3 sm:left-3 shadow-premium-md font-semibold cursor-help text-[10px] sm:text-xs",
                     getMatchScoreClass(profile.matchScore)
                   )}
                 >
@@ -196,25 +196,25 @@ export function ProfileCard({
             </Tooltip>
           )}
           {profile.isSuperInterest && (
-            <Badge className="absolute top-3 right-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg">
-              <Sparkles className="h-3 w-3 mr-1" />
+            <Badge className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg text-[10px] sm:text-xs">
+              <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
               Super Interest
             </Badge>
           )}
           {profile.subscriptionPlan === "platinum" && (
-            <Badge className="absolute bottom-3 left-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-lg">
-              <Crown className="h-3 w-3 mr-1" />
+            <Badge className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-lg text-[10px] sm:text-xs">
+              <Crown className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5 sm:mr-1" />
               Featured
             </Badge>
           )}
         </Link>
 
         {/* Profile Details */}
-        <CardContent className="flex-1 p-5 sm:p-6">
-          <div className="flex items-start justify-between gap-3 mb-4">
+        <CardContent className="flex-1 p-4 sm:p-5 md:p-6">
+          <div className="flex items-start justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
             <div className="flex-1 min-w-0">
               <Link href={`/profile/${profile.userId}`}>
-                <h3 className="font-semibold text-xl hover:text-primary transition-colors truncate">
+                <h3 className="font-semibold text-base sm:text-lg md:text-xl hover:text-primary transition-colors truncate">
                   {fullName}
                 </h3>
               </Link>
@@ -240,7 +240,7 @@ export function ProfileCard({
             </div>
           </div>
 
-          <div className="space-y-2.5 mb-5 text-sm">
+          <div className="space-y-2 sm:space-y-2.5 mb-3 sm:mb-5 text-xs sm:text-sm">
             {(profile.residingCity || profile.residingState) && (
               <div className="flex items-center gap-2.5 text-muted-foreground">
                 <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -269,7 +269,7 @@ export function ProfileCard({
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2 mb-5">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-5">
             {profile.religion && (
               <Badge variant="secondary" className="font-medium">{profile.religion}</Badge>
             )}
@@ -282,13 +282,13 @@ export function ProfileCard({
           </div>
 
           {profile.aboutMe && (
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-5 leading-relaxed">
+            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-3 sm:mb-5 leading-relaxed">
               {profile.aboutMe}
             </p>
           )}
 
           {/* Actions */}
-          <div className="flex items-center gap-2.5 pt-2">
+          <div className="flex items-center gap-2 sm:gap-2.5 pt-1 sm:pt-2">
             <Button
               size="default"
               onClick={() => onSendInterest?.(profile.userId)}

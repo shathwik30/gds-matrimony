@@ -25,21 +25,21 @@ const socialLinks = [
 export function Footer() {
   return (
     <footer className="border-t bg-gradient-to-b from-muted/20 to-muted/40">
-      <div className="container-wide py-16 md:py-20">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
+      <div className="container-wide py-10 sm:py-14 md:py-20">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand Section */}
-          <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center gap-3 mb-6 group w-fit">
+          <div className="col-span-2">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 group w-fit">
               <Image
                 src="/images/logo.png"
                 alt={SITE_CONFIG.name}
                 width={48}
                 height={48}
-                className="h-12 w-auto transition-transform group-hover:scale-110"
+                className="h-9 sm:h-12 w-auto transition-transform group-hover:scale-110"
               />
-              <span className="font-semibold text-xl transition-colors group-hover:text-primary">{SITE_CONFIG.name}</span>
+              <span className="font-semibold text-base sm:text-xl transition-colors group-hover:text-primary">{SITE_CONFIG.name}</span>
             </Link>
-            <p className="text-muted-foreground text-base max-w-md mb-8 leading-relaxed">
+            <p className="text-muted-foreground text-sm sm:text-base max-w-md mb-5 sm:mb-8 leading-relaxed">
               A premium matrimonial platform designed for Indians seeking serious marriage relationships.
               Verified profiles, strong privacy, and family-friendly matchmaking.
             </p>
@@ -113,8 +113,8 @@ export function Footer() {
 
       {/* Bottom Bar */}
       <div className="bg-gradient-to-r from-primary via-primary to-primary/90 text-white">
-        <div className="container-wide py-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <p className="text-sm font-medium">
+        <div className="container-wide py-4 sm:py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs sm:text-sm font-medium text-center sm:text-left">
             &copy; {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved.
           </p>
           <div className="flex items-center gap-3">

@@ -94,7 +94,7 @@ export default async function HomePage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-brand-light via-white to-brand-light/50 min-h-[90vh]">
+        <section className="relative overflow-hidden bg-gradient-to-br from-brand-light via-white to-brand-light/50 min-h-[80vh] md:min-h-[90vh]">
           {/* Background image collage grid */}
           <div className="absolute inset-0 z-0 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 auto-rows-fr gap-1">
             {[
@@ -122,18 +122,18 @@ export default async function HomePage() {
           {/* Overlay to make content readable */}
           <div className="absolute inset-0 z-[1] bg-white/85" />
 
-          <div className="container-wide py-20 md:py-28 lg:py-36 relative z-[2]">
-            <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
-              <div className="space-y-8 animate-fade-in-up">
+          <div className="container-wide py-12 sm:py-20 md:py-28 lg:py-36 relative z-[2]">
+            <div className="grid gap-8 lg:grid-cols-2 lg:gap-16 items-center">
+              <div className="space-y-5 sm:space-y-8 animate-fade-in-up">
                 <div className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-sm shadow-premium-md hover:shadow-premium-lg transition-smooth">
                   <Star className="h-4 w-4 text-amber-500 fill-amber-500 animate-pulse" />
                   <span className="font-semibold">India&apos;s Trusted Matrimonial Platform</span>
                 </div>
-                <h1 className="text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl leading-tight">
+                <h1 className="text-3xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
                   Find Your Perfect{" "}
                   <span className="text-brand block mt-2">Life Partner</span>
                 </h1>
-                <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
+                <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
                   Join thousands of verified profiles seeking serious marriage relationships.
                   Experience privacy-first matchmaking designed for Indian families.
                 </p>
@@ -148,12 +148,12 @@ export default async function HomePage() {
                     <Link href="/login">Already a Member? Login</Link>
                   </Button>
                 </div>
-                <div className="flex items-center gap-6 pt-2">
+                <div className="flex items-center gap-4 sm:gap-6 pt-2">
                   <div className="flex -space-x-3">
                     {[1, 2, 3, 4].map((i) => (
                       <div
                         key={i}
-                        className="h-12 w-12 rounded-full border-3 border-white bg-muted overflow-hidden shadow-premium-sm hover:scale-110 transition-transform"
+                        className="h-9 w-9 sm:h-12 sm:w-12 rounded-full border-3 border-white bg-muted overflow-hidden shadow-premium-sm hover:scale-110 transition-transform"
                       >
                         <Image
                           src={`/images/${i}.jpg`}
@@ -201,14 +201,14 @@ export default async function HomePage() {
         {/* Stats Section */}
         <section className="border-y bg-white relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5" />
-          <div className="container-wide py-16 relative">
-            <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+          <div className="container-wide py-10 md:py-16 relative">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 md:gap-8 md:grid-cols-4">
               {stats.map((stat, index) => (
                 <div key={stat.label} className={`text-center group animate-fade-in-up stagger-${index + 1}`}>
-                  <div className="text-4xl font-bold text-brand md:text-5xl group-hover:scale-110 transition-transform">
+                  <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-brand group-hover:scale-110 transition-transform">
                     {stat.value}
                   </div>
-                  <div className="mt-2 text-base font-medium text-muted-foreground">
+                  <div className="mt-1 sm:mt-2 text-xs sm:text-sm md:text-base font-medium text-muted-foreground">
                     {stat.label}
                   </div>
                 </div>
@@ -218,25 +218,25 @@ export default async function HomePage() {
         </section>
 
         {/* Features Section */}
-        <section className="py-20 md:py-28">
+        <section className="py-12 sm:py-16 md:py-28">
           <div className="container-wide">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
+            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 md:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 tracking-tight">
                 Why Choose GDS Marriage Links?
               </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed">
                 We understand the importance of finding the right life partner.
                 Our platform is designed with your needs in mind.
               </p>
             </div>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 sm:gap-6 md:gap-8 grid-cols-2 lg:grid-cols-4">
               {features.map((feature, index) => (
                 <Card key={feature.title} variant="elevated" className={`group animate-fade-in-up stagger-${index + 1}`}>
-                  <CardContent className="p-7">
-                    <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform shadow-premium-sm">
-                      <feature.icon className="h-7 w-7 text-primary" />
+                  <CardContent className="p-4 sm:p-5 md:p-7">
+                    <div className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-3 sm:mb-5 group-hover:scale-110 transition-transform shadow-premium-sm">
+                      <feature.icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-primary" />
                     </div>
-                    <h3 className="font-semibold text-lg mb-3">{feature.title}</h3>
+                    <h3 className="font-semibold text-sm sm:text-base md:text-lg mb-2 sm:mb-3">{feature.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       {feature.description}
                     </p>
@@ -248,15 +248,15 @@ export default async function HomePage() {
         </section>
 
         {/* How It Works Section */}
-        <section className="py-20 md:py-28 bg-gradient-to-b from-muted/30 to-muted/60">
+        <section className="py-12 sm:py-16 md:py-28 bg-gradient-to-b from-muted/30 to-muted/60">
           <div className="container-wide">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">How It Works</h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 md:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 tracking-tight">How It Works</h2>
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed">
                 Finding your life partner is simple with our easy 4-step process.
               </p>
             </div>
-            <div className="grid gap-10 md:grid-cols-4 relative">
+            <div className="grid gap-6 sm:gap-8 md:gap-10 grid-cols-2 md:grid-cols-4 relative">
               {/* Connection line - desktop only */}
               <div className="hidden md:block absolute top-8 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/20 via-primary to-primary/20" />
 
@@ -267,7 +267,7 @@ export default async function HomePage() {
                 { step: 4, title: "Connect", desc: "Send interests and start chatting" },
               ].map((item, index) => (
                 <div key={item.step} className={`text-center relative animate-fade-in-up stagger-${index + 1}`}>
-                  <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary to-primary/80 text-white text-3xl font-bold flex items-center justify-center mx-auto mb-6 shadow-premium-lg hover:scale-110 transition-transform relative z-10">
+                  <div className="h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 rounded-full bg-gradient-to-br from-primary to-primary/80 text-white text-xl sm:text-2xl md:text-3xl font-bold flex items-center justify-center mx-auto mb-4 md:mb-6 shadow-premium-lg hover:scale-110 transition-transform relative z-10">
                     {item.step}
                   </div>
                   <h3 className="font-bold text-lg mb-3">{item.title}</h3>
@@ -279,20 +279,20 @@ export default async function HomePage() {
         </section>
 
         {/* Testimonials Section */}
-        <section className="py-20 md:py-28">
+        <section className="py-12 sm:py-16 md:py-28">
           <div className="container-wide">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">Success Stories</h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 md:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 tracking-tight">Success Stories</h2>
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed">
                 Hear from couples who found their perfect match on GDS Marriage Links.
               </p>
             </div>
-            <div className="grid gap-8 md:grid-cols-3">
+            <div className="grid gap-4 sm:gap-6 md:gap-8 md:grid-cols-3">
               {testimonials.map((testimonial, index) => (
                 <Card key={testimonial.name} variant="elevated" className={`group animate-fade-in-up stagger-${index + 1}`}>
-                  <CardContent className="p-7">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="h-16 w-16 rounded-full overflow-hidden ring-2 ring-primary/10 group-hover:ring-primary/30 transition-all">
+                  <CardContent className="p-4 sm:p-5 md:p-7">
+                    <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+                      <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full overflow-hidden ring-2 ring-primary/10 group-hover:ring-primary/30 transition-all shrink-0">
                         <Image
                           src={testimonial.image}
                           alt={testimonial.name}
@@ -325,7 +325,7 @@ export default async function HomePage() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-24 md:py-32 bg-gradient-to-br from-primary via-primary to-primary/90 text-white relative overflow-hidden">
+        <section className="py-14 sm:py-20 md:py-32 bg-gradient-to-br from-primary via-primary to-primary/90 text-white relative overflow-hidden">
           {/* Background pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl" />
@@ -333,11 +333,11 @@ export default async function HomePage() {
           </div>
 
           <div className="container-wide text-center relative z-10">
-            <div className="max-w-4xl mx-auto space-y-8">
-              <h2 className="text-4xl font-bold mb-6 md:text-6xl tracking-tight leading-tight">
+            <div className="max-w-4xl mx-auto space-y-5 sm:space-y-8">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold mb-4 md:mb-6 tracking-tight leading-tight">
                 Ready to Find Your Life Partner?
               </h2>
-              <p className="text-xl opacity-95 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl opacity-95 max-w-3xl mx-auto leading-relaxed">
                 Join thousands of verified members and start your journey towards
                 a happy married life today.
               </p>

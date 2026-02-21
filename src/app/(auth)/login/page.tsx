@@ -76,7 +76,7 @@ function LoginForm() {
             height={60}
           />
         </div>
-        <CardTitle className="text-2xl">Login to Your Account</CardTitle>
+        <CardTitle className="text-xl sm:text-2xl">Login to Your Account</CardTitle>
         <CardDescription>
           Enter your email and password to access your account
         </CardDescription>
@@ -177,7 +177,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
         <Suspense fallback={<div className="w-full max-w-md"><Loader2 className="h-8 w-8 animate-spin mx-auto" /></div>}>
           <LoginForm />
         </Suspense>

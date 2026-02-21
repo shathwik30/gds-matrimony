@@ -24,6 +24,12 @@ const navItems = [
   { href: "/messages", label: "Messages", icon: MessageSquare },
 ];
 
+const publicNavItems = [
+  { href: "/about", label: "About" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/contact", label: "Contact" },
+];
+
 export function Header() {
   const { data: session, status } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -41,7 +47,6 @@ export function Header() {
     try {
       await logoutUser();
     } catch {
-      // Redirect to home on any error
       window.location.href = "/";
     }
   };
@@ -52,60 +57,51 @@ export function Header() {
         ? "bg-white/90 backdrop-blur-xl shadow-premium-md"
         : "bg-white/95 backdrop-blur-lg shadow-premium-sm"
     }`}>
-      <div className="container-wide flex h-20 items-center justify-between">
+      <div className="container-wide flex h-16 md:h-20 items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-2 md:gap-3 group shrink-0">
           <Image
             src="/images/logo.png"
             alt="GDS Marriage Links"
             width={48}
             height={48}
-            className="h-12 w-auto transition-transform group-hover:scale-110"
+            className="h-9 md:h-12 w-auto transition-transform group-hover:scale-110"
           />
-          <span className="max-sm:hidden font-semibold text-xl inline-block transition-colors group-hover:text-primary">
+          <span className="hidden sm:inline-block font-semibold text-lg md:text-xl transition-colors group-hover:text-primary">
             GDS Marriage Links
           </span>
         </Link>
 
         {/* Desktop Navigation */}
         {status === "authenticated" && session?.user ? (
-          <nav className="max-sm:hidden flex items-center gap-2 md:gap-6">
+          <nav className="hidden md:flex items-center gap-1 lg:gap-4">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="group relative flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2 px-2 md:px-3 rounded-lg hover:bg-muted/50"
+                className="group relative flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2 px-2.5 lg:px-3 rounded-lg hover:bg-muted/50"
               >
                 <item.icon className="h-4 w-4" />
-                <span className="max-md:hidden">{item.label}</span>
+                <span>{item.label}</span>
               </Link>
             ))}
           </nav>
         ) : (
-          <nav className="max-md:hidden flex items-center gap-6">
-            <Link
-              href="/about"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              About
-            </Link>
-            <Link
-              href="/pricing"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Pricing
-            </Link>
-            <Link
-              href="/contact"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Contact
-            </Link>
+          <nav className="hidden md:flex items-center gap-6">
+            {publicNavItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
         )}
 
         {/* Right Section */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           {status === "loading" ? (
             <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
           ) : status === "authenticated" && session?.user ? (
@@ -113,10 +109,10 @@ export function Header() {
               {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-12 w-12 rounded-full ring-2 ring-transparent hover:ring-primary/20 transition-all">
-                    <Avatar className="h-12 w-12">
+                  <Button variant="ghost" className="relative h-9 w-9 md:h-12 md:w-12 rounded-full ring-2 ring-transparent hover:ring-primary/20 transition-all">
+                    <Avatar className="h-9 w-9 md:h-12 md:w-12">
                       <AvatarImage src={session.user.image || undefined} />
-                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-xs md:text-sm">
                         {getInitials(session.user.name?.split(" ")[0], session.user.name?.split(" ")[1])}
                       </AvatarFallback>
                     </Avatar>
@@ -173,7 +169,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="sm:hidden"
+                className="md:hidden"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               >
@@ -185,12 +181,26 @@ export function Header() {
               </Button>
             </>
           ) : (
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="default" asChild>
+            <div className="flex items-center gap-2 md:gap-3">
+              {/* Mobile Menu for public nav */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              >
+                {mobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </Button>
+              <Button variant="ghost" size="sm" asChild className="text-sm">
                 <Link href="/login">Login</Link>
               </Button>
-              <Button size="default" asChild className="shadow-premium-sm hover:shadow-premium-md">
-                <Link href="/register">Register Free</Link>
+              <Button size="sm" asChild className="shadow-premium-sm hover:shadow-premium-md text-sm">
+                <Link href="/register">Register</Link>
               </Button>
             </div>
           )}
@@ -198,20 +208,31 @@ export function Header() {
       </div>
 
       {/* Mobile Navigation */}
-      {mobileMenuOpen && status === "authenticated" && (
-        <div className="sm:hidden border-t bg-background/95 backdrop-blur-xl animate-fade-in">
-          <nav className="flex flex-col p-6 space-y-1">
-            {navItems.map((item, index) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg hover:bg-muted transition-smooth stagger-${index + 1} animate-slide-in-right`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <item.icon className="h-5 w-5 text-primary" />
-                {item.label}
-              </Link>
-            ))}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t bg-background/95 backdrop-blur-xl animate-fade-in">
+          <nav className="flex flex-col p-4 space-y-1">
+            {status === "authenticated"
+              ? navItems.map((item, index) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg hover:bg-muted transition-smooth stagger-${index + 1} animate-slide-in-right`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <item.icon className="h-5 w-5 text-primary" />
+                    {item.label}
+                  </Link>
+                ))
+              : publicNavItems.map((item, index) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg hover:bg-muted transition-smooth stagger-${index + 1} animate-slide-in-right`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
           </nav>
         </div>
       )}

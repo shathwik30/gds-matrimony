@@ -117,11 +117,11 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-brand-light py-16 md:py-24">
-        <div className="container-wide">
+      <section className="bg-brand-light py-10 sm:py-16 md:py-24">
+        <div className="container-wide px-4 sm:px-6 md:px-8">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">Contact Us</h1>
-            <p className="text-lg text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 tracking-tight">Contact Us</h1>
+            <p className="text-base sm:text-lg text-muted-foreground">
               Have questions or need assistance? We&apos;re here to help. Reach out
               to us and we&apos;ll respond as soon as possible.
             </p>
@@ -130,12 +130,12 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 md:py-24">
-        <div className="container-wide">
-          <div className="grid lg:grid-cols-3 gap-12">
+      <section className="py-10 sm:py-16 md:py-24">
+        <div className="container-wide px-4 sm:px-6 md:px-8">
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-12">
             {/* Contact Info */}
             <div className="lg:col-span-1">
-              <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
+              <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Get in Touch</h2>
               <div className="space-y-6">
                 {contactInfo.map((info, index) => (
                   <div key={index} className="flex items-start gap-4">
@@ -159,7 +159,7 @@ export default function ContactPage() {
                 ))}
               </div>
 
-              <div className="mt-8 p-6 bg-brand-light rounded-xl">
+              <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-brand-light rounded-xl">
                 <h3 className="font-semibold mb-2">Need Immediate Help?</h3>
                 <p className="text-sm text-muted-foreground mb-4">
                   Our customer support team is available to assist you during
@@ -312,17 +312,17 @@ export default function ContactPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 md:py-24 bg-muted/50">
-        <div className="container-wide">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">
+      <section className="py-10 sm:py-16 md:py-24 bg-muted/50">
+        <div className="container-wide px-4 sm:px-6 md:px-8">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">
               Frequently Asked Questions
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Find quick answers to common questions
             </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto">
             {[
               {
                 q: "How do I verify my profile?",

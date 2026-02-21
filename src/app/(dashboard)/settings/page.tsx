@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { signOut } from "next-auth/react";
 import { toast } from "sonner";
 import { Loader2, User, Bell, Lock, Eye, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -202,7 +203,7 @@ export default function SettingsPage() {
 
       if (data.success) {
         toast.success("Account deactivated successfully");
-        window.location.href = "/";
+        await signOut({ redirectTo: "/" });
       } else {
         toast.error(data.error || "Failed to delete account");
       }
@@ -223,16 +224,16 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="mb-10">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Settings</h1>
-        <p className="text-lg text-muted-foreground mt-2">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-6 sm:py-8">
+      <div className="mb-6 sm:mb-8 md:mb-10">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">Settings</h1>
+        <p className="text-sm sm:text-base md:text-lg text-muted-foreground mt-1 sm:mt-2">
           Manage your account settings and preferences
         </p>
       </div>
 
-      <Tabs defaultValue="privacy" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue="privacy" className="space-y-4 sm:space-y-6">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-1">
           <TabsTrigger value="privacy">
             <Eye className="h-4 w-4 mr-2 hidden sm:inline" />
             Privacy
@@ -260,11 +261,11 @@ export default function SettingsPage() {
                 Control who can see your profile and information
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
+            <CardContent className="space-y-4 sm:space-y-6">
+              <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>Hide Profile</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Temporarily hide your profile from search results
                   </p>
                 </div>
@@ -276,10 +277,10 @@ export default function SettingsPage() {
 
               <Separator />
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>Show Online Status</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Let others see when you are currently online
                   </p>
                 </div>
@@ -291,10 +292,10 @@ export default function SettingsPage() {
 
               <Separator />
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>Show Last Active</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Let others see when you were last active on the platform
                   </p>
                 </div>
@@ -318,11 +319,11 @@ export default function SettingsPage() {
                 Choose what notifications you want to receive
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
+            <CardContent className="space-y-4 sm:space-y-6">
+              <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>Email Notifications</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Receive important updates via email
                   </p>
                 </div>
@@ -334,10 +335,10 @@ export default function SettingsPage() {
 
               <Separator />
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>Interest Notifications</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Get notified when someone sends you an interest
                   </p>
                 </div>
@@ -349,10 +350,10 @@ export default function SettingsPage() {
 
               <Separator />
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>Message Notifications</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Get notified when you receive new messages
                   </p>
                 </div>
@@ -364,10 +365,10 @@ export default function SettingsPage() {
 
               <Separator />
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>New Match Notifications</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Get notified about new matching profiles
                   </p>
                 </div>
@@ -444,7 +445,7 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between p-4 border border-destructive/20 rounded-lg">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 p-4 border border-destructive/20 rounded-lg">
                 <div className="space-y-0.5">
                   <p className="font-medium">Delete Account</p>
                   <p className="text-sm text-muted-foreground">

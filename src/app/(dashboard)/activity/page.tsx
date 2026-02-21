@@ -64,13 +64,13 @@ function StatCard({
 }) {
   return (
     <Card variant="elevated" className="group animate-fade-in-up">
-      <CardContent className="pt-6 pb-6">
-        <div className="flex items-center gap-4 mb-4">
-          <div className={`h-14 w-14 rounded-xl ${bgColor} flex items-center justify-center shadow-premium-sm group-hover:scale-110 transition-transform`}>
-            <Icon className={`h-7 w-7 ${color}`} />
+      <CardContent className="pt-4 pb-4 sm:pt-6 sm:pb-6">
+        <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+          <div className={`h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-xl ${bgColor} flex items-center justify-center shadow-premium-sm group-hover:scale-110 transition-transform`}>
+            <Icon className={`h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 ${color}`} />
           </div>
           <div>
-            <p className="text-3xl font-bold group-hover:text-primary transition-colors">{value}</p>
+            <p className="text-xl sm:text-2xl md:text-3xl font-bold group-hover:text-primary transition-colors">{value}</p>
             <p className="text-sm text-muted-foreground font-medium">{title}</p>
           </div>
         </div>
@@ -116,7 +116,7 @@ function ActivityCard({ activity }: { activity: ActivityItem }) {
   };
 
   return (
-    <div className="flex items-start gap-4 p-4 border-b last:border-0">
+    <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 border-b last:border-0">
       {activity.user ? (
         <Link href={`/profile/${activity.user.id}`}>
           <Avatar className="h-10 w-10">
@@ -166,7 +166,7 @@ function ViewerCard({ viewer }: { viewer: ProfileViewData }) {
   return (
     <Link
       href={`/profile/${viewer.viewerId}`}
-      className="flex items-center gap-4 p-4 border-b last:border-0 hover:bg-muted/50 transition-colors"
+      className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border-b last:border-0 hover:bg-muted/50 transition-colors"
     >
       <Avatar className="h-12 w-12">
         <AvatarImage src={viewer.viewer.profileImage || undefined} />
@@ -235,17 +235,17 @@ export default function ActivityPage() {
   }
 
   return (
-    <div className="container-wide py-8">
-      <div className="mb-10">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Activity</h1>
-        <p className="text-lg text-muted-foreground mt-2">
+    <div className="container-wide py-6 sm:py-8 px-4 sm:px-6">
+      <div className="mb-6 sm:mb-8 md:mb-10">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">Activity</h1>
+        <p className="text-sm sm:text-base md:text-lg text-muted-foreground mt-1 sm:mt-2">
           See who viewed your profile and track your activity
         </p>
       </div>
 
       {/* Stats Grid */}
       {stats && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">
           <StatCard
             title="Profile Views"
             value={stats.profileViews}
@@ -283,7 +283,7 @@ export default function ActivityPage() {
         </div>
       )}
 
-      <Tabs defaultValue="activity" className="space-y-6">
+      <Tabs defaultValue="activity" className="space-y-4 sm:space-y-6">
         <TabsList>
           <TabsTrigger value="activity">Recent Activity</TabsTrigger>
           <TabsTrigger value="viewers">

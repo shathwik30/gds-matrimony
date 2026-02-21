@@ -24,17 +24,17 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-muted/30 to-background">
       {/* Hero Section */}
-      <section className="py-20 md:py-28">
-        <div className="container-wide text-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-5 py-2 text-sm mb-6 shadow-premium-sm">
+      <section className="py-12 sm:py-16 md:py-28">
+        <div className="container-wide text-center px-4 sm:px-6 md:px-8">
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 sm:px-5 py-2 text-sm mb-4 sm:mb-6 shadow-premium-sm">
             <Crown className="h-4 w-4 text-primary" />
             <span className="font-semibold text-primary">Choose Your Perfect Plan</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
+          <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6 tracking-tight">
             Find Your Life Partner with{" "}
             <span className="text-brand">Premium Membership</span>
           </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Unlock unlimited connections, verified profiles, and exclusive features to
             accelerate your journey to finding true love.
           </p>
@@ -42,9 +42,9 @@ export default function PricingPage() {
       </section>
 
       {/* Pricing Cards */}
-      <section className="pb-20">
-        <div className="container-wide">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
+      <section className="pb-12 sm:pb-16 md:pb-20">
+        <div className="container-wide px-4 sm:px-6 md:px-8">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
             {SUBSCRIPTION_PLANS.map((plan) => {
               const isPopular = plan.id === "gold";
               const gstAmount = Math.round(plan.price * GST_RATE);
@@ -55,7 +55,7 @@ export default function PricingPage() {
                   key={plan.id}
                   variant={isPopular ? "elevated" : "default"}
                   className={`relative ${
-                    isPopular ? "border-2 border-primary scale-105 shadow-premium-xl" : ""
+                    isPopular ? "border-2 border-primary scale-100 md:scale-105 shadow-premium-xl" : ""
                   } animate-fade-in-up`}
                 >
                   {isPopular && (
@@ -80,9 +80,9 @@ export default function PricingPage() {
                     >
                       {PLAN_ICONS[plan.id]}
                     </div>
-                    <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                    <CardTitle className="text-xl sm:text-2xl">{plan.name}</CardTitle>
                     <CardDescription className="mt-3 space-y-1">
-                      <span className="text-4xl font-bold text-foreground block">
+                      <span className="text-3xl sm:text-4xl font-bold text-foreground block">
                         {formatCurrency(plan.price)}
                       </span>
                       <span className="text-sm block">
@@ -184,24 +184,24 @@ export default function PricingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
-        <div className="container-wide">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight">
+      <section className="py-12 sm:py-16 md:py-20 bg-white">
+        <div className="container-wide px-4 sm:px-6 md:px-8">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="text-xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 tracking-tight">
               Why Choose Premium?
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               Upgrade to unlock powerful features that help you find your perfect match faster.
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
+          <div className="grid gap-4 sm:gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 max-w-5xl mx-auto">
             <Card variant="elevated" className="text-center group">
-              <CardContent className="p-8">
-                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-premium-md">
-                  <Crown className="h-8 w-8 text-primary" />
+              <CardContent className="p-4 sm:p-6 md:p-8">
+                <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform shadow-premium-md">
+                  <Crown className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Unlimited Connections</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Unlimited Connections</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   Send unlimited interests and connect with more profiles daily to increase
                   your chances of finding the perfect match.
@@ -210,11 +210,11 @@ export default function PricingPage() {
             </Card>
 
             <Card variant="elevated" className="text-center group">
-              <CardContent className="p-8">
-                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-premium-md">
-                  <Check className="h-8 w-8 text-primary" />
+              <CardContent className="p-4 sm:p-6 md:p-8">
+                <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform shadow-premium-md">
+                  <Check className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Verified Badge</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Verified Badge</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   Stand out with a verified badge that shows you&apos;re genuine and serious
                   about finding your life partner.
@@ -223,11 +223,11 @@ export default function PricingPage() {
             </Card>
 
             <Card variant="elevated" className="text-center group">
-              <CardContent className="p-8">
-                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-premium-md">
-                  <Zap className="h-8 w-8 text-primary" />
+              <CardContent className="p-4 sm:p-6 md:p-8">
+                <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform shadow-premium-md">
+                  <Zap className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Priority Support</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Priority Support</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   Get dedicated support from our team to help you navigate and make the most
                   of your matchmaking journey.
@@ -239,15 +239,15 @@ export default function PricingPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20">
-        <div className="container-wide">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight">
+      <section className="py-12 sm:py-16 md:py-20">
+        <div className="container-wide px-4 sm:px-6 md:px-8">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="text-xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 tracking-tight">
               Frequently Asked Questions
             </h2>
           </div>
 
-          <div className="max-w-3xl mx-auto space-y-6">
+          <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
             <Card variant="elevated">
               <CardContent className="p-6">
                 <h3 className="font-bold text-lg mb-2">Can I upgrade or downgrade my plan?</h3>
@@ -292,17 +292,17 @@ export default function PricingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-br from-primary via-primary to-primary/90 text-white relative overflow-hidden">
+      <section className="py-12 sm:py-16 md:py-24 bg-gradient-to-br from-primary via-primary to-primary/90 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl" />
         </div>
 
-        <div className="container-wide text-center relative z-10">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">
+        <div className="container-wide text-center relative z-10 px-4 sm:px-6 md:px-8">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 tracking-tight">
             Ready to Find Your Perfect Match?
           </h2>
-          <p className="text-xl opacity-95 max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl opacity-95 max-w-2xl mx-auto mb-6 sm:mb-8 md:mb-10 leading-relaxed">
             Join thousands of verified members and start your journey today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

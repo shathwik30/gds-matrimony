@@ -265,12 +265,12 @@ async function DashboardStats() {
         <Link key={stat.title} href={stat.href} className="block">
           <Card variant="elevated" className={`group animate-fade-in-up stagger-${index + 1} cursor-pointer hover:border-primary/30 transition-colors`}>
             <CardContent className="pt-6 pb-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className={`h-14 w-14 rounded-xl ${stat.bgColor} flex items-center justify-center shadow-premium-sm group-hover:scale-110 transition-transform`}>
-                  <stat.icon className={`h-7 w-7 ${stat.color}`} />
+              <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                <div className={`h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-xl ${stat.bgColor} flex items-center justify-center shadow-premium-sm group-hover:scale-110 transition-transform`}>
+                  <stat.icon className={`h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 ${stat.color}`} />
                 </div>
                 <div>
-                  <p className="text-3xl font-bold group-hover:text-primary transition-colors">{stat.value}</p>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-bold group-hover:text-primary transition-colors">{stat.value}</p>
                   <p className="text-sm text-muted-foreground font-medium">{stat.title}</p>
                 </div>
               </div>
@@ -340,14 +340,14 @@ async function RecommendedMatchesSection() {
   return (
     <div className="mb-10">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Recommended For You</h2>
+        <h2 className="text-xl sm:text-2xl font-bold">Recommended For You</h2>
         <Button variant="ghost" asChild>
           <Link href="/matches" className="text-brand hover:text-brand/80">
             View All <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
       </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {matches.map(profile => (
           <ProfileCard
             key={profile.userId}
@@ -388,22 +388,22 @@ export default async function DashboardPage() {
   const userName = session?.user?.name?.split(" ")[0] || "there";
 
   return (
-    <div className="container-wide py-10">
+    <div className="container-wide py-6 sm:py-8 md:py-10 px-4 sm:px-6">
       {/* Welcome Section */}
-      <div className="mb-10 relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-8 border border-primary/10">
+      <div className="mb-6 sm:mb-8 md:mb-10 relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 sm:p-6 md:p-8 border border-primary/10">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
         <div className="relative z-10">
-          <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-3 tracking-tight">
             Welcome back, {userName}!
           </h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground">
             Here&apos;s what&apos;s happening with your profile today.
           </p>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-10">
+      <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8 md:mb-10">
         <Suspense fallback={<StatsLoading />}>
           <DashboardStats />
         </Suspense>
@@ -416,8 +416,8 @@ export default async function DashboardPage() {
 
       {/* Quick Actions */}
       <div className="mb-10">
-        <h2 className="text-2xl font-bold mb-6">Quick Actions</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Quick Actions</h2>
+        <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <Card variant="elevated" className="group">
             <CardHeader>
               <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -474,7 +474,7 @@ export default async function DashboardPage() {
       {/* Quick Links */}
       <Card variant="bordered">
         <CardHeader>
-          <CardTitle className="text-2xl">Quick Links</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">Quick Links</CardTitle>
           <CardDescription className="text-base">
             Manage your profile and settings
           </CardDescription>

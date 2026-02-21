@@ -81,7 +81,7 @@ export default async function MyProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-muted/30 to-background">
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 space-y-4 sm:space-y-6">
 
         {/* ── Completion Banner ──────────────────────────────────────── */}
         {completion < 100 && (
@@ -118,7 +118,7 @@ export default async function MyProfilePage() {
         {/* ── Hero Card ─────────────────────────────────────────────── */}
         <div className="rounded-3xl overflow-hidden shadow-xl border border-border/40 bg-card">
           {/* Cover photo */}
-          <div className="relative h-72 sm:h-96 bg-gradient-to-br from-brand/20 via-brand-light to-orange-100">
+          <div className="relative h-56 sm:h-72 md:h-96 bg-gradient-to-br from-brand/20 via-brand-light to-orange-100">
             {profile.profileImage ? (
               <Image
                 src={profile.profileImage}
@@ -177,11 +177,11 @@ export default async function MyProfilePage() {
             )}
 
             {/* Name & info overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
               <div className="flex items-end justify-between gap-4">
                 <div className="text-white space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h1 className="text-3xl sm:text-4xl font-bold tracking-tight leading-none">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-none">
                       {fullName}
                     </h1>
                     {profile.trustLevel === "verified_user" && (
@@ -216,7 +216,7 @@ export default async function MyProfilePage() {
           </div>
 
           {/* Quick highlights strip */}
-          <div className="px-6 py-4 flex flex-wrap gap-2 border-b bg-muted/20">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap gap-1.5 sm:gap-2 border-b bg-muted/20">
             {profile.religion && (
               <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
                 {cap(profile.religion)}
@@ -257,7 +257,7 @@ export default async function MyProfilePage() {
           </div>
 
           {/* Action buttons */}
-          <div className="px-6 py-4 flex gap-3 flex-wrap">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 flex gap-2 sm:gap-3 flex-wrap">
             <Button asChild className="shadow-sm">
               <Link href="/profile/edit">
                 <Edit className="h-4 w-4 mr-2" />
@@ -282,7 +282,7 @@ export default async function MyProfilePage() {
         {/* ── Photo Gallery ─────────────────────────────────────────── */}
         {galleryImages.length > 0 && (
           <section className="rounded-3xl border border-border/40 bg-card shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b flex items-center justify-between">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
                   <Camera className="h-4 w-4 text-primary" />
@@ -302,7 +302,7 @@ export default async function MyProfilePage() {
               </Button>
             </div>
 
-            <div className="p-4">
+            <div className="p-3 sm:p-4">
               {galleryImages.length === 1 ? (
                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden max-w-sm">
                   <Image
@@ -330,7 +330,7 @@ export default async function MyProfilePage() {
                   ))}
                 </div>
               ) : galleryImages.length === 3 ? (
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                   {galleryImages.map((img, i) => (
                     <div key={img.id} className="relative aspect-[3/4] rounded-2xl overflow-hidden">
                       <Image
@@ -346,7 +346,7 @@ export default async function MyProfilePage() {
                 </div>
               ) : (
                 /* 4-5 photos: first photo large left, rest in grid right */
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   <div className="relative rounded-2xl overflow-hidden" style={{ aspectRatio: "3/4" }}>
                     <Image
                       src={galleryImages[0].imageUrl}
@@ -383,7 +383,7 @@ export default async function MyProfilePage() {
 
         {/* ── About Me ──────────────────────────────────────────────── */}
         {profile.aboutMe && (
-          <section className="rounded-3xl border border-border/40 bg-card shadow-sm p-6">
+          <section className="rounded-3xl border border-border/40 bg-card shadow-sm p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
                 <Heart className="h-4 w-4 text-primary" />
@@ -397,7 +397,7 @@ export default async function MyProfilePage() {
         )}
 
         {/* ── Detail Cards Grid ─────────────────────────────────────── */}
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
 
           {/* Basic Details */}
           <DetailCard
@@ -573,13 +573,13 @@ function DetailCard({
 }) {
   return (
     <div className="rounded-3xl border border-border/40 bg-card shadow-sm overflow-hidden">
-      <div className="flex items-center gap-3 px-5 py-4 border-b bg-muted/20">
+      <div className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-4 border-b bg-muted/20">
         <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
           {icon}
         </div>
         <h2 className="font-semibold text-sm">{title}</h2>
       </div>
-      <div className="px-5 py-4 space-y-3">{children}</div>
+      <div className="px-4 sm:px-5 py-3 sm:py-4 space-y-3">{children}</div>
     </div>
   );
 }

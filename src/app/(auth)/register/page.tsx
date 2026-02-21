@@ -176,7 +176,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
         <Card className="w-full max-w-md border-0 shadow-none lg:shadow-lg lg:border">
           <CardHeader className="text-center">
             <div className="lg:hidden flex justify-center mb-4">
@@ -187,7 +187,7 @@ export default function RegisterPage() {
                 height={60}
               />
             </div>
-            <CardTitle className="text-2xl">Create Your Account</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl">Create Your Account</CardTitle>
             <CardDescription>
               Join thousands of verified members looking for their life partner
             </CardDescription>
@@ -306,9 +306,9 @@ export default function RegisterPage() {
 
       {/* ── Consent Dialog ──────────────────────────────────────────────── */}
       <Dialog open={showConsent} onOpenChange={setShowConsent}>
-        <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-xl max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b shrink-0">
+          <div className="px-4 pt-4 pb-3 sm:px-6 sm:pt-6 sm:pb-4 border-b shrink-0">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                 <ShieldCheck className="h-5 w-5 text-primary" />
@@ -324,7 +324,7 @@ export default function RegisterPage() {
 
           {/* Scrollable content */}
           <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="px-6 py-5 space-y-5">
+            <div className="px-4 py-4 space-y-4 sm:px-6 sm:py-5 sm:space-y-5">
               <p className="text-sm text-muted-foreground">
                 By creating an account, I confirm that:
               </p>
@@ -406,7 +406,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t bg-muted/30 shrink-0">
+          <div className="px-4 py-3 sm:px-6 sm:py-4 border-t bg-muted/30 shrink-0">
             <div className="flex items-center justify-between gap-3">
               <p className="text-xs text-muted-foreground hidden sm:block">
                 {mandatoryChecked.filter(Boolean).length + (termsAccepted ? 1 : 0)}/{MANDATORY_DECLARATIONS.length + 1} required

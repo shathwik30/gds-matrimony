@@ -174,10 +174,10 @@ export default function MembershipPage() {
   }
 
   return (
-    <div className="container-wide py-8">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-2">Choose Your Plan</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
+    <div className="container-wide py-6 sm:py-8 px-4 sm:px-6">
+      <div className="text-center mb-8 sm:mb-10 md:mb-12">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2">Choose Your Plan</h1>
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
           Upgrade your membership to unlock premium features and connect with more potential matches.
         </p>
         {currentPlan && currentPlan !== "free" && subscriptionEnd && (
@@ -259,7 +259,7 @@ export default function MembershipPage() {
         </Card>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
         {SUBSCRIPTION_PLANS.map((plan) => {
           const isCurrentPlan = currentPlan === plan.id;
           const isPopular = plan.id === "gold";
@@ -272,7 +272,7 @@ export default function MembershipPage() {
               key={plan.id}
               variant={isPopular ? "elevated" : "default"}
               className={`relative animate-fade-in-up ${
-                isPopular ? "border-2 border-brand shadow-premium-xl scale-105" : ""
+                isPopular ? "border-2 border-brand shadow-premium-xl md:scale-105" : ""
               } ${isCurrentPlan ? "border-2 border-green-500" : ""} ${
                 isDisabled ? "opacity-50" : ""
               }`}
@@ -401,9 +401,9 @@ export default function MembershipPage() {
         })}
       </div>
 
-      <div className="mt-12 text-center">
-        <h2 className="text-xl font-semibold mb-4">Why Upgrade?</h2>
-        <div className="grid gap-4 md:grid-cols-3 max-w-4xl mx-auto">
+      <div className="mt-8 sm:mt-10 md:mt-12 text-center">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4">Why Upgrade?</h2>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3 max-w-4xl mx-auto">
           <div className="p-4">
             <Crown className="h-8 w-8 mx-auto text-brand mb-2" />
             <h3 className="font-medium">More Connections</h3>

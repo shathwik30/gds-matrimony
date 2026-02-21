@@ -153,10 +153,10 @@ export function FilterPanel() {
   return (
     <Card className="h-fit overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-3 border-b">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="h-4 w-4" />
-          <h3 className="font-semibold text-sm">Filters</h3>
+          <h3 className="font-semibold text-sm sm:text-base">Filters</h3>
           {activeCount > 0 && (
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
               {activeCount}
@@ -166,19 +166,19 @@ export function FilterPanel() {
       </div>
 
       {/* Action buttons at top */}
-      <div className="flex gap-2 px-4 py-3 border-b bg-muted/30">
-        <Button size="sm" onClick={handleApply} className="flex-1">
+      <div className="flex gap-2 px-3 sm:px-4 py-3 border-b bg-muted/30">
+        <Button size="sm" onClick={handleApply} className="flex-1 min-h-[40px] sm:min-h-[36px]">
           Apply Filters
         </Button>
         {activeCount > 0 && (
-          <Button variant="outline" size="sm" onClick={handleClear} className="flex-1">
+          <Button variant="outline" size="sm" onClick={handleClear} className="flex-1 min-h-[40px] sm:min-h-[36px]">
             Clear All
           </Button>
         )}
       </div>
 
       {/* Scrollable filter body */}
-      <div className="overflow-y-auto max-h-[calc(100vh-18rem)] px-4 py-2">
+      <div className="overflow-y-auto max-h-[calc(100vh-14rem)] sm:max-h-[calc(100vh-18rem)] px-3 sm:px-4 py-2">
         <Accordion type="multiple" defaultValue={["age", "religion"]} className="w-full">
           {/* Age Range */}
           <AccordionItem value="age">
@@ -247,7 +247,7 @@ export function FilterPanel() {
             <AccordionContent>
               <div className="space-y-1.5 max-h-40 overflow-y-auto">
                 {RELIGION_OPTIONS.map((religion) => (
-                  <label key={religion} className="flex items-center gap-2 cursor-pointer">
+                  <label key={religion} className="flex items-center gap-2 cursor-pointer py-1 sm:py-0">
                     <Checkbox
                       checked={filters.religion?.includes(religion) ?? false}
                       onCheckedChange={() => toggleArrayValue("religion", religion)}
@@ -272,7 +272,7 @@ export function FilterPanel() {
             <AccordionContent>
               <div className="space-y-1.5 max-h-40 overflow-y-auto">
                 {[...new Set(availableCastes)].map((caste) => (
-                  <label key={caste} className="flex items-center gap-2 cursor-pointer">
+                  <label key={caste} className="flex items-center gap-2 cursor-pointer py-1 sm:py-0">
                     <Checkbox
                       checked={filters.caste?.includes(caste) ?? false}
                       onCheckedChange={() => toggleArrayValue("caste", caste)}
@@ -297,7 +297,7 @@ export function FilterPanel() {
             <AccordionContent>
               <div className="space-y-1.5 max-h-40 overflow-y-auto">
                 {MOTHER_TONGUE_OPTIONS.map((lang) => (
-                  <label key={lang} className="flex items-center gap-2 cursor-pointer">
+                  <label key={lang} className="flex items-center gap-2 cursor-pointer py-1 sm:py-0">
                     <Checkbox
                       checked={filters.motherTongue?.includes(lang) ?? false}
                       onCheckedChange={() => toggleArrayValue("motherTongue", lang)}
@@ -322,7 +322,7 @@ export function FilterPanel() {
             <AccordionContent>
               <div className="space-y-1.5 max-h-40 overflow-y-auto">
                 {EDUCATION_OPTIONS.map((edu) => (
-                  <label key={edu} className="flex items-center gap-2 cursor-pointer">
+                  <label key={edu} className="flex items-center gap-2 cursor-pointer py-1 sm:py-0">
                     <Checkbox
                       checked={filters.education?.includes(edu) ?? false}
                       onCheckedChange={() => toggleArrayValue("education", edu)}
@@ -347,7 +347,7 @@ export function FilterPanel() {
             <AccordionContent>
               <div className="space-y-1.5 max-h-40 overflow-y-auto">
                 {OCCUPATION_OPTIONS.map((occ) => (
-                  <label key={occ} className="flex items-center gap-2 cursor-pointer">
+                  <label key={occ} className="flex items-center gap-2 cursor-pointer py-1 sm:py-0">
                     <Checkbox
                       checked={filters.profession?.includes(occ) ?? false}
                       onCheckedChange={() => toggleArrayValue("profession", occ)}
@@ -372,7 +372,7 @@ export function FilterPanel() {
             <AccordionContent>
               <div className="space-y-1.5 max-h-40 overflow-y-auto">
                 {ANNUAL_INCOME_OPTIONS.map((inc) => (
-                  <label key={inc.value} className="flex items-center gap-2 cursor-pointer">
+                  <label key={inc.value} className="flex items-center gap-2 cursor-pointer py-1 sm:py-0">
                     <Checkbox
                       checked={filters.income?.includes(inc.value) ?? false}
                       onCheckedChange={() => toggleArrayValue("income", inc.value)}
@@ -397,7 +397,7 @@ export function FilterPanel() {
             <AccordionContent>
               <div className="space-y-1.5">
                 {MARITAL_STATUS_OPTIONS.map((ms) => (
-                  <label key={ms.value} className="flex items-center gap-2 cursor-pointer">
+                  <label key={ms.value} className="flex items-center gap-2 cursor-pointer py-1 sm:py-0">
                     <Checkbox
                       checked={filters.maritalStatus?.includes(ms.value) ?? false}
                       onCheckedChange={() => toggleArrayValue("maritalStatus", ms.value)}
@@ -422,7 +422,7 @@ export function FilterPanel() {
             <AccordionContent>
               <div className="space-y-1.5">
                 {DIET_OPTIONS.map((diet) => (
-                  <label key={diet} className="flex items-center gap-2 cursor-pointer">
+                  <label key={diet} className="flex items-center gap-2 cursor-pointer py-1 sm:py-0">
                     <Checkbox
                       checked={filters.diet?.includes(diet) ?? false}
                       onCheckedChange={() => toggleArrayValue("diet", diet)}
@@ -447,7 +447,7 @@ export function FilterPanel() {
             <AccordionContent>
               <div className="space-y-1.5 max-h-40 overflow-y-auto">
                 {STATE_OPTIONS.map((st) => (
-                  <label key={st.value} className="flex items-center gap-2 cursor-pointer">
+                  <label key={st.value} className="flex items-center gap-2 cursor-pointer py-1 sm:py-0">
                     <Checkbox
                       checked={filters.state?.includes(st.value) ?? false}
                       onCheckedChange={() => toggleArrayValue("state", st.value)}
@@ -473,7 +473,7 @@ export function FilterPanel() {
               <AccordionContent>
                 <div className="space-y-1.5 max-h-40 overflow-y-auto">
                   {[...new Set(availableCities)].map((city) => (
-                    <label key={city} className="flex items-center gap-2 cursor-pointer">
+                    <label key={city} className="flex items-center gap-2 cursor-pointer py-1 sm:py-0">
                       <Checkbox
                         checked={filters.city?.includes(city) ?? false}
                         onCheckedChange={() => toggleArrayValue("city", city)}

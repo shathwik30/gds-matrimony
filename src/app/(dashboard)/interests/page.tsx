@@ -48,7 +48,7 @@ function InterestCard({
           {/* Profile Image */}
           <Link
             href={`/profile/${profile.userId}`}
-            className="relative w-full sm:w-48 aspect-square sm:aspect-auto shrink-0 overflow-hidden bg-muted block"
+            className="relative w-full sm:w-40 md:w-48 aspect-[4/3] sm:aspect-auto shrink-0 overflow-hidden bg-muted block"
           >
             {profile.profileImage ? (
               <Image
@@ -70,7 +70,7 @@ function InterestCard({
           </Link>
 
           {/* Profile Details */}
-          <div className="flex-1 p-5 sm:p-6 flex flex-col">
+          <div className="flex-1 p-4 sm:p-5 md:p-6 flex flex-col">
             <div className="flex items-start justify-between gap-3 mb-3">
               <div className="flex-1 min-w-0">
                 <Link
@@ -114,7 +114,7 @@ function InterestCard({
             </div>
 
             {/* Action Buttons - pushed to bottom */}
-            <div className="mt-auto flex items-center gap-2 flex-wrap">
+            <div className="mt-auto flex items-center gap-1.5 sm:gap-2 flex-wrap">
               {type === "received" && interest.status === "pending" && (
                 <>
                   <Button
@@ -278,16 +278,16 @@ export default function InterestsPage() {
   }
 
   return (
-    <div className="py-8 px-4 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Interests</h1>
-        <p className="text-muted-foreground mt-1">
+    <div className="py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Interests</h1>
+        <p className="text-sm sm:text-base text-muted-foreground mt-1">
           Manage your sent and received interests
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full max-w-md grid-cols-3 mb-6">
+        <TabsList className="grid w-full max-w-md grid-cols-3 mb-4 sm:mb-6">
           <TabsTrigger value="received" className="relative">
             Received
             {pendingCount > 0 && (

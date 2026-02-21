@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
       </div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
         <Card className="w-full max-w-md border-0 shadow-none lg:shadow-lg lg:border">
           <CardHeader className="text-center">
             <div className="lg:hidden flex justify-center mb-4">
@@ -98,14 +98,14 @@ export default function ForgotPasswordPage() {
                 <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
                   <CheckCircle className="h-8 w-8 text-green-600" />
                 </div>
-                <CardTitle className="text-2xl">Check Your Email</CardTitle>
+                <CardTitle className="text-xl sm:text-2xl">Check Your Email</CardTitle>
                 <CardDescription>
                   We&apos;ve sent a password reset link to <strong>{submittedEmail}</strong>
                 </CardDescription>
               </>
             ) : (
               <>
-                <CardTitle className="text-2xl">Forgot Password?</CardTitle>
+                <CardTitle className="text-xl sm:text-2xl">Forgot Password?</CardTitle>
                 <CardDescription>
                   Enter your email address and we&apos;ll send you a link to reset your password.
                 </CardDescription>

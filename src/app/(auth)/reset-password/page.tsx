@@ -68,13 +68,13 @@ function ResetPasswordForm() {
     return (
       <Card className="w-full max-w-md border-0 shadow-none lg:shadow-lg lg:border">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl text-destructive">Invalid Link</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl text-destructive">Invalid Link</CardTitle>
           <CardDescription>
             This password reset link is invalid or has expired.
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link href="/forgot-password">Request New Link</Link>
           </Button>
         </CardContent>
@@ -89,13 +89,13 @@ function ResetPasswordForm() {
           <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
             <CheckCircle className="h-8 w-8 text-green-600" />
           </div>
-          <CardTitle className="text-2xl">Password Reset!</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">Password Reset!</CardTitle>
           <CardDescription>
             Your password has been successfully reset. You&apos;ll be redirected to login shortly.
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link href="/login">Go to Login</Link>
           </Button>
         </CardContent>
@@ -114,7 +114,7 @@ function ResetPasswordForm() {
             height={60}
           />
         </div>
-        <CardTitle className="text-2xl">Create New Password</CardTitle>
+        <CardTitle className="text-xl sm:text-2xl">Create New Password</CardTitle>
         <CardDescription>
           Enter your new password below. Make sure it&apos;s strong and secure.
         </CardDescription>
@@ -207,7 +207,7 @@ export default function ResetPasswordPage() {
       </div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
         <Suspense
           fallback={
             <div className="w-full max-w-md">

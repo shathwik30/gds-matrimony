@@ -61,14 +61,14 @@ async function MatchesList({
 
   if (!result.success) {
     return (
-      <Card variant="elevated" className="text-center py-16">
-        <CardContent className="space-y-6">
-          <div className="h-20 w-20 rounded-full bg-red-100 flex items-center justify-center mx-auto">
-            <Users className="h-10 w-10 text-red-600" />
+      <Card variant="elevated" className="text-center py-8 sm:py-12 md:py-16">
+        <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
+          <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-full bg-red-100 flex items-center justify-center mx-auto">
+            <Users className="h-7 w-7 sm:h-10 sm:w-10 text-red-600" />
           </div>
-          <div className="space-y-3">
-            <h3 className="text-2xl font-bold text-red-600">Error Loading Matches</h3>
-            <p className="text-muted-foreground text-lg max-w-md mx-auto leading-relaxed">
+          <div className="space-y-2 sm:space-y-3">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-red-600">Error Loading Matches</h3>
+            <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-md mx-auto leading-relaxed">
               {result.error || "An error occurred while loading profiles"}
             </p>
           </div>
@@ -79,14 +79,14 @@ async function MatchesList({
 
   if (!result.data?.profiles.length) {
     return (
-      <Card variant="elevated" className="text-center py-16">
-        <CardContent className="space-y-6">
-          <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto shadow-premium-md">
-            <Users className="h-10 w-10 text-primary" />
+      <Card variant="elevated" className="text-center py-8 sm:py-12 md:py-16">
+        <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
+          <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto shadow-premium-md">
+            <Users className="h-7 w-7 sm:h-10 sm:w-10 text-primary" />
           </div>
-          <div className="space-y-3">
-            <h3 className="text-2xl font-bold">No Profiles Available</h3>
-            <p className="text-muted-foreground text-lg max-w-md mx-auto leading-relaxed">
+          <div className="space-y-2 sm:space-y-3">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold">No Profiles Available</h3>
+            <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-md mx-auto leading-relaxed">
               There are currently no profiles in the system. This could be because:<br/>
               • The platform is new and growing<br/>
               • All profiles are blocked or hidden<br/>
@@ -129,8 +129,8 @@ function MatchesLoading() {
       {[1, 2, 3].map((i) => (
         <Card key={i}>
           <div className="flex flex-col sm:flex-row">
-            <Skeleton className="w-full sm:w-48 aspect-square sm:aspect-auto sm:h-[200px]" />
-            <CardContent className="flex-1 p-6">
+            <Skeleton className="w-full sm:w-44 md:w-48 aspect-[4/3] sm:aspect-auto sm:h-[200px]" />
+            <CardContent className="flex-1 p-4 sm:p-6">
               <div className="flex justify-between mb-3">
                 <div>
                   <Skeleton className="h-6 w-32 mb-2" />
@@ -164,11 +164,11 @@ export default async function MatchesPage({
   const filters = parseSearchFilters(params);
 
   return (
-    <div className="py-8 px-4 sm:px-6 lg:px-8">
+    <div className="py-4 sm:py-6 md:py-8 px-3 sm:px-4 md:px-6 lg:px-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 md:mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Matches</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Matches</h1>
           <p className="text-muted-foreground mt-1">
             Profiles intelligently ranked for you
           </p>
@@ -186,9 +186,9 @@ export default async function MatchesPage({
       </div>
 
       {/* Two-column layout: filters + matches */}
-      <div className="flex gap-6">
+      <div className="flex gap-4 sm:gap-6">
         {/* Filter sidebar - show when there's enough room (xl+ since dashboard sidebar takes space at lg+) */}
-        <aside className="hidden xl:block w-64 xl:w-72 shrink-0">
+        <aside className="hidden xl:block w-64 xl:w-72 shrink-0 overflow-hidden">
           <div className="sticky top-24">
             <FilterPanel />
           </div>
@@ -197,8 +197,8 @@ export default async function MatchesPage({
         {/* Matches content */}
         <div className="flex-1 min-w-0">
           {/* Quick Action Bar */}
-          <Card variant="bordered" className="mb-6">
-            <CardContent className="py-4">
+          <Card variant="bordered" className="mb-4 sm:mb-6">
+            <CardContent className="py-3 sm:py-4 px-3 sm:px-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <p className="text-sm text-muted-foreground">
                   Showing all profiles ranked by compatibility, activity, and trust
