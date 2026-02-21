@@ -1,14 +1,24 @@
 import { Metadata } from "next";
 import { SITE_CONFIG } from "@/constants";
+import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - GDS Marriage Links",
-  description: "Learn how GDS Marriage Links collects, uses, and protects your personal information.",
+  title: "Privacy Policy",
+  description: "Learn how GDS Marriage Links collects, uses, and protects your personal information. Your privacy is our top priority.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", href: "/" },
+          { name: "Privacy Policy", href: "/privacy" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="bg-brand-light py-12 md:py-16">
         <div className="container">

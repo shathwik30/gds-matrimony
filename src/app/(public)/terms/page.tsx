@@ -1,14 +1,24 @@
 import { Metadata } from "next";
 import { SITE_CONFIG } from "@/constants";
+import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 
 export const metadata: Metadata = {
-  title: "Terms of Service - GDS Marriage Links",
+  title: "Terms of Service",
   description: "Read the terms and conditions for using GDS Marriage Links matrimonial services.",
+  alternates: {
+    canonical: "/terms",
+  },
 };
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", href: "/" },
+          { name: "Terms of Service", href: "/terms" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="bg-brand-light py-12 md:py-16">
         <div className="container">

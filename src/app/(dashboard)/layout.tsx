@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { Header } from "@/components/layout/header";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function DashboardLayout({
   children,
@@ -22,7 +27,7 @@ export default async function DashboardLayout({
         <DashboardSidebar />
 
         {/* Main content */}
-        <main className="flex-1 bg-muted/30 min-w-0">
+        <main className="flex-1 bg-muted/30 min-w-0 pb-20 lg:pb-0">
           {children}
         </main>
       </div>

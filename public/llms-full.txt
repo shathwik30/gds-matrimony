@@ -1,0 +1,85 @@
+# GDS Marriage Links — Full Platform Guide
+
+> India's trusted premium matrimonial platform for serious marriage seekers.
+
+## Platform Overview
+GDS Marriage Links is a modern, full-featured Indian matrimonial platform built for families and individuals looking for genuine marriage connections. Founded over 15 years ago, the platform combines traditional family values with modern technology to deliver a secure, privacy-first matchmaking experience.
+
+## How It Works
+1. **Register**: Create a free account in minutes. Register for yourself or a family member (son, daughter, brother, sister, or friend).
+2. **Build Profile**: Add personal details, education, career, family background, photos, and partner preferences.
+3. **Find Matches**: Browse verified profiles using smart filters. Our AI-powered matching algorithm suggests compatible profiles based on your preferences, values, religion, location, and lifestyle.
+4. **Connect**: Send interests, get mutual matches, and start real-time conversations. Upgrade to premium for direct messaging and unlimited connections.
+
+## Communities Served
+GDS Marriage Links serves all major Indian religious communities:
+- **Hindu**: Brahmin, Kshatriya, Vaishya, Yadav, Kurmi, Jat, Rajput, Agarwal, Gupta, Maratha, Nair, Reddy, Patel, and more
+- **Muslim**: Ansari, Pathan, Shaikh, Siddiqui, Sayyid, Qureshi, Khan, and more
+- **Christian**: Roman Catholic, Protestant, Syrian Christian, Evangelical, Anglican, and more
+- **Sikh**: Jat Sikh, Khatri Sikh, Ramgarhia, Arora, and more
+- **Jain**: Shwetambar, Digambar, Oswal, Porwal, and more
+- **Buddhist**: Mahar, Tibetan Buddhist, Newar, and more
+- **Parsi/Zoroastrian**: Irani, Parsi
+- **Jewish**: Bene Israel, Baghdadi, Cochin
+
+## Indian States & Territories Covered
+Andhra Pradesh, Arunachal Pradesh, Assam, Bihar, Chhattisgarh, Goa, Gujarat, Haryana, Himachal Pradesh, Jharkhand, Karnataka, Kerala, Madhya Pradesh, Maharashtra, Manipur, Meghalaya, Mizoram, Nagaland, Odisha, Punjab, Rajasthan, Sikkim, Tamil Nadu, Telangana, Tripura, Uttar Pradesh, Uttarakhand, West Bengal, Delhi, Jammu & Kashmir, Ladakh, Puducherry, Chandigarh.
+
+## Membership Plans (Including 18% GST)
+| Plan     | Duration   | Price (INR) | Interests/Day | Contact Views | Key Features                          |
+|----------|-----------|-------------|----------------|---------------|----------------------------------------|
+| Basic    | 1 month   | 2,557       | 10             | 10            | Browse, view photos, mutual chat       |
+| Silver   | 3 months  | 7,669       | 20             | 20            | + See profile viewers                  |
+| Gold     | 6 months  | 10,619      | 50             | 50            | + Direct messaging, profile boost      |
+| Platinum | 12 months | 12,979      | Unlimited      | Unlimited     | + Premium support, featured badge      |
+
+Additional contact packs available: 10 contacts (INR 499), 25 contacts (INR 999), 50 contacts (INR 1,799).
+
+## Key Features
+- **Verified Profiles**: Identity verification through government-issued ID
+- **Smart Matching**: AI-powered compatibility algorithm
+- **Privacy Controls**: Hide profile, photo protection, control visibility
+- **Real-Time Messaging**: Instant chat with matched profiles via Socket.io
+- **Family-Friendly**: Parents can create and manage profiles
+- **Secure Payments**: Razorpay integration (UPI, cards, net banking, wallets)
+- **Mobile Responsive**: Full-featured mobile experience
+
+## Frequently Asked Questions
+
+### General
+**Q: Is registration free?**
+A: Yes, you can register and create your profile for free. Premium plans unlock additional features like more interests per day, direct messaging, and profile boosts.
+
+**Q: Who can register on GDS Marriage Links?**
+A: Anyone aged 18 or above who is legally eligible to marry can register. You can also register on behalf of a family member (son, daughter, brother, sister) or friend.
+
+**Q: How are profiles verified?**
+A: Users can verify their profiles by uploading government-issued ID proof in the Settings section. Our team reviews and verifies within 24-48 hours.
+
+### Membership & Payments
+**Q: Can I upgrade or downgrade my plan?**
+A: Yes, you can upgrade to a higher plan at any time. Downgrades are not supported during an active subscription period.
+
+**Q: What payment methods do you accept?**
+A: We accept all major credit/debit cards, UPI, net banking, and digital wallets through Razorpay's secure payment gateway.
+
+**Q: Is my payment information secure?**
+A: Absolutely. We use industry-standard encryption and never store card details. All payments go through Razorpay's secure gateway.
+
+**Q: What happens after my subscription expires?**
+A: Your account reverts to the Free plan. You retain access to your profile and basic features, but premium features are locked.
+
+### Privacy & Safety
+**Q: Can I hide my profile temporarily?**
+A: Yes, you can hide your profile from Privacy Settings. Your profile won't appear in search results while hidden.
+
+**Q: How do I report a suspicious profile?**
+A: Click the Report button on any profile page or contact our support team. We investigate all reports promptly.
+
+## Contact Information
+- **Website**: https://gdsmarriagelinks.com
+- **Support Email**: support@gdsmarriagelinks.com
+- **Legal Email**: legal@gdsmarriagelinks.com
+- **Privacy Email**: privacy@gdsmarriagelinks.com
+- **Location**: Mumbai, Maharashtra, India
+- **Working Hours**: Monday - Saturday, 9:00 AM - 6:00 PM IST

@@ -15,6 +15,11 @@ import {
   MapPin,
 } from "lucide-react";
 import { getPublicStats } from "@/lib/actions/admin";
+import {
+  LocalBusinessJsonLd,
+  MatrimonialServiceJsonLd,
+  BreadcrumbJsonLd,
+} from "@/components/seo/json-ld";
 
 function formatStatNumber(num: number): string {
   if (num >= 1000) {
@@ -90,6 +95,9 @@ export default async function HomePage() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <LocalBusinessJsonLd />
+      <MatrimonialServiceJsonLd />
+      <BreadcrumbJsonLd items={[{ name: "Home", href: "/" }]} />
       <Header />
 
       <main className="flex-1">
@@ -157,7 +165,7 @@ export default async function HomePage() {
                       >
                         <Image
                           src={`/images/${i}.jpg`}
-                          alt="User"
+                          alt="GDS Marriage Links member"
                           width={48}
                           height={48}
                           className="h-full w-full object-cover"
@@ -176,7 +184,7 @@ export default async function HomePage() {
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent rounded-2xl blur-3xl" />
                   <Image
                     src="/images/about1.jpg"
-                    alt="Happy couple"
+                    alt="Happy Indian couple who found their match on GDS Marriage Links matrimonial platform"
                     fill
                     className="object-cover rounded-2xl shadow-premium-2xl relative z-10"
                     priority

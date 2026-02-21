@@ -6,11 +6,23 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { SUBSCRIPTION_PLANS, GST_RATE } from "@/constants";
 import { formatCurrency, pluralize } from "@/lib/utils";
+import { FAQJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 
 export const metadata: Metadata = {
   title: "Membership Plans & Pricing",
   description:
-    "Choose the perfect membership plan for your matrimonial journey. From free to premium plans with unlimited connections, verified badges, and priority support.",
+    "GDS Marriage Links membership plans starting from INR 2,557/month. Choose Basic, Silver, Gold, or Platinum for verified profiles, unlimited connections, direct messaging, and priority support.",
+  keywords: [
+    "matrimony membership plans",
+    "matrimonial pricing India",
+    "premium matrimony subscription",
+    "GDS Marriage Links pricing",
+    "affordable matrimony plans",
+    "matrimonial service cost",
+  ],
+  alternates: {
+    canonical: "/pricing",
+  },
 };
 
 const PLAN_ICONS: Record<string, React.ReactNode> = {
@@ -20,9 +32,39 @@ const PLAN_ICONS: Record<string, React.ReactNode> = {
   platinum: <Zap className="h-6 w-6" />,
 };
 
+const pricingFAQs = [
+  {
+    question: "Can I upgrade or downgrade my plan?",
+    answer:
+      "Yes, you can upgrade to a higher plan at any time. However, downgrades are not supported during an active subscription period.",
+  },
+  {
+    question: "What payment methods do you accept?",
+    answer:
+      "We accept all major credit/debit cards, UPI, net banking, and digital wallets through our secure payment partner Razorpay.",
+  },
+  {
+    question: "Is my payment information secure?",
+    answer:
+      "Absolutely! We use industry-standard encryption and never store your card details. All payments are processed through Razorpay's secure gateway.",
+  },
+  {
+    question: "What happens after my subscription expires?",
+    answer:
+      "Your account will automatically revert to the Free plan. You'll retain access to your profile and basic features, but premium features will be locked.",
+  },
+];
+
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-muted/30 to-background">
+      <FAQJsonLd questions={pricingFAQs} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", href: "/" },
+          { name: "Pricing", href: "/pricing" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="py-12 sm:py-16 md:py-28">
         <div className="container-wide text-center px-4 sm:px-6 md:px-8">

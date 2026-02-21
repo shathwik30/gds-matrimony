@@ -1,9 +1,11 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Shield, Users, Award, CheckCircle } from "lucide-react";
 import { getPublicStats } from "@/lib/actions/admin";
+import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
 
 function formatStatNumber(num: number): string {
   if (num >= 1000) {
@@ -13,9 +15,21 @@ function formatStatNumber(num: number): string {
   return `${num}+`;
 }
 
-export const metadata = {
-  title: "About Us - GDS Marriage Links",
-  description: "Learn about GDS Marriage Links - India's trusted matrimonial platform helping families find perfect matches since generations.",
+export const metadata: Metadata = {
+  title: "About Us",
+  description:
+    "Learn about GDS Marriage Links — India's trusted premium matrimonial platform with 15+ years of experience helping families find perfect life partners. Verified profiles, smart matching, and dedicated support for all Indian communities.",
+  keywords: [
+    "about GDS Marriage Links",
+    "Indian matrimonial platform",
+    "trusted matrimony service",
+    "marriage bureau India",
+    "family matchmaking",
+    "verified matrimonial profiles",
+  ],
+  alternates: {
+    canonical: "/about",
+  },
 };
 
 const values = [
@@ -59,6 +73,12 @@ export default async function AboutPage() {
 
   return (
     <div className="min-h-screen">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", href: "/" },
+          { name: "About Us", href: "/about" },
+        ]}
+      />
       {/* Hero Section */}
       <section className="bg-brand-light py-10 sm:py-16 md:py-24">
         <div className="container-wide px-4 sm:px-6 md:px-8">
@@ -122,9 +142,10 @@ export default async function AboutPage() {
             <div className="relative h-80 md:h-96 rounded-2xl overflow-hidden">
               <Image
                 src="/images/about2.jpg"
-                alt="Happy couple"
+                alt="Indian couple celebrating their marriage found through GDS Marriage Links"
                 fill
                 className="object-cover"
+                priority
               />
             </div>
           </div>
@@ -165,7 +186,7 @@ export default async function AboutPage() {
             <div className="order-2 md:order-1 relative h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden">
               <Image
                 src="/images/about1.jpg"
-                alt="Why choose us"
+                alt="Why choose GDS Marriage Links for matrimonial matchmaking"
                 fill
                 className="object-cover"
               />
