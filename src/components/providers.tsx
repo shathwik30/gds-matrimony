@@ -23,7 +23,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         {children}
         <Toaster
-          position="bottom-center"
+          position="top-center"
           closeButton
           duration={4000}
           gap={8}

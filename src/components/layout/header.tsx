@@ -52,20 +52,24 @@ export function Header() {
   };
 
   return (
-    <header className={`sticky top-0 z-50 w-full border-b transition-smooth ${
-      scrolled
-        ? "bg-white/90 backdrop-blur-xl shadow-premium-md"
-        : "bg-white/95 backdrop-blur-lg shadow-premium-sm"
-    }`}>
+    <header
+      className={`sticky top-0 z-50 w-full border-b transition-smooth ${
+        scrolled
+          ? "bg-white/90 backdrop-blur-xl shadow-premium-md"
+          : "bg-white/95 backdrop-blur-lg shadow-premium-sm"
+      }`}
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
+    >
       <div className="container-wide flex h-16 md:h-20 items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 md:gap-3 group shrink-0">
           <Image
-            src="/images/logo.png"
+            src="/images/logo.svg"
             alt="GDS Marriage Links"
-            width={48}
-            height={48}
-            className="h-9 md:h-12 w-auto transition-transform group-hover:scale-110"
+            width={120}
+            height={77}
+            unoptimized
+            className="h-10 md:h-14 w-auto transition-transform group-hover:scale-110"
           />
           <span className="hidden sm:inline-block font-semibold text-lg md:text-xl transition-colors group-hover:text-primary">
             GDS Marriage Links
@@ -165,20 +169,6 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Mobile Menu Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-              >
-                {mobileMenuOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </Button>
             </>
           ) : (
             <div className="flex items-center gap-2 md:gap-3">
@@ -207,32 +197,20 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
-      {mobileMenuOpen && (
+      {/* Mobile Navigation (public/unauthenticated only) */}
+      {mobileMenuOpen && status !== "authenticated" && (
         <div className="md:hidden border-t bg-background/95 backdrop-blur-xl animate-fade-in">
           <nav className="flex flex-col p-4 space-y-1">
-            {status === "authenticated"
-              ? navItems.map((item, index) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg hover:bg-muted transition-smooth stagger-${index + 1} animate-slide-in-right`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <item.icon className="h-5 w-5 text-primary" />
-                    {item.label}
-                  </Link>
-                ))
-              : publicNavItems.map((item, index) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg hover:bg-muted transition-smooth stagger-${index + 1} animate-slide-in-right`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+            {publicNavItems.map((item, index) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg hover:bg-muted transition-smooth stagger-${index + 1} animate-slide-in-right`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
         </div>
       )}

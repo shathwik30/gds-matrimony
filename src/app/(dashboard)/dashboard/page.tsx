@@ -118,25 +118,25 @@ async function DashboardStats() {
   return (
     <>
       {/* Subscription Status Card */}
-      <Card variant="feature" className="lg:col-span-2 group">
-        <CardHeader className="pb-3">
+      <Card variant="feature" className="sm:col-span-1 lg:col-span-2 group">
+        <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-bold flex items-center gap-2">
-              <Crown className="h-5 w-5 text-amber-500" />
+            <CardTitle className="text-base sm:text-xl font-bold flex items-center gap-2">
+              <Crown className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
               Your Plan
             </CardTitle>
             <Badge
               variant={isFreePlan ? "secondary" : "default"}
-              className="text-base px-3 py-1 font-semibold"
+              className="text-xs sm:text-base px-2 sm:px-3 py-0.5 sm:py-1 font-semibold"
             >
               {currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)}
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-3 sm:space-y-4">
           {isFreePlan ? (
             <div className="space-y-3">
-              <p className="text-base text-muted-foreground">
+              <p className="text-sm sm:text-base text-muted-foreground">
                 You&apos;re on the free plan. Upgrade to unlock premium features and connect with more matches.
               </p>
               <div className="grid grid-cols-2 gap-3 text-sm">
@@ -200,20 +200,20 @@ async function DashboardStats() {
       </Card>
 
       {/* Profile Completion Card */}
-      <Card variant="feature" className="lg:col-span-2 group">
-        <CardHeader className="pb-3">
+      <Card variant="feature" className="sm:col-span-1 lg:col-span-2 group">
+        <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-bold">Profile Completion</CardTitle>
+            <CardTitle className="text-base sm:text-xl font-bold">Profile Completion</CardTitle>
             <Badge
               variant={profile?.profileCompletion === 100 ? "default" : "secondary"}
-              className="text-base px-3 py-1 font-semibold"
+              className="text-xs sm:text-base px-2 sm:px-3 py-0.5 sm:py-1 font-semibold"
             >
               {profile?.profileCompletion || 0}%
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <Progress value={profile?.profileCompletion || 0} className="h-3" />
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-3 sm:space-y-4">
+          <Progress value={profile?.profileCompletion || 0} className="h-2 sm:h-3" />
           {(profile?.profileCompletion || 0) < 100 ? (
             (() => {
               const missing = getMissingProfileFields((profile ?? {}) as Record<string, unknown>);
@@ -264,7 +264,7 @@ async function DashboardStats() {
       {stats.map((stat, index) => (
         <Link key={stat.title} href={stat.href} className="block">
           <Card variant="elevated" className={`group animate-fade-in-up stagger-${index + 1} cursor-pointer hover:border-primary/30 transition-colors`}>
-            <CardContent className="pt-6 pb-6">
+            <CardContent className="pt-4 pb-4 sm:pt-6 sm:pb-6">
               <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                 <div className={`h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-xl ${stat.bgColor} flex items-center justify-center shadow-premium-sm group-hover:scale-110 transition-transform`}>
                   <stat.icon className={`h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 ${stat.color}`} />
@@ -388,7 +388,7 @@ export default async function DashboardPage() {
   const userName = session?.user?.name?.split(" ")[0] || "there";
 
   return (
-    <div className="container-wide py-6 sm:py-8 md:py-10 px-4 sm:px-6">
+    <div className="container-wide py-4 sm:py-6 md:py-10">
       {/* Welcome Section */}
       <div className="mb-6 sm:mb-8 md:mb-10 relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 sm:p-6 md:p-8 border border-primary/10">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
@@ -403,7 +403,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8 md:mb-10">
+      <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8 md:mb-10">
         <Suspense fallback={<StatsLoading />}>
           <DashboardStats />
         </Suspense>

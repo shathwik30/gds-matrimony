@@ -5,7 +5,6 @@ import { signOut } from "next-auth/react";
 import { toast } from "sonner";
 import { Loader2, User, Bell, Lock, Eye, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -418,9 +417,8 @@ export default function SettingsPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="confirmNewPassword">Confirm New Password</Label>
-                <Input
+                <PasswordInput
                   id="confirmNewPassword"
-                  type="password"
                   value={confirmNewPassword}
                   onChange={(e) => setConfirmNewPassword(e.target.value)}
                   placeholder="Confirm new password"
@@ -469,9 +467,8 @@ export default function SettingsPage() {
                     </AlertDialogHeader>
                     <div className="py-4">
                       <Label htmlFor="deletePassword">Confirm Password</Label>
-                      <Input
+                      <PasswordInput
                         id="deletePassword"
-                        type="password"
                         value={deletePassword}
                         onChange={(e) => setDeletePassword(e.target.value)}
                         placeholder="Enter your password"

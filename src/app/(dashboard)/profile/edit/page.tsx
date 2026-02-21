@@ -124,7 +124,7 @@ function EditProfileContent() {
   const progress = calculateProfileCompletion(profileData);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
 
       {/* Onboarding welcome banner */}
       {isOnboarding && (
@@ -224,7 +224,7 @@ function EditProfileContent() {
       <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
 
         {/* Card header strip */}
-        <div className="bg-gradient-to-r from-brand/8 to-transparent border-b px-6 py-4 flex items-center gap-3">
+        <div className="bg-gradient-to-r from-brand/8 to-transparent border-b px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-brand/10 flex items-center justify-center">
             <StepIcon className="h-5 w-5 text-brand" />
           </div>
@@ -245,7 +245,7 @@ function EditProfileContent() {
         </div>
 
         {/* Step content */}
-        <div className="px-6 py-6">
+        <div className="px-4 sm:px-6 py-4 sm:py-6">
           {currentStep === 1 && <BasicInfoStep       data={profileData} onUpdate={handleStepData} registerValidate={registerValidate} />}
           {currentStep === 2 && <PhysicalDetailsStep data={profileData} onUpdate={handleStepData} registerValidate={registerValidate} />}
           {currentStep === 3 && <ReligionLocationStep data={profileData} onUpdate={handleStepData} registerValidate={registerValidate} />}
@@ -257,7 +257,7 @@ function EditProfileContent() {
         </div>
 
         {/* Navigation footer */}
-        <div className="border-t bg-muted/30 px-6 py-4 flex items-center justify-between gap-3">
+        <div className="border-t bg-muted/30 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
           <Button
             type="button"
             variant="outline"

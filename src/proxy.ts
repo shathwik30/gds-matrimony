@@ -33,6 +33,11 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/dashboard", nextUrl));
   }
 
+  // Redirect logged-in users from landing page to dashboard
+  if (nextUrl.pathname === "/" && isLoggedIn) {
+    return NextResponse.redirect(new URL("/dashboard", nextUrl));
+  }
+
   // Redirect non-logged-in users to login
   if (isProtectedRoute && !isLoggedIn) {
     // Only allow relative paths as callback URLs to prevent open redirect

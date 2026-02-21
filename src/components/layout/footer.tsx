@@ -31,11 +31,12 @@ export function Footer() {
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 group w-fit">
               <Image
-                src="/images/logo.png"
+                src="/images/logo.svg"
                 alt={SITE_CONFIG.name}
-                width={48}
-                height={48}
-                className="h-9 sm:h-12 w-auto transition-transform group-hover:scale-110"
+                width={120}
+                height={77}
+                unoptimized
+                className="h-10 sm:h-14 w-auto transition-transform group-hover:scale-110"
               />
               <span className="font-semibold text-base sm:text-xl transition-colors group-hover:text-primary">{SITE_CONFIG.name}</span>
             </Link>

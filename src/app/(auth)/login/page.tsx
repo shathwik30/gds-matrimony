@@ -70,7 +70,7 @@ function LoginForm() {
       <CardHeader className="text-center">
         <div className="lg:hidden flex justify-center mb-4">
           <Image
-            src="/images/logo.png"
+            src="/images/logo.svg"
             alt="GDS Marriage Links"
             width={60}
             height={60}
@@ -154,7 +154,7 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-brand/10 to-transparent" />
         <div className="relative z-10 flex flex-col items-center p-12 text-center">
           <Image
-            src="/images/logo.png"
+            src="/images/logo.svg"
             alt="GDS Marriage Links"
             width={80}
             height={80}
