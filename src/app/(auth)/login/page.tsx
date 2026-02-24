@@ -52,9 +52,11 @@ function LoginForm() {
 
       if (result.success) {
         toast.success("Login successful!");
+        // Redirect admins to admin panel, others to callbackUrl
+        const redirectTo = result.data?.isAdmin ? "/admin" : callbackUrl;
         // Use window.location to force full page reload and refresh session
         // eslint-disable-next-line react-hooks/immutability
-        window.location.href = callbackUrl;
+        window.location.href = redirectTo;
       } else {
         toast.error(result.error || "Login failed");
         setIsLoading(false);

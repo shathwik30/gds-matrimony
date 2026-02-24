@@ -25,7 +25,7 @@ export function BottomNavigation() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t bg-white/80 backdrop-blur-xl lg:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/80 backdrop-blur-xl lg:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="flex items-center justify-around h-16">

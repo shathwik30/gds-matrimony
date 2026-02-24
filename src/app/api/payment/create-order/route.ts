@@ -48,7 +48,7 @@ export async function POST(request: Request) {
       if (!pack) {
         return NextResponse.json({ error: "Invalid contact pack" }, { status: 400 });
       }
-      amount = pack.price;
+      amount = Math.round(pack.price * (1 + GST_RATE));
       itemType = "contact_pack";
       contactPackSize = pack.size;
     }

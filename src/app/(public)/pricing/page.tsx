@@ -89,8 +89,7 @@ export default function PricingPage() {
           <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
             {SUBSCRIPTION_PLANS.map((plan) => {
               const isPopular = plan.id === "gold";
-              const gstAmount = Math.round(plan.price * GST_RATE);
-              const totalAmount = plan.price + gstAmount;
+              const totalAmount = Math.round(plan.price * (1 + GST_RATE));
 
               return (
                 <Card
@@ -226,7 +225,7 @@ export default function PricingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-12 sm:py-16 md:py-20 bg-white">
+      <section className="py-12 sm:py-16 md:py-20 bg-card">
         <div className="container-wide px-4 sm:px-6 md:px-8">
           <div className="text-center mb-8 sm:mb-12 md:mb-16">
             <h2 className="text-xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 tracking-tight">

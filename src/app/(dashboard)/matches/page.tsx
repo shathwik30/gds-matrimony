@@ -2,7 +2,8 @@ import { Suspense } from "react";
 import { Metadata } from "next";
 import { getMatchingProfiles } from "@/lib/actions/profile";
 import { getShortlistedIds } from "@/lib/actions/shortlist";
-import { getSentInterests } from "@/lib/actions/interests";
+import { getSentInterests, getDailyInterestStatus } from "@/lib/actions/interests";
+import type { DailyInterestStatus } from "@/lib/actions/interests";
 import { auth } from "@/lib/auth";
 import { MatchesListClient } from "@/components/matching/matches-list-client";
 import { MatchesErrorBoundary } from "@/components/matching/matches-error-boundary";
@@ -53,10 +54,11 @@ async function MatchesList({
     (v) => v !== undefined && (Array.isArray(v) ? v.length > 0 : true)
   );
 
-  const [result, shortlistResult, sentResult] = await Promise.all([
+  const [result, shortlistResult, sentResult, interestStatusResult] = await Promise.all([
     getMatchingProfiles(hasFilters ? filters : undefined, 1, 20),
     getShortlistedIds(),
     getSentInterests(),
+    getDailyInterestStatus(),
   ]);
 
   if (!result.success) {
@@ -109,6 +111,9 @@ async function MatchesList({
   const shortlistedIds = shortlistResult.data || [];
   const sentInterestIds = (sentResult.data || []).map((i) => i.profile.userId);
   const subscriptionPlan = session?.user?.subscriptionPlan || "free";
+  const dailyInterestStatus: DailyInterestStatus = interestStatusResult.success && interestStatusResult.data
+    ? interestStatusResult.data
+    : { sentToday: 0, limit: 5, isUnlimited: false };
 
   return (
     <MatchesListClient
@@ -119,6 +124,7 @@ async function MatchesList({
       subscriptionPlan={subscriptionPlan}
       filters={hasFilters ? filters : undefined}
       seed={result.data.seed}
+      dailyInterestStatus={dailyInterestStatus}
     />
   );
 }

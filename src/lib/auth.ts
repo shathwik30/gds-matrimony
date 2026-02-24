@@ -111,17 +111,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.lastActiveCheck = Date.now();
       }
 
-      // Periodically re-validate user is still active (every 5 minutes)
+      // Periodically re-validate user status and subscription (every 5 minutes)
       const lastCheck = (token.lastActiveCheck as number) || 0;
       if (token.id && Date.now() - lastCheck > 5 * 60 * 1000) {
         try {
           const dbUser = await db.query.users.findFirst({
             where: eq(users.id, parseInt(token.id as string, 10)),
             columns: { isActive: true },
+            with: {
+              profile: { columns: { profileCompletion: true, firstName: true, lastName: true, profileImage: true } },
+              subscriptions: {
+                where: eq(subscriptions.isActive, true),
+                limit: 1,
+                columns: { plan: true },
+              },
+            },
           });
-          if (dbUser && !dbUser.isActive) {
-            // Return empty token to force re-authentication
+          if (!dbUser || !dbUser.isActive) {
             return { ...token, id: undefined };
+          }
+          // Refresh subscription plan from DB
+          token.subscriptionPlan = dbUser.subscriptions?.[0]?.plan || "free";
+          token.profileCompleted = (dbUser.profile?.profileCompletion || 0) >= 70;
+          if (dbUser.profile?.firstName) {
+            token.name = `${dbUser.profile.firstName} ${dbUser.profile.lastName || ""}`.trim();
+          }
+          if (dbUser.profile?.profileImage) {
+            token.picture = dbUser.profile.profileImage;
           }
           token.lastActiveCheck = Date.now();
         } catch {

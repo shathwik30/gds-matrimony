@@ -318,6 +318,54 @@ export async function getSentInterests(): Promise<ActionResult<InterestWithProfi
   }
 }
 
+// Get daily interest status (sent today count + limit)
+export interface DailyInterestStatus {
+  sentToday: number;
+  limit: number;
+  isUnlimited: boolean;
+}
+
+export async function getDailyInterestStatus(): Promise<ActionResult<DailyInterestStatus>> {
+  try {
+    const authResult = await requireAuth();
+    if (authResult.error) return authResult.error;
+    const { userId } = authResult;
+
+    const subscription = await getActiveSubscription(userId);
+    const interestsPerDay = subscription ? (subscription.interestsPerDay ?? 5) : 5;
+
+    if (isUnlimited(interestsPerDay)) {
+      return {
+        success: true,
+        data: { sentToday: 0, limit: interestsPerDay, isUnlimited: true },
+      };
+    }
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const countResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(interests)
+      .where(
+        and(
+          eq(interests.senderId, userId),
+          gte(interests.createdAt, todayStart)
+        )
+      );
+
+    const sentToday = Number(countResult[0]?.count || 0);
+
+    return {
+      success: true,
+      data: { sentToday, limit: interestsPerDay, isUnlimited: false },
+    };
+  } catch (error) {
+    console.error("Get daily interest status error:", error);
+    return { success: false, error: "Failed to fetch interest status" };
+  }
+}
+
 // Get accepted interests (mutual connections)
 export async function getAcceptedInterests(): Promise<ActionResult<InterestWithProfile[]>> {
   try {

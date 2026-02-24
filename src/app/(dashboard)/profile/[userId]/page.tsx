@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use, useCallback } from "react";
+import { useState, useEffect, use, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -20,6 +20,13 @@ import {
   Phone,
   Mail,
   Crown,
+  Eye,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,6 +61,7 @@ import { sendInterest } from "@/lib/actions/interests";
 import { blockUser, reportUser } from "@/lib/actions/block-report";
 import { recordProfileView } from "@/lib/actions/activity";
 import { getMySubscription } from "@/lib/actions/subscription";
+import { revealContact, getTotalContactViews } from "@/lib/actions/contact-packs";
 import type { MatchProfile } from "@/types";
 import { heightToFeetInches, getInitials } from "@/lib/utils";
 
@@ -81,6 +89,113 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
   const [reportDescription, setReportDescription] = useState("");
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const [userPlan, setUserPlan] = useState<string | null>(null);
+
+  // Contact reveal state
+  const [contactViewsRemaining, setContactViewsRemaining] = useState<number | null>(null);
+  const [isUnlimitedViews, setIsUnlimitedViews] = useState(false);
+  const [isRevealingContact, setIsRevealingContact] = useState(false);
+  const [revealedContact, setRevealedContact] = useState<{ email?: string; phone?: string } | null>(null);
+
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [panPosition, setPanPosition] = useState({ x: 0, y: 0 });
+  const isDragging = useRef(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const panStart = useRef({ x: 0, y: 0 });
+
+  // Build combined image array: hero image first, then gallery images
+  const allImages = profile
+    ? [
+        ...(profile.profileImage ? [{ id: 0, imageUrl: profile.profileImage }] : []),
+        ...(profile.images || []).filter((img) => img.imageUrl !== profile.profileImage),
+      ]
+    : [];
+
+  const openLightbox = (index: number) => {
+    if (!profile?.canViewPhoto) return;
+    setLightboxIndex(index);
+    setZoomLevel(1);
+    setPanPosition({ x: 0, y: 0 });
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+    setZoomLevel(1);
+    setPanPosition({ x: 0, y: 0 });
+  };
+
+  const goToPrev = () => {
+    setLightboxIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
+    setZoomLevel(1);
+    setPanPosition({ x: 0, y: 0 });
+  };
+
+  const goToNext = () => {
+    setLightboxIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
+    setZoomLevel(1);
+    setPanPosition({ x: 0, y: 0 });
+  };
+
+  const handleZoomIn = () => setZoomLevel((z) => Math.min(z + 0.5, 4));
+  const handleZoomOut = () => {
+    setZoomLevel((z) => {
+      const next = Math.max(z - 0.5, 1);
+      if (next === 1) setPanPosition({ x: 0, y: 0 });
+      return next;
+    });
+  };
+  const handleResetZoom = () => {
+    setZoomLevel(1);
+    setPanPosition({ x: 0, y: 0 });
+  };
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (zoomLevel <= 1) return;
+    isDragging.current = true;
+    dragStart.current = { x: e.clientX, y: e.clientY };
+    panStart.current = { ...panPosition };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging.current) return;
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    setPanPosition({ x: panStart.current.x + dx, y: panStart.current.y + dy });
+  };
+
+  const handlePointerUp = () => {
+    isDragging.current = false;
+  };
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeLightbox();
+      else if (e.key === "ArrowLeft") goToPrev();
+      else if (e.key === "ArrowRight") goToNext();
+      else if (e.key === "+" || e.key === "=") handleZoomIn();
+      else if (e.key === "-") handleZoomOut();
+      else if (e.key === "0") handleResetZoom();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lightboxOpen, allImages.length]);
+
+  // Prevent body scroll when lightbox is open
+  useEffect(() => {
+    if (lightboxOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [lightboxOpen]);
 
   const loadProfile = useCallback(async () => {
     try {
@@ -117,6 +232,13 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
     getMySubscription().then((result) => {
       if (result.success && result.data) {
         setUserPlan(result.data.plan);
+      }
+    });
+    // Fetch total contact views remaining (packs + subscription)
+    getTotalContactViews().then((result) => {
+      if (result.success && result.data) {
+        setIsUnlimitedViews(result.data.isUnlimitedSub);
+        setContactViewsRemaining(result.data.total);
       }
     });
   }, []);
@@ -160,6 +282,31 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
       toast.error("Something went wrong");
     } finally {
       setIsBlocking(false);
+    }
+  };
+
+  const handleRevealContact = async () => {
+    if (!profile || isRevealingContact) return;
+
+    setIsRevealingContact(true);
+    try {
+      const result = await revealContact(profile.userId);
+      if (result.success && result.data) {
+        setRevealedContact(result.data);
+        // Refresh contact views balance
+        const balanceResult = await getTotalContactViews();
+        if (balanceResult.success && balanceResult.data) {
+          setIsUnlimitedViews(balanceResult.data.isUnlimitedSub);
+          setContactViewsRemaining(balanceResult.data.total);
+        }
+        toast.success("Contact details revealed!");
+      } else {
+        toast.error(result.error || "Failed to reveal contact");
+      }
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setIsRevealingContact(false);
     }
   };
 
@@ -230,7 +377,12 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
 
       {/* Profile Header */}
       <Card variant="elevated" className="overflow-hidden mb-8 group">
-        <div className="relative h-80 md:h-96 bg-gradient-to-br from-brand-light to-brand-light/50">
+        <div
+          className={`relative h-80 md:h-96 bg-gradient-to-br from-brand-light to-brand-light/50 ${
+            profile.canViewPhoto && profile.profileImage ? "cursor-pointer" : ""
+          }`}
+          onClick={() => profile.canViewPhoto && profile.profileImage && openLightbox(0)}
+        >
           {profile.profileImage ? (
             <>
               <Image
@@ -245,7 +397,7 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
                   <div className="bg-black/50 backdrop-blur-sm rounded-2xl px-6 py-4 text-center text-white">
                     <Crown className="h-7 w-7 mx-auto mb-2 text-amber-400" />
-                    <p className="font-semibold text-sm">Accept interest to view photo</p>
+                    <p className="font-semibold text-sm">Upgrade to view photos</p>
                   </div>
                 </div>
               )}
@@ -255,10 +407,10 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
               {getInitials(profile.firstName, profile.lastName)}
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
 
           {/* Profile Info Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+          <div className="absolute bottom-0 left-0 right-0 p-8 text-white pointer-events-none">
             <div className="flex items-center gap-3 mb-3">
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
                 {profile.firstName} {profile.lastName}
@@ -358,50 +510,101 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
           </Card>
         )}
 
-        {/* Upgrade CTA (when no contact info available) */}
+        {/* Upgrade CTA / Contact Reveal (when no contact info from server) */}
         {!profile.email && !profile.phoneNumber && (
-          <Card variant="bordered" className="md:col-span-2 border-amber-300 bg-gradient-to-r from-amber-50 to-amber-100/50">
-            <CardContent className="py-6">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="h-14 w-14 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
-                    <Crown className="h-7 w-7 text-amber-600" />
+          revealedContact ? (
+            /* Revealed contact info card */
+            <Card variant="feature" className="md:col-span-2 border-green-200 bg-green-50">
+              <CardHeader>
+                <CardTitle className="text-xl flex items-center gap-3 text-green-700">
+                  <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                    <Phone className="h-5 w-5" />
                   </div>
-                  <div>
-                    <p className="font-semibold text-base">View Contact Details</p>
+                  Contact Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {revealedContact.email && (
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <a href={`mailto:${revealedContact.email}`} className="text-sm hover:underline">
+                      {revealedContact.email}
+                    </a>
+                  </div>
+                )}
+                {revealedContact.phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <a href={`tel:${revealedContact.phone}`} className="text-sm hover:underline">
+                      {revealedContact.phone}
+                    </a>
+                  </div>
+                )}
+                {!revealedContact.email && !revealedContact.phone && (
+                  <p className="text-sm text-muted-foreground">
+                    This user has not added any contact information yet.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          ) : (
+            /* CTA card: upgrade, view contact, or buy packs */
+            <Card variant="bordered" className="md:col-span-2 border-amber-300 bg-gradient-to-r from-amber-50 to-amber-100/50">
+              <CardContent className="py-6">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="h-14 w-14 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                      <Crown className="h-7 w-7 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-base">View Contact Details</p>
+                      {!userPlan || userPlan === "free" ? (
+                        <p className="text-sm text-muted-foreground">
+                          Upgrade to a premium plan to view contact information.
+                        </p>
+                      ) : (isUnlimitedViews || (contactViewsRemaining !== null && contactViewsRemaining > 0)) ? (
+                        <p className="text-sm text-muted-foreground">
+                          Use 1 contact view to reveal phone &amp; email.
+                          {isUnlimitedViews
+                            ? " You have unlimited views."
+                            : ` ${contactViewsRemaining} view${contactViewsRemaining === 1 ? "" : "s"} remaining.`}
+                        </p>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">
+                          You have no contact views remaining. Buy a contact pack to continue.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
                     {!userPlan || userPlan === "free" ? (
-                      <p className="text-sm text-muted-foreground">
-                        Upgrade to a premium plan to view contact information.
-                      </p>
+                      <Button size="default" asChild className="shadow-premium-sm hover:shadow-premium-md">
+                        <Link href="/membership">Upgrade</Link>
+                      </Button>
+                    ) : (isUnlimitedViews || (contactViewsRemaining !== null && contactViewsRemaining > 0)) ? (
+                      <Button
+                        size="default"
+                        onClick={handleRevealContact}
+                        disabled={isRevealingContact}
+                        className="shadow-premium-sm hover:shadow-premium-md"
+                      >
+                        {isRevealingContact ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Eye className="h-4 w-4 mr-2" />
+                        )}
+                        {isRevealingContact ? "Revealing..." : "View Contact"}
+                      </Button>
                     ) : (
-                      <p className="text-sm text-muted-foreground">
-                        Send interest and get it accepted to view contact information.
-                      </p>
+                      <Button size="default" asChild className="shadow-premium-sm hover:shadow-premium-md">
+                        <Link href="/contact-packs">Buy Contact Packs</Link>
+                      </Button>
                     )}
                   </div>
                 </div>
-                {!userPlan || userPlan === "free" ? (
-                  <Button size="default" asChild className="shadow-premium-sm hover:shadow-premium-md shrink-0">
-                    <Link href="/membership">Upgrade</Link>
-                  </Button>
-                ) : (
-                  <Button
-                    size="default"
-                    onClick={handleSendInterest}
-                    disabled={isSendingInterest || interestSent}
-                    className="shadow-premium-sm hover:shadow-premium-md shrink-0"
-                  >
-                    {isSendingInterest ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <Heart className={`h-4 w-4 mr-2 ${interestSent ? "fill-current" : ""}`} />
-                    )}
-                    {interestSent ? "Interest Sent" : "Send Interest"}
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )
         )}
 
         {/* About Section */}
@@ -431,31 +634,35 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
                 profile.images.length === 3 ? "grid-cols-3" :
                 "grid-cols-2 md:grid-cols-4"
               }`}>
-                {profile.images.map((img) => (
-                  <div
-                    key={img.id}
-                    className={`relative overflow-hidden rounded-xl bg-muted ${
-                      profile.images!.length === 1 ? "aspect-[4/3]" : "aspect-square"
-                    }`}
-                  >
-                    <Image
-                      src={img.imageUrl}
-                      alt="Gallery photo"
-                      fill
-                      className={`object-cover transition-all duration-300 hover:scale-105 ${
-                        !profile.canViewPhoto ? "blur-lg scale-110" : ""
-                      }`}
-                    />
-                    {!profile.canViewPhoto && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="bg-black/40 backdrop-blur-sm rounded-xl p-2 text-white text-xs font-medium text-center">
-                          <Crown className="h-4 w-4 mx-auto mb-1 text-amber-400" />
-                          Locked
+                {profile.images.map((img) => {
+                  const lightboxIdx = allImages.findIndex((ai) => ai.imageUrl === img.imageUrl);
+                  return (
+                    <div
+                      key={img.id}
+                      className={`relative overflow-hidden rounded-xl bg-muted ${
+                        profile.images!.length === 1 ? "aspect-[4/3]" : "aspect-square"
+                      } ${profile.canViewPhoto ? "cursor-pointer" : ""}`}
+                      onClick={() => profile.canViewPhoto && lightboxIdx >= 0 && openLightbox(lightboxIdx)}
+                    >
+                      <Image
+                        src={img.imageUrl}
+                        alt="Gallery photo"
+                        fill
+                        className={`object-cover transition-all duration-300 hover:scale-105 ${
+                          !profile.canViewPhoto ? "blur-lg scale-110" : ""
+                        }`}
+                      />
+                      {!profile.canViewPhoto && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="bg-black/40 backdrop-blur-sm rounded-xl p-2 text-white text-xs font-medium text-center">
+                            <Crown className="h-4 w-4 mx-auto mb-1 text-amber-400" />
+                            Locked
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -653,6 +860,134 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Photo Lightbox */}
+      {lightboxOpen && allImages.length > 0 && (
+        <div
+          className="fixed inset-0 z-50 bg-black/95 flex flex-col"
+          onClick={(e) => { if (e.target === e.currentTarget) closeLightbox(); }}
+        >
+          {/* Top bar */}
+          <div className="flex items-center justify-between px-4 py-3 shrink-0">
+            <span className="text-white/70 text-sm font-medium">
+              {lightboxIndex + 1} / {allImages.length}
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={handleZoomOut}
+                disabled={zoomLevel <= 1}
+                className="p-2 text-white/70 hover:text-white disabled:text-white/30 transition-colors rounded-lg hover:bg-white/10"
+                aria-label="Zoom out"
+              >
+                <ZoomOut className="h-5 w-5" />
+              </button>
+              <span className="text-white/70 text-sm w-14 text-center font-medium">
+                {Math.round(zoomLevel * 100)}%
+              </span>
+              <button
+                onClick={handleZoomIn}
+                disabled={zoomLevel >= 4}
+                className="p-2 text-white/70 hover:text-white disabled:text-white/30 transition-colors rounded-lg hover:bg-white/10"
+                aria-label="Zoom in"
+              >
+                <ZoomIn className="h-5 w-5" />
+              </button>
+              {zoomLevel > 1 && (
+                <button
+                  onClick={handleResetZoom}
+                  className="p-2 text-white/70 hover:text-white transition-colors rounded-lg hover:bg-white/10"
+                  aria-label="Reset zoom"
+                >
+                  <RotateCcw className="h-5 w-5" />
+                </button>
+              )}
+              <button
+                onClick={closeLightbox}
+                className="p-2 text-white/70 hover:text-white transition-colors rounded-lg hover:bg-white/10 ml-2"
+                aria-label="Close"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* Image area */}
+          <div
+            className="flex-1 relative flex items-center justify-center overflow-hidden select-none"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onDoubleClick={() => {
+              if (zoomLevel > 1) handleResetZoom();
+              else handleZoomIn();
+            }}
+            style={{ cursor: zoomLevel > 1 ? "grab" : "zoom-in", touchAction: "none" }}
+          >
+            <div
+              className="relative w-full h-full transition-transform duration-150 ease-out"
+              style={{
+                transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
+              }}
+            >
+              <Image
+                src={allImages[lightboxIndex].imageUrl}
+                alt={`Photo ${lightboxIndex + 1}`}
+                fill
+                className="object-contain pointer-events-none"
+                sizes="100vw"
+                priority
+              />
+            </div>
+          </div>
+
+          {/* Navigation arrows */}
+          {allImages.length > 1 && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); goToPrev(); }}
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                aria-label="Previous photo"
+              >
+                <ChevronLeft className="h-5 w-5 sm:h-7 sm:w-7" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); goToNext(); }}
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                aria-label="Next photo"
+              >
+                <ChevronRight className="h-5 w-5 sm:h-7 sm:w-7" />
+              </button>
+            </>
+          )}
+
+          {/* Thumbnail strip */}
+          {allImages.length > 1 && (
+            <div className="flex items-center justify-center gap-2 px-4 py-3 shrink-0 overflow-x-auto">
+              {allImages.map((img, idx) => (
+                <button
+                  key={img.id}
+                  onClick={() => {
+                    setLightboxIndex(idx);
+                    setZoomLevel(1);
+                    setPanPosition({ x: 0, y: 0 });
+                  }}
+                  className={`relative h-12 w-12 sm:h-14 sm:w-14 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${
+                    idx === lightboxIndex ? "border-white opacity-100" : "border-transparent opacity-50 hover:opacity-80"
+                  }`}
+                >
+                  <Image
+                    src={img.imageUrl}
+                    alt={`Thumbnail ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="56px"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -264,8 +264,7 @@ export default function MembershipPage() {
           const isCurrentPlan = currentPlan === plan.id;
           const isPopular = plan.id === "gold";
           const isDisabled = hasActiveSubscription && !isCurrentPlan;
-          const gstAmount = Math.round(plan.price * GST_RATE);
-          const totalAmount = plan.price + gstAmount;
+          const totalAmount = Math.round(plan.price * (1 + GST_RATE));
 
           return (
             <Card

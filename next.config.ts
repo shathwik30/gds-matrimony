@@ -24,6 +24,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "*.ufs.sh",
       },
+      {
+        protocol: "https",
+        hostname: "gdsmarriagelinks.com",
+      },
     ],
   },
 
@@ -64,7 +68,7 @@ const nextConfig: NextConfig = {
               "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://api.razorpay.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https://utfs.io https://*.uploadthing.com https://*.ufs.sh",
+              "img-src 'self' data: blob: https://utfs.io https://*.uploadthing.com https://*.ufs.sh https://gdsmarriagelinks.com",
               "connect-src 'self' wss: ws: https://api.razorpay.com https://lumberjack.razorpay.com https://utfs.io https://*.uploadthing.com https://*.ufs.sh https://*.resend.com",
               "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com",
               "object-src 'none'",

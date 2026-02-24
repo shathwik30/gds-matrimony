@@ -162,7 +162,7 @@ export function ProfileCard({
         {/* Profile Image */}
         <Link
           href={`/profile/${profile.userId}`}
-          className="relative w-full sm:w-44 md:w-56 aspect-[4/3] sm:aspect-auto sm:h-auto shrink-0 overflow-hidden"
+          className="relative w-full sm:w-44 md:w-56 aspect-[4/3] sm:aspect-auto sm:min-h-[240px] shrink-0 overflow-hidden"
         >
           {profile.profileImage ? (
             <Image
@@ -174,7 +174,7 @@ export function ProfileCard({
               className={cn("object-cover transition-transform group-hover:scale-105", blurClass)}
             />
           ) : (
-            <div className="h-full w-full profile-image-gradient flex items-center justify-center min-h-[200px]">
+            <div className="h-full w-full profile-image-gradient flex items-center justify-center min-h-[240px]">
               <span className="text-5xl font-bold text-white">{initials}</span>
             </div>
           )}

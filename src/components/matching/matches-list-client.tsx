@@ -8,8 +8,10 @@ import { sendInterest } from "@/lib/actions/interests";
 import { addToShortlist, removeFromShortlist } from "@/lib/actions/shortlist";
 import { getMatchingProfiles } from "@/lib/actions/profile";
 import { Button } from "@/components/ui/button";
-import { Loader2, Users, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Users, AlertCircle, Heart, Infinity } from "lucide-react";
 import type { MatchProfile, SearchFilters } from "@/types";
+import type { DailyInterestStatus } from "@/lib/actions/interests";
 
 function ProfileCardFallback() {
   return (
@@ -28,6 +30,7 @@ interface MatchesListClientProps {
   subscriptionPlan: string;
   filters?: SearchFilters;
   seed: string;
+  dailyInterestStatus?: DailyInterestStatus;
 }
 
 export function MatchesListClient({
@@ -38,6 +41,7 @@ export function MatchesListClient({
   subscriptionPlan,
   filters,
   seed,
+  dailyInterestStatus,
 }: MatchesListClientProps) {
   const [allProfiles, setAllProfiles] = useState<MatchProfile[]>(initialProfiles);
   const [shortlistedIds, setShortlistedIds] = useState<Set<number>>(
@@ -49,6 +53,9 @@ export function MatchesListClient({
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProfiles, setTotalProfiles] = useState(initialTotal);
   const [isPending, startTransition] = useTransition();
+  const [interestsSentToday, setInterestsSentToday] = useState(
+    dailyInterestStatus?.sentToday ?? 0
+  );
 
   const handleLoadMore = () => {
     startTransition(async () => {
@@ -74,6 +81,7 @@ export function MatchesListClient({
       const result = await sendInterest(userId);
       if (result.success) {
         setSentInterestIds((prev) => new Set([...prev, userId]));
+        setInterestsSentToday((prev) => prev + 1);
         toast.success(result.message || "Interest sent successfully!", {
           description: "You'll be notified when they respond",
         });
@@ -130,8 +138,37 @@ export function MatchesListClient({
     );
   }
 
+  const interestLimit = dailyInterestStatus?.limit ?? 5;
+  const interestIsUnlimited = dailyInterestStatus?.isUnlimited ?? false;
+  const remaining = Math.max(0, interestLimit - interestsSentToday);
+
   return (
     <div className="space-y-4 max-w-4xl">
+      {/* Daily Interest Counter */}
+      {dailyInterestStatus && (
+        <div className="flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg border bg-muted/50">
+          <Heart className="h-4 w-4 text-primary shrink-0" />
+          {interestIsUnlimited ? (
+            <span className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+              <Infinity className="h-4 w-4 text-primary" />
+              Unlimited interests
+            </span>
+          ) : (
+            <span className="text-sm text-muted-foreground">
+              <span className={`font-semibold ${remaining === 0 ? "text-destructive" : "text-foreground"}`}>
+                {remaining} / {interestLimit}
+              </span>
+              {" "}interests remaining today
+            </span>
+          )}
+          {!interestIsUnlimited && remaining === 0 && (
+            <Badge variant="destructive" className="ml-auto text-xs">
+              Limit reached
+            </Badge>
+          )}
+        </div>
+      )}
+
       {allProfiles.map((profile) => (
         <ErrorBoundary key={profile.id} FallbackComponent={ProfileCardFallback}>
           <ProfileCard

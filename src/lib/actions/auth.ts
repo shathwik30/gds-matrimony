@@ -270,12 +270,13 @@ export async function resendOTP(email: string): Promise<ActionResult> {
 }
 
 // Login user
-export async function loginUser(data: LoginInput): Promise<ActionResult> {
+export async function loginUser(data: LoginInput): Promise<ActionResult<{ isAdmin?: boolean }>> {
   try {
     const validated = loginSchema.parse(data);
+    const email = validated.email.toLowerCase();
 
     const result = await signIn("credentials", {
-      email: validated.email.toLowerCase(),
+      email,
       password: validated.password,
       redirect: false,
     });
@@ -284,7 +285,15 @@ export async function loginUser(data: LoginInput): Promise<ActionResult> {
       return { success: false, error: result.error };
     }
 
-    return { success: true, message: "Login successful!" };
+    // Check if user is admin so the client can redirect appropriately
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const adminEmails = (process.env.ADMIN_EMAILS || "admin@gdsmarriagelinks.com")
+      .split(",")
+      .map(e => e.trim().toLowerCase())
+      .filter(e => emailRegex.test(e));
+    const isAdmin = adminEmails.includes(email);
+
+    return { success: true, message: "Login successful!", data: { isAdmin } };
   } catch (error) {
     console.error("Login error:", error);
     if (error instanceof Error) {

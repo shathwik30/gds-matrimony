@@ -5,7 +5,6 @@ import { eq, and, desc, sql, gte, inArray } from "drizzle-orm";
 import { getActiveSubscription } from "@/lib/actions/subscription";
 import { requireAuth } from "@/lib/actions/helpers";
 import { calculateAge } from "@/lib/utils";
-import { isFreeUser } from "@/lib/utils/subscription";
 import type { ActionResult, DashboardStats } from "@/types";
 
 interface ProfileViewData {
@@ -136,11 +135,13 @@ export async function getProfileViewers(
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
-    // Check subscription allows viewing profile viewers
+    // Check subscription allows viewing profile viewers (Silver+ only)
     const subscription = await getActiveSubscription(userId);
+    const plan = subscription?.plan || "free";
+    const canSeeViewers = ["silver", "gold", "platinum"].includes(plan);
 
-    if (isFreeUser(subscription)) {
-      return { success: false, error: "Upgrade your plan to see who viewed your profile" };
+    if (!canSeeViewers) {
+      return { success: false, error: "Upgrade to Silver or higher to see who viewed your profile" };
     }
 
     const safeLimit = Math.min(Math.max(1, limit), 50);
@@ -202,20 +203,32 @@ export async function getRecentActivity(
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
+    // Check subscription for feature gating
+    const subscription = await getActiveSubscription(userId);
+    const plan = subscription?.plan || "free";
+    const canSeeViewers = ["silver", "gold", "platinum"].includes(plan);
+    const canSeeWhoLiked = ["gold", "platinum"].includes(plan);
+
     const activities: ActivityItem[] = [];
 
-    // Get profile views and interests in parallel
+    // Fetch data based on subscription level
     const [views, receivedInterests] = await Promise.all([
-      db.query.profileViews.findMany({
-        where: eq(profileViews.viewedUserId, userId),
-        orderBy: [desc(profileViews.viewedAt)],
-        limit: 10,
-      }),
-      db.query.interests.findMany({
-        where: eq(interests.receiverId, userId),
-        orderBy: [desc(interests.createdAt)],
-        limit: 10,
-      }),
+      // Profile views: only fetch if Silver+ can see viewers
+      canSeeViewers
+        ? db.query.profileViews.findMany({
+            where: eq(profileViews.viewedUserId, userId),
+            orderBy: [desc(profileViews.viewedAt)],
+            limit: 10,
+          })
+        : Promise.resolve([]),
+      // Received interests: only fetch if Gold+ can see who liked them
+      canSeeWhoLiked
+        ? db.query.interests.findMany({
+            where: eq(interests.receiverId, userId),
+            orderBy: [desc(interests.createdAt)],
+            limit: 10,
+          })
+        : Promise.resolve([]),
     ]);
 
     // Collect all user IDs that need profile lookup

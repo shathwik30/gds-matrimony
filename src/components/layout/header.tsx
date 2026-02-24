@@ -55,8 +55,8 @@ export function Header() {
     <header
       className={`sticky top-0 z-50 w-full border-b transition-smooth ${
         scrolled
-          ? "bg-white/90 backdrop-blur-xl shadow-premium-md"
-          : "bg-white/95 backdrop-blur-lg shadow-premium-sm"
+          ? "bg-background/90 backdrop-blur-xl shadow-premium-md"
+          : "bg-background/95 backdrop-blur-lg shadow-premium-sm"
       }`}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >

@@ -1,6 +1,6 @@
 "use server";
 
-import { db, profiles, profileImages, partnerPreferences, interests, blocks, users } from "@/lib/db";
+import { db, profiles, profileImages, partnerPreferences, interests, blocks, users, subscriptions } from "@/lib/db";
 import { eq, and, ne, or, inArray, sql, gte, notInArray } from "drizzle-orm";
 import { UTApi } from "uploadthing/server";
 
@@ -500,6 +500,16 @@ export async function getMatchingProfiles(
 
     const whereClause = and(...conditions);
 
+    // Subquery: check if a user has an active profile boost
+    // A boost is active when subscriptions.boostExpiresAt > NOW()
+    const boostSubquery = sql`(
+      SELECT 1 FROM "subscriptions"
+      WHERE "subscriptions"."user_id" = ${profiles.userId}
+        AND "subscriptions"."is_active" = true
+        AND "subscriptions"."boost_expires_at" > NOW()
+      LIMIT 1
+    )`;
+
     // Run count and paginated data queries in parallel
     const [countResult, pageProfiles] = await Promise.all([
       db
@@ -513,9 +523,11 @@ export async function getMatchingProfiles(
             columns: { id: true, lastActive: true, isActive: true },
           },
         },
-        // Deterministic pseudo-random ordering using md5 hash with seed
-        // Consistent across pages for the same seed, different per session
-        orderBy: [sql`md5(cast(${profiles.userId} as text) || ${orderSeed})`],
+        // Order: boosted profiles first, then deterministic pseudo-random via md5
+        orderBy: [
+          sql`(CASE WHEN ${boostSubquery} IS NOT NULL THEN 0 ELSE 1 END)`,
+          sql`md5(cast(${profiles.userId} as text) || ${orderSeed})`,
+        ],
         limit: safeLimit,
         offset,
       }),
@@ -523,9 +535,35 @@ export async function getMatchingProfiles(
 
     const total = countResult[0]?.count ?? 0;
 
-    // Format results
+    // Fetch active boost status for the profiles on this page so we can
+    // apply the 15% match-score multiplier for boosted profiles.
+    const pageUserIds = pageProfiles.map((p) => p.userId);
+    const boostedUserIds = new Set<number>();
+    if (pageUserIds.length > 0) {
+      const boostRows = await db
+        .select({ userId: subscriptions.userId })
+        .from(subscriptions)
+        .where(
+          and(
+            inArray(subscriptions.userId, pageUserIds),
+            eq(subscriptions.isActive, true),
+            sql`${subscriptions.boostExpiresAt} > NOW()`
+          )
+        );
+      for (const row of boostRows) {
+        boostedUserIds.add(row.userId);
+      }
+    }
+
+    // Format results — boosted profiles get a 15% match-score visibility increase
+    const BOOST_MULTIPLIER = 1.15;
     const result: MatchProfile[] = pageProfiles.map((p) => {
       const age = calculateAge(p.dateOfBirth!);
+      const baseScore = calculateCompatibilityScore(myPreferences ?? null, p);
+      const isBoosted = boostedUserIds.has(p.userId);
+      const matchScore = isBoosted
+        ? Math.min(100, Math.round(baseScore * BOOST_MULTIPLIER))
+        : baseScore;
       return {
         id: p.id,
         userId: p.userId,
@@ -547,7 +585,8 @@ export async function getMatchingProfiles(
         aboutMe: p.aboutMe,
         profileCompletion: p.profileCompletion || 0,
         trustLevel: p.trustLevel,
-        matchScore: calculateCompatibilityScore(myPreferences ?? null, p),
+        matchScore,
+        isBoosted: isBoosted || undefined,
         lastActive: p.user?.lastActive || undefined,
         showLastActive: p.showLastActive ?? undefined,
         showOnlineStatus: p.showOnlineStatus ?? undefined,
@@ -633,8 +672,8 @@ export async function getProfileById(
 
       const plan = activeSub?.plan || "free";
       canViewContact = plan !== "free" && !!acceptedInterest;
-      // Photos are visible only when interest is mutually accepted
-      canViewPhoto = !!acceptedInterest;
+      // Photos: free users see blurred, any paid plan sees unblurred
+      canViewPhoto = plan !== "free";
     }
 
     const formattedProfile: MatchProfile = {

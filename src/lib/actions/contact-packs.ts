@@ -1,6 +1,6 @@
 "use server";
 
-import { db, contactPackPurchases, subscriptions } from "@/lib/db";
+import { db, contactPackPurchases, subscriptions, users } from "@/lib/db";
 import { eq, and, gt, or, isNull, gte } from "drizzle-orm";
 import { getActiveSubscription } from "@/lib/actions/subscription";
 import { requireAuth } from "@/lib/actions/helpers";
@@ -125,5 +125,91 @@ export async function getContactPackPurchases(): Promise<ActionResult<typeof con
   } catch (error) {
     console.error("Get contact pack purchases error:", error);
     return { success: false, error: "Failed to get purchases" };
+  }
+}
+
+// Get total remaining contact views (packs + subscription combined)
+export async function getTotalContactViews(): Promise<ActionResult<{ total: number; fromPacks: number; fromSubscription: number; isUnlimitedSub: boolean }>> {
+  try {
+    const authResult = await requireAuth();
+    if (authResult.error) return authResult.error;
+    const { userId } = authResult;
+
+    // Get pack balance
+    const now = new Date();
+    const packs = await db.query.contactPackPurchases.findMany({
+      where: and(
+        eq(contactPackPurchases.userId, userId),
+        gt(contactPackPurchases.contactsRemaining, 0),
+        or(
+          isNull(contactPackPurchases.expiresAt),
+          gte(contactPackPurchases.expiresAt, now)
+        )
+      ),
+    });
+    const fromPacks = packs.reduce((sum, pack) => sum + pack.contactsRemaining, 0);
+
+    // Get subscription contact views
+    const subscription = await getActiveSubscription(userId);
+    const subViews = subscription?.contactViews ?? 0;
+    const unlimitedSub = isUnlimited(subViews);
+    const fromSubscription = unlimitedSub ? 0 : Math.max(0, subViews);
+
+    return {
+      success: true,
+      data: {
+        total: unlimitedSub ? -1 : fromPacks + fromSubscription,
+        fromPacks,
+        fromSubscription,
+        isUnlimitedSub: unlimitedSub,
+      },
+    };
+  } catch (error) {
+    console.error("Get total contact views error:", error);
+    return { success: false, error: "Failed to get contact views" };
+  }
+}
+
+// Reveal contact info for a profile by spending one contact view
+export async function revealContact(
+  targetUserId: number
+): Promise<ActionResult<{ email?: string; phone?: string }>> {
+  try {
+    const authResult = await requireAuth();
+    if (authResult.error) return authResult.error;
+    const { userId } = authResult;
+
+    if (userId === targetUserId) {
+      return { success: false, error: "Cannot reveal your own contact" };
+    }
+
+    // Deduct a contact view (from packs first, then subscription)
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- useContactView is a server action, not a React hook
+    const deductResult = await useContactView(targetUserId);
+    if (!deductResult.success) {
+      return { success: false, error: deductResult.error || "No contact views remaining" };
+    }
+
+    // Fetch the target user's contact info
+    const targetUser = await db.query.users.findFirst({
+      where: eq(users.id, targetUserId),
+      columns: { email: true, phoneNumber: true },
+    });
+
+    if (!targetUser) {
+      return { success: false, error: "User not found" };
+    }
+
+    return {
+      success: true,
+      data: {
+        email: targetUser.email || undefined,
+        phone: targetUser.phoneNumber || undefined,
+      },
+      message: deductResult.message,
+    };
+  } catch (error) {
+    console.error("Reveal contact error:", error);
+    return { success: false, error: "Failed to reveal contact" };
   }
 }

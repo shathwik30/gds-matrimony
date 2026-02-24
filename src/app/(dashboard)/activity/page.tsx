@@ -11,12 +11,16 @@ import {
   Star,
   Clock,
   TrendingUp,
+  Crown,
+  Lock,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { getRecentActivity, getProfileViewers, getDashboardStats } from "@/lib/actions/activity";
+import { getMySubscriptionPlan } from "@/lib/actions/messages";
 import type { DashboardStats } from "@/types";
 import { getInitials } from "@/lib/utils";
 
@@ -196,6 +200,10 @@ export default function ActivityPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [viewers, setViewers] = useState<ProfileViewData[]>([]);
+  const [plan, setPlan] = useState<string>("free");
+
+  const canSeeViewers = ["silver", "gold", "platinum"].includes(plan);
+  const canSeeWhoLiked = ["gold", "platinum"].includes(plan);
 
   useEffect(() => {
     loadData();
@@ -203,12 +211,16 @@ export default function ActivityPage() {
 
   const loadData = async () => {
     try {
-      const [statsResult, activityResult, viewersResult] = await Promise.all([
+      const [statsResult, activityResult, viewersResult, planResult] = await Promise.all([
         getDashboardStats(),
         getRecentActivity(),
         getProfileViewers(),
+        getMySubscriptionPlan(),
       ]);
 
+      if (planResult.success && planResult.data) {
+        setPlan(planResult.data);
+      }
       if (statsResult.success && statsResult.data) {
         setStats(statsResult.data);
       }
@@ -305,7 +317,23 @@ export default function ActivityPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              {activities.length === 0 ? (
+              {!canSeeWhoLiked && !canSeeViewers ? (
+                <div className="p-8 text-center">
+                  <div className="h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                    <Lock className="h-8 w-8 text-amber-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Premium Feature</h3>
+                  <p className="text-muted-foreground text-sm mb-4 max-w-md mx-auto">
+                    Upgrade to Silver to see profile views, or Gold to also see who sent you interests.
+                  </p>
+                  <Button asChild>
+                    <Link href="/membership">
+                      <Crown className="h-4 w-4 mr-2" />
+                      Upgrade Plan
+                    </Link>
+                  </Button>
+                </div>
+              ) : activities.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground">
                   <Clock className="h-12 w-12 mx-auto mb-2 opacity-50" />
                   <p>No recent activity</p>
@@ -333,7 +361,23 @@ export default function ActivityPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              {viewers.length === 0 ? (
+              {!canSeeViewers ? (
+                <div className="p-8 text-center">
+                  <div className="h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                    <Lock className="h-8 w-8 text-amber-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Silver Plan Required</h3>
+                  <p className="text-muted-foreground text-sm mb-4 max-w-md mx-auto">
+                    Upgrade to Silver or higher to see who viewed your profile.
+                  </p>
+                  <Button asChild>
+                    <Link href="/membership">
+                      <Crown className="h-4 w-4 mr-2" />
+                      Upgrade Plan
+                    </Link>
+                  </Button>
+                </div>
+              ) : viewers.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground">
                   <Eye className="h-12 w-12 mx-auto mb-2 opacity-50" />
                   <p>No profile views yet</p>

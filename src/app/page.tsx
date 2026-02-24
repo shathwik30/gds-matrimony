@@ -128,12 +128,12 @@ export default async function HomePage() {
             ))}
           </div>
           {/* Overlay to make content readable */}
-          <div className="absolute inset-0 z-[1] bg-white/85" />
+          <div className="absolute inset-0 z-[1] bg-background/85" />
 
           <div className="container-wide py-12 sm:py-20 md:py-28 lg:py-36 relative z-[2]">
             <div className="grid gap-8 lg:grid-cols-2 lg:gap-16 items-center">
               <div className="space-y-5 sm:space-y-8 animate-fade-in-up">
-                <div className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-sm shadow-premium-md hover:shadow-premium-lg transition-smooth">
+                <div className="inline-flex items-center gap-2 rounded-full bg-card px-5 py-2 text-sm shadow-premium-md hover:shadow-premium-lg transition-smooth">
                   <Star className="h-4 w-4 text-amber-500 fill-amber-500 animate-pulse" />
                   <span className="font-semibold">India&apos;s Trusted Matrimonial Platform</span>
                 </div>
@@ -189,7 +189,7 @@ export default async function HomePage() {
                     className="object-cover rounded-2xl shadow-premium-2xl relative z-10"
                     priority
                   />
-                  <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-premium-xl p-5 z-20 animate-bounce-subtle">
+                  <div className="absolute -bottom-6 -left-6 bg-card rounded-2xl shadow-premium-xl p-5 z-20 animate-bounce-subtle">
                     <div className="flex items-center gap-4">
                       <div className="h-14 w-14 rounded-full bg-green-50 flex items-center justify-center">
                         <CheckCircle className="h-7 w-7 text-green-600" />
@@ -207,7 +207,7 @@ export default async function HomePage() {
         </section>
 
         {/* Stats Section */}
-        <section className="border-y bg-white relative overflow-hidden">
+        <section className="border-y bg-card relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5" />
           <div className="container-wide py-10 md:py-16 relative">
             <div className="grid grid-cols-2 gap-4 sm:gap-6 md:gap-8 md:grid-cols-4">

@@ -55,6 +55,7 @@ export interface MatchProfile {
   showLastActive?: boolean;
   showOnlineStatus?: boolean;
   canViewPhoto?: boolean;
+  isBoosted?: boolean;
   images?: { id: number; imageUrl: string; sortOrder: number | null }[];
 }
 

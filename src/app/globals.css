@@ -88,12 +88,12 @@
   --duration-slow: 400ms;
   --duration-slower: 600ms;
 
-  /* Tailwind CSS 4 compatible colors - Using existing brand colors */
-  --background: oklch(1 0 0);
+  /* Tailwind CSS 4 compatible colors - Rich cream base */
+  --background: oklch(0.965 0.02 75);
   --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
+  --card: oklch(0.975 0.015 75);
   --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
+  --popover: oklch(0.975 0.015 75);
   --popover-foreground: oklch(0.145 0 0);
 
   /* Primary - GDS Red #C00F0C */
@@ -102,23 +102,23 @@
   --primary-hover: oklch(0.40 0.18 25);
 
   /* Secondary */
-  --secondary: oklch(0.95 0.02 60);
+  --secondary: oklch(0.94 0.025 75);
   --secondary-foreground: oklch(0.205 0 0);
 
-  /* Muted - Warm grayscale */
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  /* Muted - Warm cream */
+  --muted: oklch(0.95 0.018 75);
+  --muted-foreground: oklch(0.50 0.01 60);
 
   /* Accent */
-  --accent: oklch(0.95 0.02 60);
+  --accent: oklch(0.94 0.025 75);
   --accent-foreground: oklch(0.205 0 0);
 
   /* Destructive */
   --destructive: oklch(0.577 0.245 27.325);
 
-  /* Borders and inputs */
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  /* Borders and inputs - warm cream tint */
+  --border: oklch(0.905 0.015 75);
+  --input: oklch(0.905 0.015 75);
   --ring: oklch(0.45 0.18 25);
 
   /* Chart colors */
@@ -129,13 +129,13 @@
   --chart-5: oklch(0.769 0.188 70.08);
 
   /* Sidebar */
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: oklch(0.97 0.018 75);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.45 0.18 25);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.95 0.02 60);
+  --sidebar-accent: oklch(0.94 0.025 75);
   --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-border: oklch(0.905 0.015 75);
   --sidebar-ring: oklch(0.45 0.18 25);
 }
 
@@ -227,7 +227,7 @@
   }
 
   .card-glass {
-    @apply bg-white/80 backdrop-blur-xl border border-white/20;
+    @apply bg-card/80 backdrop-blur-xl border border-card/20;
     box-shadow: var(--shadow-md);
   }
 
@@ -346,7 +346,7 @@
 
   /* Premium Glass Effects */
   .glass {
-    @apply bg-white/90 backdrop-blur-xl;
+    @apply bg-background/90 backdrop-blur-xl;
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
   }
 
