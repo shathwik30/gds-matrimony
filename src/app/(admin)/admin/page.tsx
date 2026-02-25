@@ -38,15 +38,15 @@ export default async function AdminDashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
-        <p className="text-slate-500">
+        <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">Admin Dashboard</h1>
+        <p className="text-sm text-slate-500 sm:text-base">
           Welcome back! Here&apos;s what&apos;s happening with your platform.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:grid-cols-4">
         <StatsCard
           title="Total Users"
           value={dashboard.totalUsers.toLocaleString()}
@@ -73,12 +73,12 @@ export default async function AdminDashboardPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 md:gap-6 lg:grid-cols-2">
         <RevenueChart data={revenueData} />
         <UserGrowthChart data={userGrowthData} />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:grid-cols-4">
         <StatsCard title="Verified Profiles" value={dashboard.verifiedProfiles} icon={UserCheck} />
         <StatsCard
           title="Total Interests"
@@ -94,18 +94,22 @@ export default async function AdminDashboardPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 md:gap-6 lg:grid-cols-3">
         <GenderDistributionChart male={dashboard.maleUsers} female={dashboard.femaleUsers} />
 
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
-          <h3 className="mb-4 text-lg font-semibold text-slate-900">Quick Overview</h3>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            <div className="rounded-lg bg-slate-50 p-4">
-              <p className="text-2xl font-bold text-slate-900">{dashboard.newUsersThisMonth}</p>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:col-span-2">
+          <h3 className="mb-3 text-base font-semibold text-slate-900 sm:mb-4 sm:text-lg">
+            Quick Overview
+          </h3>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
+            <div className="rounded-lg bg-slate-50 p-3 sm:p-4">
+              <p className="text-lg font-bold text-slate-900 sm:text-2xl">
+                {dashboard.newUsersThisMonth}
+              </p>
               <p className="text-sm text-slate-500">New users this month</p>
             </div>
-            <div className="rounded-lg bg-slate-50 p-4">
-              <p className="text-2xl font-bold text-slate-900">
+            <div className="rounded-lg bg-slate-50 p-3 sm:p-4">
+              <p className="text-lg font-bold text-slate-900 sm:text-2xl">
                 {dashboard.totalUsers > 0
                   ? Math.round((dashboard.verifiedProfiles / dashboard.totalUsers) * 100)
                   : 0}
@@ -113,8 +117,8 @@ export default async function AdminDashboardPage() {
               </p>
               <p className="text-sm text-slate-500">Profile verification rate</p>
             </div>
-            <div className="rounded-lg bg-slate-50 p-4">
-              <p className="text-2xl font-bold text-slate-900">
+            <div className="rounded-lg bg-slate-50 p-3 sm:p-4">
+              <p className="text-lg font-bold text-slate-900 sm:text-2xl">
                 {dashboard.totalInterests > 0
                   ? Math.round((dashboard.acceptedInterests / dashboard.totalInterests) * 100)
                   : 0}
@@ -122,16 +126,16 @@ export default async function AdminDashboardPage() {
               </p>
               <p className="text-sm text-slate-500">Interest acceptance rate</p>
             </div>
-            <div className="rounded-lg bg-blue-50 p-4">
-              <p className="text-2xl font-bold text-blue-600">{dashboard.maleUsers}</p>
+            <div className="rounded-lg bg-blue-50 p-3 sm:p-4">
+              <p className="text-lg font-bold text-blue-600 sm:text-2xl">{dashboard.maleUsers}</p>
               <p className="text-sm text-slate-500">Male profiles</p>
             </div>
-            <div className="rounded-lg bg-pink-50 p-4">
-              <p className="text-2xl font-bold text-pink-600">{dashboard.femaleUsers}</p>
+            <div className="rounded-lg bg-pink-50 p-3 sm:p-4">
+              <p className="text-lg font-bold text-pink-600 sm:text-2xl">{dashboard.femaleUsers}</p>
               <p className="text-sm text-slate-500">Female profiles</p>
             </div>
-            <div className="rounded-lg bg-emerald-50 p-4">
-              <p className="text-2xl font-bold text-emerald-600">
+            <div className="rounded-lg bg-emerald-50 p-3 sm:p-4">
+              <p className="text-lg font-bold text-emerald-600 sm:text-2xl">
                 ₹
                 {dashboard.totalSubscriptions > 0
                   ? Math.round(

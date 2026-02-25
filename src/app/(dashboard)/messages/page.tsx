@@ -602,9 +602,9 @@ function MessagesContent() {
   // Free plan check
   if (subscriptionPlan === "free") {
     return (
-      <div className="container-wide py-16">
-        <Card className="mx-auto max-w-md space-y-4 p-8 text-center">
-          <h2 className="text-2xl font-bold">Upgrade to Message</h2>
+      <div className="container-wide px-4 py-8 sm:py-16">
+        <Card className="mx-auto max-w-md space-y-4 p-5 text-center sm:p-8">
+          <h2 className="text-xl font-bold sm:text-2xl">Upgrade to Message</h2>
           <p className="text-muted-foreground">
             Free users cannot access messaging. Upgrade to a premium plan to start conversations.
           </p>
@@ -617,12 +617,12 @@ function MessagesContent() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)]">
+    <div className="flex h-[calc(100vh-4rem)] pb-16 lg:pb-0">
       <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {announcement}
       </div>
       <div
-        className={`bg-background w-full border-r md:w-80 ${
+        className={`bg-background w-full border-r md:w-80 md:shrink-0 ${
           selectedUserId ? "hidden md:block" : ""
         }`}
       >
@@ -686,7 +686,7 @@ function MessagesContent() {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col">
+      <div className={`flex flex-1 flex-col ${!selectedUserId ? "hidden md:flex" : ""}`}>
         {selectedUser ? (
           <>
             <div className="flex items-center gap-3 border-b p-4">
@@ -738,7 +738,7 @@ function MessagesContent() {
                       className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-xs rounded-lg px-4 py-2 lg:max-w-md ${
+                        className={`max-w-[75%] rounded-lg px-3 py-2 sm:max-w-xs sm:px-4 lg:max-w-md ${
                           isMe ? "bg-primary text-primary-foreground" : "bg-muted"
                         } ${msg.pending ? "opacity-60" : ""}`}
                       >
@@ -762,7 +762,7 @@ function MessagesContent() {
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="border-t p-4">
+            <div className="border-t p-3 sm:p-4">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();

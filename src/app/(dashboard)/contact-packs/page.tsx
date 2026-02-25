@@ -141,7 +141,7 @@ export default function ContactPacksPage() {
               key={pack.id}
               variant={isPopular ? "elevated" : "default"}
               className={`animate-fade-in-up relative stagger-${index + 1} ${
-                isPopular ? "border-brand shadow-premium-xl border-2 md:scale-105" : ""
+                isPopular ? "border-brand shadow-premium-xl border-2 lg:scale-105" : ""
               }`}
             >
               {isPopular && (

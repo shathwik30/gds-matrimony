@@ -100,9 +100,7 @@ export default function PricingPage() {
                   key={plan.id}
                   variant={isPopular ? "elevated" : "default"}
                   className={`relative ${
-                    isPopular
-                      ? "border-primary shadow-premium-xl scale-100 border-2 md:scale-105"
-                      : ""
+                    isPopular ? "border-primary shadow-premium-xl border-2 lg:scale-105" : ""
                   } animate-fade-in-up`}
                 >
                   {isPopular && (

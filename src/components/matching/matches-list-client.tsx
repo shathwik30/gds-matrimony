@@ -138,7 +138,7 @@ export function MatchesListClient({
   const remaining = Math.max(0, interestLimit - interestsSentToday);
 
   return (
-    <div className="max-w-4xl space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {dailyInterestStatus && (
         <div className="bg-muted/50 flex items-center gap-2 rounded-lg border px-3 py-2.5 sm:px-4">
           <Heart className="text-primary h-4 w-4 shrink-0" />

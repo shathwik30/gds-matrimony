@@ -292,15 +292,16 @@ function EditProfileContent() {
           )}
         </div>
 
-        <div className="bg-muted/30 flex items-center justify-between gap-3 border-t px-4 py-3 sm:px-6 sm:py-4">
+        <div className="bg-muted/30 flex items-center justify-between gap-2 border-t px-3 py-3 sm:gap-3 sm:px-6 sm:py-4">
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={() => setCurrentStep((prev) => Math.max(1, prev - 1))}
             disabled={currentStep === 1 || isSaving}
-            className="rounded-xl"
+            className="sm:size-default shrink-0 rounded-xl"
           >
-            <ChevronLeft className="mr-1.5 h-4 w-4" />
+            <ChevronLeft className="mr-1 h-4 w-4 sm:mr-1.5" />
             Previous
           </Button>
 
@@ -322,11 +323,17 @@ function EditProfileContent() {
           <Button
             onClick={handleSaveStep}
             disabled={isSaving}
-            className="bg-brand hover:bg-brand/90 rounded-xl px-6 text-white"
+            size="sm"
+            className="bg-brand hover:bg-brand/90 sm:size-default shrink-0 rounded-xl px-3 text-white sm:px-6"
           >
-            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {currentStep === STEPS.length ? "Save & Finish" : "Save & Continue"}
-            {!isSaving && currentStep < STEPS.length && <ChevronRight className="ml-1.5 h-4 w-4" />}
+            {isSaving ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin sm:mr-2" /> : null}
+            <span className="sm:hidden">{currentStep === STEPS.length ? "Finish" : "Save"}</span>
+            <span className="hidden sm:inline">
+              {currentStep === STEPS.length ? "Save & Finish" : "Save & Continue"}
+            </span>
+            {!isSaving && currentStep < STEPS.length && (
+              <ChevronRight className="ml-1 h-4 w-4 sm:ml-1.5" />
+            )}
           </Button>
         </div>
       </div>

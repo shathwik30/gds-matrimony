@@ -82,7 +82,7 @@ export default async function MyProfilePage() {
     <div className="from-muted/30 to-background min-h-screen bg-gradient-to-b">
       <div className="mx-auto max-w-5xl space-y-4 px-3 py-4 sm:space-y-6 sm:px-4 sm:py-6 md:py-8">
         {completion < 100 && (
-          <div className="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-5">
+          <div className="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-3 sm:p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="flex-1 space-y-2">
                 <div className="flex items-center justify-between">
@@ -246,22 +246,22 @@ export default async function MyProfilePage() {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2 px-4 py-3 sm:gap-3 sm:px-6 sm:py-4">
-            <Button asChild className="shadow-sm">
+          <div className="flex flex-wrap gap-2 px-3 py-3 sm:px-6 sm:py-4">
+            <Button asChild size="sm" className="sm:size-default shadow-sm">
               <Link href="/profile/edit">
-                <Edit className="mr-2 h-4 w-4" />
+                <Edit className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
                 Edit Profile
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" size="sm" asChild className="sm:size-default">
               <Link href="/profile/preferences">
-                <Heart className="mr-2 h-4 w-4" />
-                Partner Preferences
+                <Heart className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
+                Preferences
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" size="sm" asChild className="sm:size-default">
               <Link href="/settings">
-                <Settings className="mr-2 h-4 w-4" />
+                <Settings className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
                 Settings
               </Link>
             </Button>

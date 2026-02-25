@@ -22,9 +22,11 @@ interface RevenueChartProps {
 
 export function RevenueChart({ data }: RevenueChartProps) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 className="mb-4 text-lg font-semibold text-slate-900">Revenue Overview</h3>
-      <div className="h-[300px]">
+    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 md:p-6">
+      <h3 className="mb-3 text-base font-semibold text-slate-900 sm:mb-4 sm:text-lg">
+        Revenue Overview
+      </h3>
+      <div className="h-[220px] sm:h-[260px] md:h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
             <defs>
@@ -65,9 +67,11 @@ interface UserGrowthChartProps {
 
 export function UserGrowthChart({ data }: UserGrowthChartProps) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 className="mb-4 text-lg font-semibold text-slate-900">User Growth</h3>
-      <div className="h-[300px]">
+    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 md:p-6">
+      <h3 className="mb-3 text-base font-semibold text-slate-900 sm:mb-4 sm:text-lg">
+        User Growth
+      </h3>
+      <div className="h-[220px] sm:h-[260px] md:h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
@@ -104,9 +108,11 @@ export function GenderDistributionChart({ male, female }: GenderDistributionChar
   ];
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 className="mb-4 text-lg font-semibold text-slate-900">Gender Distribution</h3>
-      <div className="h-[250px]">
+    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 md:p-6">
+      <h3 className="mb-3 text-base font-semibold text-slate-900 sm:mb-4 sm:text-lg">
+        Gender Distribution
+      </h3>
+      <div className="h-[200px] sm:h-[230px] md:h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -148,9 +154,11 @@ interface SubscriptionDistributionChartProps {
 
 export function SubscriptionDistributionChart({ data }: SubscriptionDistributionChartProps) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 className="mb-4 text-lg font-semibold text-slate-900">Subscription Plans</h3>
-      <div className="h-[250px]">
+    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 md:p-6">
+      <h3 className="mb-3 text-base font-semibold text-slate-900 sm:mb-4 sm:text-lg">
+        Subscription Plans
+      </h3>
+      <div className="h-[200px] sm:h-[230px] md:h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

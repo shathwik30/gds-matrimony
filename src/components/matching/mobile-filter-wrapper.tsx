@@ -24,7 +24,7 @@ export function MobileFilterWrapper() {
           Filters
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[320px] overflow-y-auto p-0">
+      <SheetContent side="left" className="w-[min(320px,calc(100vw-48px))] overflow-y-auto p-0">
         <SheetHeader className="px-4 pt-4 pb-2">
           <SheetTitle>Filter Profiles</SheetTitle>
         </SheetHeader>

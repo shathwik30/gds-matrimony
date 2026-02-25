@@ -259,10 +259,9 @@ export function UsersTable({ users, total, currentPage }: UsersTableProps) {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-slate-200 px-6 py-4">
-          <p className="text-sm text-slate-500">
-            Showing {(currentPage - 1) * 20 + 1} to {Math.min(currentPage * 20, total)} of {total}{" "}
-            users
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-200 px-4 py-3 sm:flex-row sm:px-6 sm:py-4">
+          <p className="text-xs text-slate-500 sm:text-sm">
+            {(currentPage - 1) * 20 + 1}-{Math.min(currentPage * 20, total)} of {total} users
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -273,8 +272,8 @@ export function UsersTable({ users, total, currentPage }: UsersTableProps) {
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="text-sm text-slate-600">
-              Page {currentPage} of {totalPages}
+            <span className="text-xs text-slate-600 sm:text-sm">
+              {currentPage} / {totalPages}
             </span>
             <Button
               variant="outline"

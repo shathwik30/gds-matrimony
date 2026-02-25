@@ -22,16 +22,23 @@ export function StatsCard({
   className,
 }: StatsCardProps) {
   return (
-    <div className={cn("rounded-xl border border-slate-200 bg-white p-6 shadow-sm", className)}>
-      <div className="flex items-start justify-between">
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="text-3xl font-bold text-slate-900">{value}</p>
-          {description && <p className="text-sm text-slate-500">{description}</p>}
+    <div
+      className={cn(
+        "rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4 md:p-6",
+        className
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 space-y-1 sm:space-y-2">
+          <p className="truncate text-xs font-medium text-slate-500 sm:text-sm">{title}</p>
+          <p className="text-xl font-bold text-slate-900 sm:text-2xl md:text-3xl">{value}</p>
+          {description && (
+            <p className="truncate text-xs text-slate-500 sm:text-sm">{description}</p>
+          )}
           {trend && (
             <p
               className={cn(
-                "text-sm font-medium",
+                "text-xs font-medium sm:text-sm",
                 trend.isPositive ? "text-emerald-600" : "text-red-600"
               )}
             >
@@ -40,8 +47,8 @@ export function StatsCard({
             </p>
           )}
         </div>
-        <div className="bg-brand/10 flex h-12 w-12 items-center justify-center rounded-lg">
-          <Icon className="text-brand h-6 w-6" />
+        <div className="bg-brand/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg sm:h-10 sm:w-10 md:h-12 md:w-12">
+          <Icon className="text-brand h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
         </div>
       </div>
     </div>

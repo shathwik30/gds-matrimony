@@ -425,16 +425,16 @@ export default async function DashboardPage() {
         <h2 className="mb-4 text-xl font-bold sm:mb-6 sm:text-2xl">Quick Actions</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:gap-6 lg:grid-cols-3">
           <Card variant="elevated" className="group">
-            <CardHeader>
-              <div className="bg-primary/10 mb-3 flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
-                <Users className="text-primary h-6 w-6" />
+            <CardHeader className="p-4 sm:p-6">
+              <div className="bg-primary/10 mb-2 flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110 sm:mb-3 sm:h-12 sm:w-12">
+                <Users className="text-primary h-5 w-5 sm:h-6 sm:w-6" />
               </div>
-              <CardTitle className="text-xl">Find Matches</CardTitle>
-              <CardDescription className="text-base">
+              <CardTitle className="text-lg sm:text-xl">Find Matches</CardTitle>
+              <CardDescription className="text-sm sm:text-base">
                 Browse profiles that match your preferences
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
               <Button asChild className="shadow-premium-sm hover:shadow-premium-md w-full">
                 <Link href="/matches">View Matches</Link>
               </Button>
@@ -442,16 +442,16 @@ export default async function DashboardPage() {
           </Card>
 
           <Card variant="elevated" className="group">
-            <CardHeader>
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-pink-50 transition-transform group-hover:scale-110">
-                <Heart className="h-6 w-6 text-pink-500" />
+            <CardHeader className="p-4 sm:p-6">
+              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-pink-50 transition-transform group-hover:scale-110 sm:mb-3 sm:h-12 sm:w-12">
+                <Heart className="h-5 w-5 text-pink-500 sm:h-6 sm:w-6" />
               </div>
-              <CardTitle className="text-xl">Interests</CardTitle>
-              <CardDescription className="text-base">
+              <CardTitle className="text-lg sm:text-xl">Interests</CardTitle>
+              <CardDescription className="text-sm sm:text-base">
                 See who&apos;s interested in you
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
               <Button asChild variant="outline" className="w-full">
                 <Link href="/interests">View Interests</Link>
               </Button>
@@ -459,16 +459,16 @@ export default async function DashboardPage() {
           </Card>
 
           <Card variant="elevated" className="group">
-            <CardHeader>
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 transition-transform group-hover:scale-110">
-                <Crown className="h-6 w-6 text-amber-500" />
+            <CardHeader className="p-4 sm:p-6">
+              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 transition-transform group-hover:scale-110 sm:mb-3 sm:h-12 sm:w-12">
+                <Crown className="h-5 w-5 text-amber-500 sm:h-6 sm:w-6" />
               </div>
-              <CardTitle className="text-xl">Upgrade Plan</CardTitle>
-              <CardDescription className="text-base">
+              <CardTitle className="text-lg sm:text-xl">Upgrade Plan</CardTitle>
+              <CardDescription className="text-sm sm:text-base">
                 Get more features with premium membership
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
               <Button asChild variant="outline" className="w-full">
                 <Link href="/membership">View Plans</Link>
               </Button>
@@ -478,50 +478,52 @@ export default async function DashboardPage() {
       </div>
 
       <Card variant="bordered">
-        <CardHeader>
-          <CardTitle className="text-xl sm:text-2xl">Quick Links</CardTitle>
-          <CardDescription className="text-base">Manage your profile and settings</CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl md:text-2xl">Quick Links</CardTitle>
+          <CardDescription className="text-sm sm:text-base">
+            Manage your profile and settings
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
             <Button
               variant="ghost"
               asChild
-              className="hover:bg-primary/5 h-12 justify-start text-base"
+              className="hover:bg-primary/5 h-11 justify-start text-sm sm:h-12 sm:text-base"
             >
               <Link href="/profile/edit">
-                <Settings className="mr-3 h-5 w-5" />
+                <Settings className="mr-2 h-4 w-4 sm:mr-3 sm:h-5 sm:w-5" />
                 Edit Profile
               </Link>
             </Button>
             <Button
               variant="ghost"
               asChild
-              className="hover:bg-primary/5 h-12 justify-start text-base"
+              className="hover:bg-primary/5 h-11 justify-start text-sm sm:h-12 sm:text-base"
             >
               <Link href="/profile/edit">
-                <ImageIcon className="mr-3 h-5 w-5" />
-                Manage Photos
+                <ImageIcon className="mr-2 h-4 w-4 sm:mr-3 sm:h-5 sm:w-5" />
+                Photos
               </Link>
             </Button>
             <Button
               variant="ghost"
               asChild
-              className="hover:bg-primary/5 h-12 justify-start text-base"
+              className="hover:bg-primary/5 h-11 justify-start text-sm sm:h-12 sm:text-base"
             >
               <Link href="/profile/preferences">
-                <Heart className="mr-3 h-5 w-5" />
-                Partner Preferences
+                <Heart className="mr-2 h-4 w-4 sm:mr-3 sm:h-5 sm:w-5" />
+                Preferences
               </Link>
             </Button>
             <Button
               variant="ghost"
               asChild
-              className="hover:bg-primary/5 h-12 justify-start text-base"
+              className="hover:bg-primary/5 h-11 justify-start text-sm sm:h-12 sm:text-base"
             >
               <Link href="/settings">
-                <Settings className="mr-3 h-5 w-5" />
-                Account Settings
+                <Settings className="mr-2 h-4 w-4 sm:mr-3 sm:h-5 sm:w-5" />
+                Settings
               </Link>
             </Button>
           </div>

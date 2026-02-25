@@ -26,8 +26,8 @@ export function Footer() {
   return (
     <footer className="from-muted/20 to-muted/40 border-t bg-gradient-to-b">
       <div className="container-wide py-10 sm:py-14 md:py-20">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-2 lg:grid-cols-4">
-          <div className="col-span-2">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="sm:col-span-2">
             <Link href="/" className="group mb-4 flex w-fit items-center gap-2 sm:mb-6 sm:gap-3">
               <Image
                 src="/images/logo.svg"
@@ -78,7 +78,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-6 text-lg font-semibold">Company</h3>
+            <h3 className="mb-4 text-base font-semibold sm:mb-6 sm:text-lg">Company</h3>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
@@ -97,7 +97,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-6 text-lg font-semibold">Legal</h3>
+            <h3 className="mb-4 text-base font-semibold sm:mb-6 sm:text-lg">Legal</h3>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.href}>

@@ -294,7 +294,7 @@ export default function MembershipPage() {
               key={plan.id}
               variant={isPopular ? "elevated" : "default"}
               className={`animate-fade-in-up relative ${
-                isPopular ? "border-brand shadow-premium-xl border-2 md:scale-105" : ""
+                isPopular ? "border-brand shadow-premium-xl border-2 lg:scale-105" : ""
               } ${isCurrentPlan ? "border-2 border-green-500" : ""} ${
                 isDisabled ? "opacity-50" : ""
               }`}

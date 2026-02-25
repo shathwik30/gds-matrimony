@@ -27,7 +27,7 @@ export function BottomNavigation() {
       className="bg-background/80 fixed right-0 bottom-0 left-0 z-50 border-t backdrop-blur-xl lg:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="flex h-16 items-center justify-around">
+      <div className="flex h-16 items-center justify-around px-1">
         {tabs.map((tab) => {
           const isActive =
             pathname === tab.href || (tab.href !== "/dashboard" && pathname.startsWith(tab.href));
@@ -37,7 +37,7 @@ export function BottomNavigation() {
               key={tab.href}
               href={tab.href}
               className={cn(
-                "flex h-full flex-1 flex-col items-center justify-center gap-0.5 transition-transform active:scale-95",
+                "relative flex h-full min-w-[48px] flex-1 flex-col items-center justify-center gap-0.5 transition-transform active:scale-95",
                 isActive ? "text-primary" : "text-muted-foreground"
               )}
             >
@@ -47,7 +47,7 @@ export function BottomNavigation() {
               />
               <span
                 className={cn(
-                  "text-[10px] leading-tight",
+                  "text-[11px] leading-tight",
                   isActive ? "font-semibold" : "font-medium"
                 )}
               >

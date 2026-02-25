@@ -184,7 +184,7 @@ export function FilterPanel() {
         )}
       </div>
 
-      <div className="max-h-[calc(100vh-14rem)] overflow-y-auto px-3 py-2 sm:max-h-[calc(100vh-18rem)] sm:px-4">
+      <div className="max-h-[calc(100vh-18rem)] overflow-y-auto px-3 py-2 sm:px-4 lg:max-h-[calc(100vh-14rem)]">
         <Accordion type="multiple" defaultValue={["age", "religion"]} className="w-full">
           <AccordionItem value="age">
             <AccordionTrigger className="py-3 text-sm">

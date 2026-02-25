@@ -134,9 +134,9 @@ export function Header() {
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="shadow-premium-lg w-64" align="end">
+                <DropdownMenuContent className="shadow-premium-lg w-56 sm:w-64" align="end">
                   <div className="flex items-center justify-start gap-3 p-3">
-                    <Avatar className="h-10 w-10">
+                    <Avatar className="h-10 w-10 shrink-0">
                       <AvatarImage src={session.user.image || undefined} />
                       <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
                         {getInitials(
@@ -145,11 +145,11 @@ export function Header() {
                         )}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex flex-col space-y-1 leading-none">
-                      {session.user.name && <p className="font-semibold">{session.user.name}</p>}
-                      <p className="text-muted-foreground w-[180px] truncate text-xs">
-                        {session.user.email}
-                      </p>
+                    <div className="flex min-w-0 flex-col space-y-1 leading-none">
+                      {session.user.name && (
+                        <p className="truncate font-semibold">{session.user.name}</p>
+                      )}
+                      <p className="text-muted-foreground truncate text-xs">{session.user.email}</p>
                     </div>
                   </div>
                   <DropdownMenuSeparator />

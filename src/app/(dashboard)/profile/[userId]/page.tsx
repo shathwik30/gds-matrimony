@@ -359,17 +359,17 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      <Button variant="ghost" className="hover:bg-primary/5 mb-6" asChild>
+    <div className="mx-auto max-w-5xl px-3 py-4 sm:px-4 sm:py-6 md:py-10">
+      <Button variant="ghost" className="hover:bg-primary/5 mb-4 sm:mb-6" asChild>
         <Link href="/matches">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Matches
         </Link>
       </Button>
 
-      <Card variant="elevated" className="group mb-8 overflow-hidden">
+      <Card variant="elevated" className="group mb-4 overflow-hidden sm:mb-6 md:mb-8">
         <div
-          className={`from-brand-light to-brand-light/50 relative h-80 bg-gradient-to-br md:h-96 ${
+          className={`from-brand-light to-brand-light/50 relative h-56 bg-gradient-to-br sm:h-72 md:h-96 ${
             profile.canViewPhoto && profile.profileImage ? "cursor-pointer" : ""
           }`}
           onClick={() => profile.canViewPhoto && profile.profileImage && openLightbox(0)}
@@ -400,31 +400,31 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
           )}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
-          <div className="pointer-events-none absolute right-0 bottom-0 left-0 p-8 text-white">
-            <div className="mb-3 flex items-center gap-3">
-              <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
+          <div className="pointer-events-none absolute right-0 bottom-0 left-0 p-4 text-white sm:p-6 md:p-8">
+            <div className="mb-2 flex flex-wrap items-center gap-2 sm:mb-3 sm:gap-3">
+              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">
                 {profile.firstName} {profile.lastName}
               </h1>
               {profile.trustLevel === "verified_user" && (
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500">
-                  <BadgeCheck className="h-5 w-5 text-white" />
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 sm:h-8 sm:w-8">
+                  <BadgeCheck className="h-4 w-4 text-white sm:h-5 sm:w-5" />
                 </div>
               )}
             </div>
-            <p className="mb-2 text-xl font-medium">
+            <p className="mb-1 text-base font-medium sm:mb-2 sm:text-lg md:text-xl">
               {profile.age} years{profile.height ? ` • ${heightToFeetInches(profile.height)}` : ""}
             </p>
             {profile.residingCity && (
-              <p className="flex items-center gap-2 text-lg">
-                <MapPin className="h-5 w-5" />
+              <p className="flex items-center gap-1.5 text-sm sm:gap-2 sm:text-base md:text-lg">
+                <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
                 {profile.residingCity}, {profile.residingState}
               </p>
             )}
           </div>
         </div>
 
-        <CardContent className="from-muted/30 bg-gradient-to-b to-transparent py-6">
-          <div className="flex flex-wrap items-center gap-3">
+        <CardContent className="from-muted/30 bg-gradient-to-b to-transparent px-3 py-4 sm:px-6 sm:py-6">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <Button
               onClick={handleSendInterest}
               disabled={isSendingInterest || interestSent}
@@ -470,7 +470,7 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
         </CardContent>
       </Card>
 
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-2 md:gap-8">
         {(profile.email || profile.phoneNumber) && (
           <Card variant="feature" className="border-green-200 bg-green-50 md:col-span-2">
             <CardHeader>

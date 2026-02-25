@@ -280,16 +280,16 @@ export default function InterestsPage() {
   }
 
   return (
-    <div className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Interests</h1>
+    <div className="px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:px-8">
+      <div className="mb-4 sm:mb-6 md:mb-8">
+        <h1 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">Interests</h1>
         <p className="text-muted-foreground mt-1 text-sm sm:text-base">
           Manage your sent and received interests
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-4 grid w-full max-w-md grid-cols-3 sm:mb-6">
+        <TabsList className="mb-4 grid w-full grid-cols-3 sm:mb-6 sm:max-w-md">
           <TabsTrigger value="received" className="relative">
             Received
             {pendingCount > 0 && (
@@ -306,7 +306,7 @@ export default function InterestsPage() {
           {received.length === 0 ? (
             <EmptyState type="received" />
           ) : (
-            <div className="max-w-4xl space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {received.map((interest, index) => (
                 <div
                   key={interest.id}
@@ -323,7 +323,7 @@ export default function InterestsPage() {
           {sent.length === 0 ? (
             <EmptyState type="sent" />
           ) : (
-            <div className="max-w-4xl space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {sent.map((interest, index) => (
                 <div
                   key={interest.id}
@@ -340,7 +340,7 @@ export default function InterestsPage() {
           {accepted.length === 0 ? (
             <EmptyState type="accepted" />
           ) : (
-            <div className="max-w-4xl space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {accepted.map((interest, index) => (
                 <div
                   key={interest.id}
