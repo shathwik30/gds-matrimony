@@ -11,7 +11,7 @@ import {
 } from "@/lib/db";
 import { eq, and, desc, sql, gte, inArray } from "drizzle-orm";
 import { getActiveSubscription } from "@/lib/actions/subscription";
-import { requireAuth } from "@/lib/actions/helpers";
+import { requireAuth, getAdminUserIds } from "@/lib/actions/helpers";
 import { calculateAge } from "@/lib/utils";
 import type { ActionResult, DashboardStats } from "@/types";
 
@@ -148,24 +148,30 @@ export async function getProfileViewers(
 
     const safeLimit = Math.min(Math.max(1, limit), 50);
 
-    const views = await db.query.profileViews.findMany({
-      where: eq(profileViews.viewedUserId, userId),
-      orderBy: [desc(profileViews.viewedAt)],
-      limit: safeLimit,
-    });
+    const [views, adminIds] = await Promise.all([
+      db.query.profileViews.findMany({
+        where: eq(profileViews.viewedUserId, userId),
+        orderBy: [desc(profileViews.viewedAt)],
+        limit: safeLimit,
+      }),
+      getAdminUserIds(),
+    ]);
 
-    if (views.length === 0) {
+    const filteredViews =
+      adminIds.length > 0 ? views.filter((v) => !adminIds.includes(v.viewerId)) : views;
+
+    if (filteredViews.length === 0) {
       return { success: true, data: [] };
     }
 
-    const viewerIds = views.map((view) => view.viewerId);
+    const viewerIds = filteredViews.map((view) => view.viewerId);
     const viewerProfiles = await db.query.profiles.findMany({
       where: inArray(profiles.userId, viewerIds),
     });
     const profileMap = new Map(viewerProfiles.map((p) => [p.userId, p]));
 
     const formattedViews: ProfileViewData[] = [];
-    for (const view of views) {
+    for (const view of filteredViews) {
       const viewerProfile = profileMap.get(view.viewerId);
       if (viewerProfile) {
         formattedViews.push({
@@ -203,7 +209,7 @@ export async function getRecentActivity(limit: number = 20): Promise<ActionResul
 
     const activities: ActivityItem[] = [];
 
-    const [views, receivedInterests] = await Promise.all([
+    const [views, receivedInterests, adminIds] = await Promise.all([
       canSeeViewers
         ? db.query.profileViews.findMany({
             where: eq(profileViews.viewedUserId, userId),
@@ -218,11 +224,19 @@ export async function getRecentActivity(limit: number = 20): Promise<ActionResul
             limit: 10,
           })
         : Promise.resolve([]),
+      getAdminUserIds(),
     ]);
 
+    const filteredViews =
+      adminIds.length > 0 ? views.filter((v) => !adminIds.includes(v.viewerId)) : views;
+    const filteredInterests =
+      adminIds.length > 0
+        ? receivedInterests.filter((i) => !adminIds.includes(i.senderId))
+        : receivedInterests;
+
     const userIdsToFetch = new Set<number>();
-    views.forEach((view) => userIdsToFetch.add(view.viewerId));
-    receivedInterests.forEach((interest) => userIdsToFetch.add(interest.senderId));
+    filteredViews.forEach((view) => userIdsToFetch.add(view.viewerId));
+    filteredInterests.forEach((interest) => userIdsToFetch.add(interest.senderId));
 
     let profileMap = new Map<number, typeof profiles.$inferSelect>();
     if (userIdsToFetch.size > 0) {
@@ -232,7 +246,7 @@ export async function getRecentActivity(limit: number = 20): Promise<ActionResul
       profileMap = new Map(profilesList.map((p) => [p.userId, p]));
     }
 
-    for (const view of views) {
+    for (const view of filteredViews) {
       const viewerProfile = profileMap.get(view.viewerId);
       if (viewerProfile) {
         activities.push({
@@ -251,7 +265,7 @@ export async function getRecentActivity(limit: number = 20): Promise<ActionResul
       }
     }
 
-    for (const interest of receivedInterests) {
+    for (const interest of filteredInterests) {
       const senderProfile = profileMap.get(interest.senderId);
       if (senderProfile) {
         activities.push({

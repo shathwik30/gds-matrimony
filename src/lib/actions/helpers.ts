@@ -1,7 +1,7 @@
 "use server";
 
 import { db, blocks, users } from "@/lib/db";
-import { eq, and, or } from "drizzle-orm";
+import { eq, and, or, inArray } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { parseAdminEmails, parseUserId } from "@/lib/utils";
 import type { ActionResult } from "@/types";
@@ -55,4 +55,15 @@ export async function checkBlocked(userId1: number, userId2: number): Promise<bo
     ),
   });
   return !!blockExists;
+}
+
+/** Returns the user IDs of all admin accounts, for filtering them out of user-facing queries. */
+export async function getAdminUserIds(): Promise<number[]> {
+  const adminEmails = parseAdminEmails(process.env.ADMIN_EMAILS);
+  if (adminEmails.length === 0) return [];
+  const adminUsers = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(inArray(users.email, adminEmails));
+  return adminUsers.map((u) => u.id);
 }

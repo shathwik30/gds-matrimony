@@ -26,7 +26,7 @@ function extractFileKey(url: string): string | null {
 import { calculateAge, calculateProfileCompletion } from "@/lib/utils";
 import { calculateCompatibilityScore } from "@/lib/utils/compatibility";
 import { getActiveSubscription } from "@/lib/actions/subscription";
-import { requireAuth } from "@/lib/actions/helpers";
+import { requireAuth, getAdminUserIds } from "@/lib/actions/helpers";
 import type { ProfileInput, PartnerPreferencesInput } from "@/lib/validations/profile";
 import type { ActionResult, MatchProfile, SearchFilters } from "@/types";
 
@@ -464,12 +464,19 @@ export async function getMatchingProfiles(
       else blockedUserIds.add(row.blockerId);
     }
 
+    // Exclude admin users from match results so they are completely hidden
+    const adminUserIds = await getAdminUserIds();
+
     const conditions: ReturnType<typeof eq>[] = [
       ne(profiles.userId, userId),
       eq(profiles.gender, targetGender),
       eq(profiles.hideProfile, false),
       sql`${profiles.dateOfBirth} IS NOT NULL`,
     ];
+
+    if (adminUserIds.length > 0) {
+      conditions.push(notInArray(profiles.userId, adminUserIds));
+    }
 
     if (blockedUserIds.size > 0) {
       conditions.push(notInArray(profiles.userId, [...blockedUserIds]));
@@ -651,6 +658,14 @@ export async function getProfileById(profileUserId: number): Promise<ActionResul
 
     if (!profile || profile.hideProfile) {
       return { success: false, error: "Profile not found" };
+    }
+
+    // Hide admin profiles from normal users
+    if (userId !== profileUserId) {
+      const adminIds = await getAdminUserIds();
+      if (adminIds.includes(profileUserId)) {
+        return { success: false, error: "Profile not found" };
+      }
     }
 
     if (userId !== profileUserId) {

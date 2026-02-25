@@ -11,27 +11,50 @@ const protectedRoutes = [
   "/settings",
   "/membership",
   "/activity",
+  "/shortlist",
+  "/contact-packs",
   "/admin",
 ];
 
 // Routes that should redirect to dashboard if already logged in
 const authRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
 
+// Dashboard routes that normal users access but admins should not
+const userOnlyRoutes = [
+  "/dashboard",
+  "/matches",
+  "/interests",
+  "/messages",
+  "/profile",
+  "/settings",
+  "/membership",
+  "/activity",
+  "/shortlist",
+  "/contact-packs",
+];
+
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
+  const isAdmin = !!req.auth?.user?.isAdmin;
 
   const isProtectedRoute = protectedRoutes.some((route) => nextUrl.pathname.startsWith(route));
   const isAuthRoute = authRoutes.some((route) => nextUrl.pathname.startsWith(route));
+  const isUserOnlyRoute = userOnlyRoutes.some((route) => nextUrl.pathname.startsWith(route));
 
   // Redirect logged-in users away from auth pages
   if (isAuthRoute && isLoggedIn) {
-    return NextResponse.redirect(new URL("/dashboard", nextUrl));
+    return NextResponse.redirect(new URL(isAdmin ? "/admin" : "/dashboard", nextUrl));
   }
 
-  // Redirect logged-in users from landing page to dashboard
+  // Redirect logged-in users from landing page
   if (nextUrl.pathname === "/" && isLoggedIn) {
-    return NextResponse.redirect(new URL("/dashboard", nextUrl));
+    return NextResponse.redirect(new URL(isAdmin ? "/admin" : "/dashboard", nextUrl));
+  }
+
+  // Redirect admin users away from normal user routes to admin panel
+  if (isUserOnlyRoute && isLoggedIn && isAdmin) {
+    return NextResponse.redirect(new URL("/admin", nextUrl));
   }
 
   // Redirect non-logged-in users to login

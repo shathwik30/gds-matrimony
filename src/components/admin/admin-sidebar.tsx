@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Users,
+  UserPlus,
   Shield,
   AlertTriangle,
   Mail,
@@ -13,7 +14,6 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { logoutUser } from "@/lib/actions/auth";
@@ -21,6 +21,7 @@ import { logoutUser } from "@/lib/actions/auth";
 const sidebarItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/create-user", label: "Create User", icon: UserPlus },
   { href: "/admin/verifications", label: "Verifications", icon: Shield },
   { href: "/admin/reports", label: "Reports", icon: AlertTriangle },
   { href: "/admin/contact-submissions", label: "Contact Submissions", icon: Mail },
@@ -73,14 +74,7 @@ export function AdminSidebar() {
         </ul>
       </nav>
 
-      <div className="space-y-2 border-t border-slate-700 p-4">
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-800 hover:text-white"
-        >
-          <ChevronLeft className="h-5 w-5" />
-          Back to Dashboard
-        </Link>
+      <div className="border-t border-slate-700 p-4">
         <Button
           variant="ghost"
           className="w-full justify-start gap-3 text-slate-300 hover:bg-slate-800 hover:text-white"

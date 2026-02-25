@@ -12,7 +12,7 @@ import {
 import { eq, and, or, desc, asc, sql, gt, ne, inArray } from "drizzle-orm";
 import { logActivity } from "@/lib/actions/activity";
 import { getActiveSubscription } from "@/lib/actions/subscription";
-import { requireAuth, checkBlocked } from "@/lib/actions/helpers";
+import { requireAuth, checkBlocked, getAdminUserIds } from "@/lib/actions/helpers";
 import { isFreeUser } from "@/lib/utils/subscription";
 import jwt from "jsonwebtoken";
 import { env } from "@/lib/env";
@@ -582,6 +582,12 @@ export async function getChatUserInfo(otherUserId: number): Promise<
     });
 
     if (!profile) return { success: false, error: "User not found" };
+
+    // Hide admin profiles from normal users
+    const adminIds = await getAdminUserIds();
+    if (adminIds.includes(otherUserId)) {
+      return { success: false, error: "User not found" };
+    }
 
     return {
       success: true,

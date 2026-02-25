@@ -15,6 +15,7 @@ import {
   contactSubmissions,
 } from "@/lib/db";
 import { eq, and, desc, sql, gte, lte, count, ne, inArray, type SQL } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 import { requireAdmin } from "@/lib/actions/helpers";
 import type { ActionResult } from "@/types";
 
@@ -1049,4 +1050,76 @@ export async function getDetailedAnalytics(): Promise<DetailedAnalytics> {
       count: c.count,
     })),
   };
+}
+
+export interface AdminCreateUserInput {
+  email: string;
+  password: string;
+  profileFor: "myself" | "son" | "daughter" | "brother" | "sister" | "friend";
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+}
+
+export async function adminCreateUser(data: AdminCreateUserInput): Promise<ActionResult> {
+  try {
+    const adminResult = await requireAdmin();
+    if (adminResult.error) return adminResult.error;
+
+    const email = data.email.trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return { success: false, error: "Please enter a valid email address" };
+    }
+
+    if (!data.password || data.password.length < 8) {
+      return { success: false, error: "Password must be at least 8 characters" };
+    }
+
+    const existingUser = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
+    if (existingUser) {
+      return { success: false, error: "A user with this email already exists" };
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 12);
+
+    await db.transaction(async (tx) => {
+      const [user] = await tx
+        .insert(users)
+        .values({
+          email,
+          password: hashedPassword,
+          profileFor: data.profileFor,
+          phoneNumber: data.phoneNumber?.trim() || null,
+          emailVerified: true, // Admin-created accounts are pre-verified
+          isActive: true,
+        })
+        .returning({ id: users.id });
+
+      await tx.insert(profiles).values({
+        userId: user.id,
+        firstName: data.firstName?.trim() || null,
+        lastName: data.lastName?.trim() || null,
+      });
+
+      await tx.insert(subscriptions).values({
+        userId: user.id,
+        plan: "free",
+        isActive: true,
+        interestsPerDay: 5,
+        contactViews: 0,
+        profileBoosts: 0,
+      });
+    });
+
+    return {
+      success: true,
+      message: `User account created successfully for ${email}`,
+    };
+  } catch (error) {
+    console.error("Admin create user error:", error);
+    return { success: false, error: "Failed to create user account" };
+  }
 }

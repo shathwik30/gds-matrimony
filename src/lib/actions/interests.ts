@@ -6,7 +6,7 @@ import { calculateAge } from "@/lib/utils";
 import { sendInterestEmail, sendInterestAcceptedEmail } from "@/lib/email";
 import { logActivity } from "@/lib/actions/activity";
 import { getActiveSubscription } from "@/lib/actions/subscription";
-import { requireAuth, checkBlocked } from "@/lib/actions/helpers";
+import { requireAuth, checkBlocked, getAdminUserIds } from "@/lib/actions/helpers";
 import { isUnlimited } from "@/lib/utils/subscription";
 import type { ActionResult, InterestWithProfile } from "@/types";
 
@@ -245,24 +245,30 @@ export async function getReceivedInterests(): Promise<ActionResult<InterestWithP
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
-    const received = await db.query.interests.findMany({
-      where: eq(interests.receiverId, userId),
-      orderBy: [desc(interests.createdAt)],
-      with: {
-        fromProfile: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                lastActive: true,
+    const [received, adminIds] = await Promise.all([
+      db.query.interests.findMany({
+        where: eq(interests.receiverId, userId),
+        orderBy: [desc(interests.createdAt)],
+        with: {
+          fromProfile: {
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  lastActive: true,
+                },
               },
             },
           },
         },
-      },
-    });
+      }),
+      getAdminUserIds(),
+    ]);
 
-    const formatted = received.map((interest) =>
+    const filtered =
+      adminIds.length > 0 ? received.filter((i) => !adminIds.includes(i.senderId)) : received;
+
+    const formatted = filtered.map((interest) =>
       formatInterestProfile(interest, interest.fromProfile)
     );
 
@@ -279,24 +285,32 @@ export async function getSentInterests(): Promise<ActionResult<InterestWithProfi
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
-    const sent = await db.query.interests.findMany({
-      where: eq(interests.senderId, userId),
-      orderBy: [desc(interests.createdAt)],
-      with: {
-        toProfile: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                lastActive: true,
+    const [sent, adminIds] = await Promise.all([
+      db.query.interests.findMany({
+        where: eq(interests.senderId, userId),
+        orderBy: [desc(interests.createdAt)],
+        with: {
+          toProfile: {
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  lastActive: true,
+                },
               },
             },
           },
         },
-      },
-    });
+      }),
+      getAdminUserIds(),
+    ]);
 
-    const formatted = sent.map((interest) => formatInterestProfile(interest, interest.toProfile));
+    const filtered =
+      adminIds.length > 0 ? sent.filter((i) => !adminIds.includes(i.receiverId)) : sent;
+
+    const formatted = filtered.map((interest) =>
+      formatInterestProfile(interest, interest.toProfile)
+    );
 
     return { success: true, data: formatted };
   } catch (error) {
@@ -353,37 +367,48 @@ export async function getAcceptedInterests(): Promise<ActionResult<InterestWithP
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
-    const accepted = await db.query.interests.findMany({
-      where: and(
-        or(eq(interests.senderId, userId), eq(interests.receiverId, userId)),
-        eq(interests.status, "accepted")
-      ),
-      orderBy: [desc(interests.respondedAt)],
-      with: {
-        fromProfile: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                lastActive: true,
+    const [accepted, adminIds] = await Promise.all([
+      db.query.interests.findMany({
+        where: and(
+          or(eq(interests.senderId, userId), eq(interests.receiverId, userId)),
+          eq(interests.status, "accepted")
+        ),
+        orderBy: [desc(interests.respondedAt)],
+        with: {
+          fromProfile: {
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  lastActive: true,
+                },
+              },
+            },
+          },
+          toProfile: {
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  lastActive: true,
+                },
               },
             },
           },
         },
-        toProfile: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                lastActive: true,
-              },
-            },
-          },
-        },
-      },
-    });
+      }),
+      getAdminUserIds(),
+    ]);
 
-    const formatted = accepted.map((interest) => {
+    const filtered =
+      adminIds.length > 0
+        ? accepted.filter((i) => {
+            const otherUserId = i.senderId === userId ? i.receiverId : i.senderId;
+            return !adminIds.includes(otherUserId);
+          })
+        : accepted;
+
+    const formatted = filtered.map((interest) => {
       const isFromMe = interest.senderId === userId;
       const otherProfile = isFromMe ? interest.toProfile : interest.fromProfile;
       return formatInterestProfile(interest, otherProfile);

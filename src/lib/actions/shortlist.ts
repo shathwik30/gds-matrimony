@@ -4,7 +4,7 @@ import { db, shortlists, users, profiles } from "@/lib/db";
 import { eq, and, desc, inArray, sql } from "drizzle-orm";
 import { logActivity } from "@/lib/actions/activity";
 import { getActiveSubscription } from "@/lib/actions/subscription";
-import { requireAuth, checkBlocked } from "@/lib/actions/helpers";
+import { requireAuth, checkBlocked, getAdminUserIds } from "@/lib/actions/helpers";
 import type { ActionResult } from "@/types";
 
 const MAX_SHORTLIST_SIZE = 100;
@@ -139,22 +139,30 @@ export async function getMyShortlist(): Promise<ActionResult<ShortlistProfile[]>
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
-    const shortlistItems = await db.query.shortlists.findMany({
-      where: eq(shortlists.userId, userId),
-      orderBy: [desc(shortlists.createdAt)],
-    });
+    const [shortlistItems, adminIds] = await Promise.all([
+      db.query.shortlists.findMany({
+        where: eq(shortlists.userId, userId),
+        orderBy: [desc(shortlists.createdAt)],
+      }),
+      getAdminUserIds(),
+    ]);
 
-    if (shortlistItems.length === 0) {
+    const filtered =
+      adminIds.length > 0
+        ? shortlistItems.filter((item) => !adminIds.includes(item.shortlistedUserId))
+        : shortlistItems;
+
+    if (filtered.length === 0) {
       return { success: true, data: [] };
     }
 
-    const shortlistedUserIds = shortlistItems.map((item) => item.shortlistedUserId);
+    const shortlistedUserIds = filtered.map((item) => item.shortlistedUserId);
     const profilesList = await db.query.profiles.findMany({
       where: inArray(profiles.userId, shortlistedUserIds),
     });
 
     const profileMap = new Map(profilesList.map((p) => [p.userId, p]));
-    const result = shortlistItems.map((item) =>
+    const result = filtered.map((item) =>
       mapShortlistProfile(item, item.shortlistedUserId, profileMap)
     );
 
@@ -215,22 +223,30 @@ export async function getWhoShortlistedMe(): Promise<ActionResult<ShortlistProfi
       return { success: false, error: "Upgrade to Gold or Platinum to see who shortlisted you" };
     }
 
-    const shortlistItems = await db.query.shortlists.findMany({
-      where: eq(shortlists.shortlistedUserId, userId),
-      orderBy: [desc(shortlists.createdAt)],
-    });
+    const [shortlistItems, adminIds] = await Promise.all([
+      db.query.shortlists.findMany({
+        where: eq(shortlists.shortlistedUserId, userId),
+        orderBy: [desc(shortlists.createdAt)],
+      }),
+      getAdminUserIds(),
+    ]);
 
-    if (shortlistItems.length === 0) {
+    const filtered =
+      adminIds.length > 0
+        ? shortlistItems.filter((item) => !adminIds.includes(item.userId))
+        : shortlistItems;
+
+    if (filtered.length === 0) {
       return { success: true, data: [] };
     }
 
-    const shortlisterUserIds = shortlistItems.map((item) => item.userId);
+    const shortlisterUserIds = filtered.map((item) => item.userId);
     const profilesList = await db.query.profiles.findMany({
       where: inArray(profiles.userId, shortlisterUserIds),
     });
 
     const profileMap = new Map(profilesList.map((p) => [p.userId, p]));
-    const result = shortlistItems.map((item) => mapShortlistProfile(item, item.userId, profileMap));
+    const result = filtered.map((item) => mapShortlistProfile(item, item.userId, profileMap));
 
     return { success: true, data: result };
   } catch (error) {

@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db, users, subscriptions } from "@/lib/db";
 import { eq, sql } from "drizzle-orm";
+import { parseAdminEmails } from "@/lib/utils";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -86,6 +87,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           .set({ lastActive: new Date(), failedLoginAttempts: 0, lockedUntil: null })
           .where(eq(users.id, user.id));
 
+        const adminEmails = parseAdminEmails(process.env.ADMIN_EMAILS);
+        const isAdmin = adminEmails.includes(email);
+
         return {
           id: String(user.id),
           email: user.email,
@@ -95,6 +99,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           image: user.profile?.profileImage || undefined,
           profileCompleted: (user.profile?.profileCompletion || 0) >= 70,
           subscriptionPlan: user.subscriptions?.[0]?.plan || "free",
+          isAdmin,
         };
       },
     }),
@@ -105,6 +110,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = user.id;
         token.profileCompleted = user.profileCompleted;
         token.subscriptionPlan = user.subscriptionPlan;
+        token.isAdmin = user.isAdmin;
         if (user.name) token.name = user.name;
         if (user.image) token.picture = user.image;
         token.lastActiveCheck = Date.now();
@@ -115,7 +121,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           const dbUser = await db.query.users.findFirst({
             where: eq(users.id, parseInt(token.id as string, 10)),
-            columns: { isActive: true },
+            columns: { isActive: true, email: true },
             with: {
               profile: {
                 columns: {
@@ -137,6 +143,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
           token.subscriptionPlan = dbUser.subscriptions?.[0]?.plan || "free";
           token.profileCompleted = (dbUser.profile?.profileCompletion || 0) >= 70;
+          const refreshAdminEmails = parseAdminEmails(process.env.ADMIN_EMAILS);
+          token.isAdmin = refreshAdminEmails.includes(dbUser.email.toLowerCase());
           if (dbUser.profile?.firstName) {
             token.name = `${dbUser.profile.firstName} ${dbUser.profile.lastName || ""}`.trim();
           }
@@ -167,6 +175,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         session.user.profileCompleted = token.profileCompleted as boolean;
         session.user.subscriptionPlan = token.subscriptionPlan as string;
+        session.user.isAdmin = (token.isAdmin as boolean) || false;
         if (token.name) session.user.name = token.name;
         if (token.picture) session.user.image = token.picture as string;
       }
@@ -188,6 +197,7 @@ declare module "next-auth" {
   interface User {
     profileCompleted?: boolean;
     subscriptionPlan?: string;
+    isAdmin?: boolean;
   }
 
   interface Session {
@@ -198,6 +208,7 @@ declare module "next-auth" {
       image?: string | null;
       profileCompleted?: boolean;
       subscriptionPlan?: string;
+      isAdmin?: boolean;
     };
   }
 }
@@ -207,5 +218,6 @@ declare module "@auth/core/jwt" {
     id?: string;
     profileCompleted?: boolean;
     subscriptionPlan?: string;
+    isAdmin?: boolean;
   }
 }
