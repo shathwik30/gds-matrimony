@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db, payments, subscriptions } from "@/lib/db";
+import { db, payments, subscriptions, contactPackPurchases } from "@/lib/db";
 import { eq, and } from "drizzle-orm";
 import {
   verifyRazorpaySignature,
@@ -26,12 +26,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }
 
-    // Reject stale webhooks (older than 5 minutes based on header timestamp)
+    // Log stale webhooks but still process them to avoid missing legitimate payments
     const webhookTimestamp = req.headers.get("x-razorpay-event-timestamp");
     if (webhookTimestamp) {
       const eventAge = Date.now() - parseInt(webhookTimestamp, 10) * 1000;
       if (eventAge > 5 * 60 * 1000) {
-        return NextResponse.json({ received: true, warning: "Stale webhook event" });
+        console.warn(`Processing stale webhook event (age: ${Math.round(eventAge / 1000)}s)`);
       }
     }
 
@@ -156,17 +156,28 @@ export async function POST(req: NextRequest) {
         });
 
         if (paymentRecord) {
-          await db
-            .update(payments)
-            .set({ status: "refunded", updatedAt: new Date() })
-            .where(eq(payments.id, paymentRecord.id));
+          await db.transaction(async (tx) => {
+            await tx
+              .update(payments)
+              .set({ status: "refunded", updatedAt: new Date() })
+              .where(eq(payments.id, paymentRecord.id));
 
-          if (paymentRecord.subscriptionId) {
-            await db
-              .update(subscriptions)
-              .set({ isActive: false })
-              .where(eq(subscriptions.id, paymentRecord.subscriptionId));
-          }
+            // Deactivate subscription if refunded
+            if (paymentRecord.subscriptionId) {
+              await tx
+                .update(subscriptions)
+                .set({ isActive: false })
+                .where(eq(subscriptions.id, paymentRecord.subscriptionId));
+            }
+
+            // Deactivate contact packs if refunded
+            if (paymentRecord.purchaseType?.startsWith("contact_pack_")) {
+              await tx
+                .update(contactPackPurchases)
+                .set({ contactsRemaining: 0 })
+                .where(eq(contactPackPurchases.paymentId, paymentRecord.id));
+            }
+          });
         }
         break;
       }

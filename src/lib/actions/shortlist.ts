@@ -15,6 +15,10 @@ export async function addToShortlist(userId: number): Promise<ActionResult> {
     if (authResult.error) return authResult.error;
     const currentUserId = authResult.userId;
 
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return { success: false, error: "Invalid user" };
+    }
+
     if (currentUserId === userId) {
       return { success: false, error: "You cannot shortlist yourself" };
     }
@@ -70,6 +74,10 @@ export async function removeFromShortlist(userId: number): Promise<ActionResult>
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
     const currentUserId = authResult.userId;
+
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return { success: false, error: "Invalid user" };
+    }
 
     await db
       .delete(shortlists)

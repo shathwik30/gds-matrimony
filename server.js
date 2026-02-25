@@ -144,7 +144,7 @@ app.prepare().then(() => {
         }
       } catch (err) {
         console.error("Socket auth DB check failed:", err);
-        // Allow connection on DB failure to avoid blocking legitimate users
+        return next(new Error("Authentication service unavailable"));
       }
     }
 
@@ -177,10 +177,27 @@ app.prepare().then(() => {
       }
     }
 
-    // Handle typing status - validate sender matches authenticated user
-    socket.on("typing", ({ otherUserId, isTyping }) => {
+    // Handle typing status - validate sender matches authenticated user and is conversation participant
+    socket.on("typing", async ({ otherUserId, isTyping }) => {
       if (!otherUserId) return;
       if (!checkRateLimit(userId, "typing")) return;
+
+      // Validate conversation exists between these two users
+      if (socketDb) {
+        try {
+          const [u1, u2] =
+            parseInt(userId, 10) < parseInt(otherUserId, 10)
+              ? [parseInt(userId, 10), parseInt(otherUserId, 10)]
+              : [parseInt(otherUserId, 10), parseInt(userId, 10)];
+          const conv = await socketDb.execute(
+            `SELECT id FROM conversations WHERE user1_id = $1 AND user2_id = $2 LIMIT 1`,
+            [u1, u2]
+          );
+          if (!conv.rows?.length) return;
+        } catch {
+          // Allow on DB error to avoid blocking real-time UX
+        }
+      }
 
       io.to(`user:${otherUserId}`).emit("user_typing", {
         userId,
@@ -214,10 +231,27 @@ app.prepare().then(() => {
       });
     });
 
-    // Handle message read receipts - validate messageIds is a non-empty array
-    socket.on("messages_read", ({ otherUserId, messageIds }) => {
+    // Handle message read receipts - validate messageIds and conversation participation
+    socket.on("messages_read", async ({ otherUserId, messageIds }) => {
       if (!otherUserId || !Array.isArray(messageIds) || messageIds.length === 0) return;
       if (!checkRateLimit(userId, "messages_read")) return;
+
+      // Validate conversation exists between these two users
+      if (socketDb) {
+        try {
+          const [u1, u2] =
+            parseInt(userId, 10) < parseInt(otherUserId, 10)
+              ? [parseInt(userId, 10), parseInt(otherUserId, 10)]
+              : [parseInt(otherUserId, 10), parseInt(userId, 10)];
+          const conv = await socketDb.execute(
+            `SELECT id FROM conversations WHERE user1_id = $1 AND user2_id = $2 LIMIT 1`,
+            [u1, u2]
+          );
+          if (!conv.rows?.length) return;
+        } catch {
+          // Allow on DB error to avoid blocking real-time UX
+        }
+      }
 
       // Cap messageIds to prevent abuse
       const safeIds = messageIds.slice(0, 100);

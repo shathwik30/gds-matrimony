@@ -11,6 +11,10 @@ export async function blockUser(blockedUserId: number, reason?: string): Promise
     if (authResult.error) return authResult.error;
     const blockerId = authResult.userId;
 
+    if (!Number.isInteger(blockedUserId) || blockedUserId <= 0) {
+      return { success: false, error: "Invalid user" };
+    }
+
     if (blockerId === blockedUserId) {
       return { success: false, error: "Cannot block yourself" };
     }
@@ -42,6 +46,10 @@ export async function unblockUser(blockedUserId: number): Promise<ActionResult> 
     if (authResult.error) return authResult.error;
     const blockerId = authResult.userId;
 
+    if (!Number.isInteger(blockedUserId) || blockedUserId <= 0) {
+      return { success: false, error: "Invalid user" };
+    }
+
     await db
       .delete(blocks)
       .where(and(eq(blocks.blockerId, blockerId), eq(blocks.blockedUserId, blockedUserId)));
@@ -62,6 +70,10 @@ export async function reportUser(
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
     const reporterId = authResult.userId;
+
+    if (!Number.isInteger(reportedUserId) || reportedUserId <= 0) {
+      return { success: false, error: "Invalid user" };
+    }
 
     if (reporterId === reportedUserId) {
       return { success: false, error: "Cannot report yourself" };

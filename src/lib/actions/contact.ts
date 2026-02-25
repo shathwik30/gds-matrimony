@@ -3,6 +3,7 @@
 import { sendEmail } from "@/lib/email";
 import { db, contactSubmissions } from "@/lib/db";
 import { escapeHtml } from "@/lib/utils";
+import { sql } from "drizzle-orm";
 import type { ActionResult } from "@/types";
 
 interface ContactFormData {
@@ -15,6 +16,21 @@ interface ContactFormData {
 
 export async function submitContactForm(data: ContactFormData): Promise<ActionResult> {
   try {
+    // Rate limit: max 3 submissions per email per hour
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const [recentCount] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(contactSubmissions)
+      .where(
+        sql`${contactSubmissions.email} = ${data.email?.trim()?.toLowerCase()} AND ${contactSubmissions.createdAt} >= ${oneHourAgo}`
+      );
+    if (Number(recentCount?.count || 0) >= 3) {
+      return {
+        success: false,
+        error: "Too many submissions. Please try again later.",
+      };
+    }
+
     // Validate required fields
     if (
       !data.name?.trim() ||

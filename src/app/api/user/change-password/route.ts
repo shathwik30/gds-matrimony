@@ -47,9 +47,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!/^(?=.*[a-zA-Z])(?=.*[0-9])/.test(newPassword)) {
+    if (!/^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9])/.test(newPassword)) {
       return NextResponse.json(
-        { error: "Password must contain both letters and numbers" },
+        { error: "Password must contain letters, numbers, and at least one special character" },
         { status: 400 }
       );
     }

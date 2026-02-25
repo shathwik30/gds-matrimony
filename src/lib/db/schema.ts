@@ -163,6 +163,7 @@ export const profiles = pgTable(
     index("profiles_state_idx").on(table.residingState),
     index("profiles_hide_profile_idx").on(table.hideProfile),
     index("profiles_trust_level_idx").on(table.trustLevel),
+    index("profiles_completion_idx").on(table.profileCompletion),
   ]
 );
 
@@ -248,6 +249,7 @@ export const subscriptions = pgTable(
   (table) => [
     index("subscriptions_user_idx").on(table.userId),
     index("subscriptions_active_idx").on(table.userId, table.isActive),
+    index("subscriptions_expiry_idx").on(table.userId, table.endDate),
   ]
 );
 
@@ -258,7 +260,9 @@ export const payments = pgTable(
     userId: integer("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
-    subscriptionId: integer("subscription_id").references(() => subscriptions.id),
+    subscriptionId: integer("subscription_id").references(() => subscriptions.id, {
+      onDelete: "set null",
+    }),
 
     razorpayOrderId: varchar("razorpay_order_id", { length: 255 }),
     razorpayPaymentId: varchar("razorpay_payment_id", { length: 255 }),
@@ -341,6 +345,7 @@ export const profileViews = pgTable(
   (table) => [
     index("profile_views_viewer_idx").on(table.viewerId),
     index("profile_views_viewed_idx").on(table.viewedUserId),
+    index("profile_views_viewer_recent_idx").on(table.viewerId, table.viewedAt),
   ]
 );
 
@@ -363,6 +368,7 @@ export const profileSeen = pgTable(
     uniqueIndex("profile_seen_unique_idx").on(table.userId, table.seenUserId),
     index("profile_seen_user_idx").on(table.userId),
     index("profile_seen_last_seen_idx").on(table.userId, table.lastSeen),
+    index("profile_seen_seen_user_idx").on(table.seenUserId),
   ]
 );
 
@@ -548,7 +554,7 @@ export const contactPackPurchases = pgTable(
     userId: integer("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
-    paymentId: integer("payment_id").references(() => payments.id),
+    paymentId: integer("payment_id").references(() => payments.id, { onDelete: "set null" }),
     packSize: integer("pack_size").notNull(),
     contactsRemaining: integer("contacts_remaining").notNull(),
     purchasedAt: timestamp("purchased_at").defaultNow(),
@@ -597,6 +603,7 @@ export const activityLogs = pgTable(
   (table) => [
     index("activity_logs_user_idx").on(table.userId),
     index("activity_logs_created_at_idx").on(table.createdAt),
+    index("activity_logs_action_date_idx").on(table.action, table.createdAt),
   ]
 );
 

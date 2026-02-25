@@ -15,11 +15,19 @@ export async function getActiveSubscription(userId: number) {
   if (!subscription) return null;
 
   if (subscription.endDate && new Date(subscription.endDate) < new Date()) {
-    await db
+    // Use optimistic locking to prevent race conditions
+    const [updated] = await db
       .update(subscriptions)
       .set({ isActive: false })
-      .where(eq(subscriptions.id, subscription.id));
-    return null;
+      .where(and(eq(subscriptions.id, subscription.id), eq(subscriptions.isActive, true)))
+      .returning({ id: subscriptions.id });
+    if (updated) return null;
+    // If update failed (another request already deactivated it), re-fetch
+    const refetched = await db.query.subscriptions.findFirst({
+      where: and(eq(subscriptions.userId, userId), eq(subscriptions.isActive, true)),
+      orderBy: [desc(subscriptions.createdAt)],
+    });
+    return refetched ?? null;
   }
 
   return subscription;

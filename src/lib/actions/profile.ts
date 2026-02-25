@@ -612,7 +612,7 @@ export async function getMatchingProfiles(
         trustLevel: p.trustLevel,
         matchScore,
         isBoosted: isBoosted || undefined,
-        lastActive: p.user?.lastActive || undefined,
+        lastActive: p.showLastActive !== false ? p.user?.lastActive || undefined : undefined,
         showLastActive: p.showLastActive ?? undefined,
         showOnlineStatus: p.showOnlineStatus ?? undefined,
       };
@@ -729,7 +729,8 @@ export async function getProfileById(profileUserId: number): Promise<ActionResul
         userId !== profileUserId
           ? calculateCompatibilityScore(viewerPreferences ?? null, profile)
           : 0,
-      lastActive: profile.user?.lastActive || undefined,
+      lastActive:
+        profile.showLastActive !== false ? profile.user?.lastActive || undefined : undefined,
       email: canViewContact ? profile.user?.email : undefined,
       phoneNumber: canViewContact ? profile.user?.phoneNumber || undefined : undefined,
       canViewPhoto,

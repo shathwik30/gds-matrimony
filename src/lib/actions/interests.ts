@@ -69,6 +69,10 @@ export async function sendInterest(toUserId: number): Promise<ActionResult> {
     if (authResult.error) return authResult.error;
     const senderId = authResult.userId;
 
+    if (!Number.isInteger(toUserId) || toUserId <= 0) {
+      return { success: false, error: "Invalid user" };
+    }
+
     if (senderId === toUserId) {
       return { success: false, error: "You cannot send interest to yourself" };
     }
@@ -179,6 +183,14 @@ export async function respondToInterest(
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
+
+    if (!Number.isInteger(interestId) || interestId <= 0) {
+      return { success: false, error: "Invalid interest" };
+    }
+
+    if (status !== "accepted" && status !== "rejected") {
+      return { success: false, error: "Invalid status" };
+    }
 
     const interest = await db.query.interests.findFirst({
       where: and(eq(interests.id, interestId), eq(interests.receiverId, userId)),

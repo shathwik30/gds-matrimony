@@ -224,6 +224,14 @@ export async function getMessages(
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
+    if (!Number.isInteger(otherUserId) || otherUserId <= 0) {
+      return { success: false, error: "Invalid user" };
+    }
+
+    if (userId === otherUserId) {
+      return { success: false, error: "Invalid user" };
+    }
+
     const activeSub = await getActiveSubscription(userId);
     if (isFreeUser(activeSub)) {
       return {
@@ -234,6 +242,16 @@ export async function getMessages(
 
     if (await checkBlocked(userId, otherUserId)) {
       return { success: false, error: "Cannot view messages with this user" };
+    }
+
+    // Verify conversation exists between these two users
+    const [smallerId, largerId] =
+      userId < otherUserId ? [userId, otherUserId] : [otherUserId, userId];
+    const conversation = await db.query.conversations.findFirst({
+      where: and(eq(conversations.user1Id, smallerId), eq(conversations.user2Id, largerId)),
+    });
+    if (!conversation) {
+      return { success: true, data: [] };
     }
 
     const safeLimit = Math.min(Math.max(1, limit), 100);
@@ -359,6 +377,7 @@ export async function getConversations(): Promise<ActionResult<Conversation[]>> 
 
       const lastMessage = convo.lastMessageId ? messageMap.get(convo.lastMessageId) : undefined;
 
+      const showOnline = otherProfile.showOnlineStatus !== false;
       formattedConversations.push({
         id: convo.id,
         otherUser: {
@@ -366,9 +385,10 @@ export async function getConversations(): Promise<ActionResult<Conversation[]>> 
           firstName: otherProfile.firstName,
           lastName: otherProfile.lastName,
           profileImage: otherProfile.profileImage,
-          isOnline: otherProfile.user?.lastActive
-            ? Date.now() - new Date(otherProfile.user.lastActive).getTime() < 5 * 60 * 1000
-            : false,
+          isOnline:
+            showOnline && otherProfile.user?.lastActive
+              ? Date.now() - new Date(otherProfile.user.lastActive).getTime() < 5 * 60 * 1000
+              : false,
         },
         lastMessage: lastMessage
           ? {
@@ -451,6 +471,11 @@ export async function sendMessageWithPhoto(
 
     if (fileSize && fileSize > 5 * 1024 * 1024) {
       return { success: false, error: "Image must be under 5MB" };
+    }
+
+    // Validate attachment URL is from UploadThing
+    if (!photoUrl || !photoUrl.startsWith("https://utfs.io/")) {
+      return { success: false, error: "Invalid attachment URL" };
     }
 
     const activeSub = await getActiveSubscription(userId);
@@ -589,6 +614,8 @@ export async function getChatUserInfo(otherUserId: number): Promise<
       return { success: false, error: "User not found" };
     }
 
+    const showOnline = profile.showOnlineStatus !== false;
+
     return {
       success: true,
       data: {
@@ -596,9 +623,10 @@ export async function getChatUserInfo(otherUserId: number): Promise<
         firstName: profile.firstName,
         lastName: profile.lastName,
         profileImage: profile.profileImage,
-        isOnline: profile.user?.lastActive
-          ? Date.now() - new Date(profile.user.lastActive).getTime() < 5 * 60 * 1000
-          : false,
+        isOnline:
+          showOnline && profile.user?.lastActive
+            ? Date.now() - new Date(profile.user.lastActive).getTime() < 5 * 60 * 1000
+            : false,
       },
     };
   } catch (error) {

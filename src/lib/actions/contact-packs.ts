@@ -36,6 +36,10 @@ export async function useContactView(viewedUserId: number): Promise<ActionResult
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
+    if (!Number.isInteger(viewedUserId) || viewedUserId <= 0) {
+      return { success: false, error: "Invalid user" };
+    }
+
     if (userId === viewedUserId) {
       return { success: true, message: "Viewing own contact" };
     }
@@ -173,8 +177,18 @@ export async function revealContact(
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
+    if (!Number.isInteger(targetUserId) || targetUserId <= 0) {
+      return { success: false, error: "Invalid user" };
+    }
+
     if (userId === targetUserId) {
       return { success: false, error: "Cannot reveal your own contact" };
+    }
+
+    // Verify user has a paid subscription
+    const subscription = await getActiveSubscription(userId);
+    if (!subscription || subscription.plan === "free") {
+      return { success: false, error: "Upgrade to a paid plan to view contact details" };
     }
 
     // eslint-disable-next-line react-hooks/rules-of-hooks -- useContactView is a server action, not a React hook
