@@ -330,8 +330,12 @@ function StatsLoading() {
 }
 
 async function RecommendedMatchesSection() {
-  const result = await getRecommendedMatches(5);
+  const [result, session] = await Promise.all([
+    getRecommendedMatches(5),
+    auth(),
+  ]);
   const matches = result.data || [];
+  const subscriptionPlan = session?.user?.subscriptionPlan || "free";
 
   if (matches.length === 0) {
     return null; // Don't show section if no recommendations
@@ -354,6 +358,7 @@ async function RecommendedMatchesSection() {
             profile={profile}
             variant="compact"
             showMatchScore={true}
+            subscriptionPlan={subscriptionPlan}
           />
         ))}
       </div>
