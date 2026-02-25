@@ -1,6 +1,5 @@
 import { calculateAge } from "@/lib/utils";
 
-// Ordinal income brackets (lowest to highest)
 const INCOME_ORDER: Record<string, number> = {
   upto_3: 0,
   "3_5": 1,
@@ -74,40 +73,32 @@ export interface PartnerPrefs {
   drinking: string | null;
 }
 
-/** Score a numeric value against a [min, max] range with a grace zone for linear decay. */
 function scoreRange(
   value: number | null,
   min: number | null,
   max: number | null,
-  grace: number,
+  grace: number
 ): number {
   if (value == null) return 0;
-  if (min == null && max == null) return -1; // no pref set
+  if (min == null && max == null) return -1;
 
   let lo = min ?? -Infinity;
   let hi = max ?? Infinity;
 
-  // Normalize inverted ranges (e.g. age_min=29, age_max=25)
   if (lo > hi) [lo, hi] = [hi, lo];
 
   if (value >= lo && value <= hi) return 1;
 
   if (grace <= 0) return 0;
 
-  // Distance outside range
   const dist = value < lo ? lo - value : value - hi;
   if (dist > grace) return 0;
   return 1 - dist / grace;
 }
 
-/** Score income as ordinal range with ±1 bracket grace. */
-function scoreIncomeRange(
-  value: string | null,
-  min: string | null,
-  max: string | null,
-): number {
+function scoreIncomeRange(value: string | null, min: string | null, max: string | null): number {
   if (value == null) return 0;
-  if (min == null && max == null) return -1; // no pref set
+  if (min == null && max == null) return -1;
 
   const valOrd = INCOME_ORDER[value];
   if (valOrd === undefined) return 0;
@@ -118,42 +109,33 @@ function scoreIncomeRange(
   let lo = loOrd ?? -Infinity;
   let hi = hiOrd ?? Infinity;
 
-  // Normalize inverted ranges
   if (lo > hi) [lo, hi] = [hi, lo];
 
   if (valOrd >= lo && valOrd <= hi) return 1;
 
-  // ±1 bracket grace (linear decay)
   const dist = valOrd < lo ? lo - valOrd : valOrd - hi;
   if (dist > 1) return 0;
-  return 0.5; // exactly 1 bracket away
+  return 0.5;
 }
 
-/** Score list match: 1 if value is in the preference array, else 0. Returns -1 if no pref set. */
 function scoreList(value: string | null, list: string[] | null): number {
-  if (!list || list.length === 0) return -1; // no pref set
+  if (!list || list.length === 0) return -1;
   if (value == null) return 0;
   return list.includes(value) ? 1 : 0;
 }
 
-/** Score exact match: 1 if equal, 0 otherwise. Returns -1 if no pref set. */
 function scoreExact(value: string | null, pref: string | null): number {
-  if (pref == null || pref === "") return -1; // no pref set
+  if (pref == null || pref === "") return -1;
   if (value == null) return 0;
   return value === pref ? 1 : 0;
 }
 
-/**
- * Calculate compatibility score between a user's partner preferences and a candidate profile.
- * Returns 0–100, or 0 if no preferences are set.
- */
 export function calculateCompatibilityScore(
   preferences: PartnerPrefs | null | undefined,
-  candidate: CandidateProfile,
+  candidate: CandidateProfile
 ): number {
   if (!preferences) return 0;
 
-  // Don't score own profile
   if (preferences.userId === candidate.userId) return 0;
 
   const candidateAge = candidate.dateOfBirth ? calculateAge(candidate.dateOfBirth) : null;
@@ -163,11 +145,20 @@ export function calculateCompatibilityScore(
     { key: "caste", score: scoreList(candidate.caste, preferences.castes) },
     { key: "age", score: scoreRange(candidateAge, preferences.ageMin, preferences.ageMax, 2) },
     { key: "education", score: scoreList(candidate.highestEducation, preferences.educations) },
-    { key: "income", score: scoreIncomeRange(candidate.annualIncome, preferences.incomeMin, preferences.incomeMax) },
+    {
+      key: "income",
+      score: scoreIncomeRange(candidate.annualIncome, preferences.incomeMin, preferences.incomeMax),
+    },
     { key: "motherTongue", score: scoreList(candidate.motherTongue, preferences.motherTongues) },
-    { key: "maritalStatus", score: scoreList(candidate.maritalStatus, preferences.maritalStatuses) },
+    {
+      key: "maritalStatus",
+      score: scoreList(candidate.maritalStatus, preferences.maritalStatuses),
+    },
     { key: "occupation", score: scoreList(candidate.occupation, preferences.occupations) },
-    { key: "height", score: scoreRange(candidate.height, preferences.heightMin, preferences.heightMax, 5) },
+    {
+      key: "height",
+      score: scoreRange(candidate.height, preferences.heightMin, preferences.heightMax, 5),
+    },
     { key: "state", score: scoreList(candidate.residingState, preferences.states) },
     { key: "diet", score: scoreList(candidate.diet, preferences.diets) },
     { key: "city", score: scoreList(candidate.residingCity, preferences.cities) },
@@ -176,18 +167,16 @@ export function calculateCompatibilityScore(
     { key: "drinking", score: scoreExact(candidate.drinking, preferences.drinking) },
   ];
 
-  // Only count criteria where user has set a preference (score !== -1)
   let weightedSum = 0;
   let activeWeight = 0;
 
   for (const { key, score } of scores) {
-    if (score === -1) continue; // no preference set for this criterion
+    if (score === -1) continue;
     const weight = COMPATIBILITY_WEIGHTS[key];
     weightedSum += weight * score;
     activeWeight += weight;
   }
 
-  // No preferences set at all → return 0 (badge hidden in UI)
   if (activeWeight === 0) return 0;
 
   return Math.round(Math.max(0, Math.min(100, (weightedSum / activeWeight) * 100)));

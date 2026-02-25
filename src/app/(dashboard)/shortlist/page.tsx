@@ -39,9 +39,7 @@ export default function ShortlistPage() {
     try {
       const result = await removeFromShortlist(userId);
       if (result.success) {
-        setProfiles((prev) =>
-          prev.filter((p) => p.shortlistedUserId !== userId)
-        );
+        setProfiles((prev) => prev.filter((p) => p.shortlistedUserId !== userId));
         toast.success("Removed from shortlist");
       } else {
         toast.error(result.error || "Failed to remove");
@@ -60,39 +58,37 @@ export default function ShortlistPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="container-wide py-6 sm:py-8 px-4 sm:px-6">
+    <div className="container-wide px-4 py-6 sm:px-6 sm:py-8">
       <div className="mb-6 sm:mb-8">
         <Button variant="ghost" className="mb-4" asChild>
           <Link href="/dashboard">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Link>
         </Button>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
-          My Shortlist
-        </h1>
-        <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">My Shortlist</h1>
+        <p className="text-muted-foreground mt-1 text-sm sm:mt-2 sm:text-base">
           {profiles.length} profile{profiles.length !== 1 ? "s" : ""} shortlisted
         </p>
       </div>
 
       {profiles.length === 0 ? (
-        <Card variant="elevated" className="text-center py-16">
+        <Card variant="elevated" className="py-16 text-center">
           <CardContent className="space-y-4">
-            <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mx-auto">
-              <Bookmark className="h-8 w-8 text-muted-foreground" />
+            <div className="bg-muted mx-auto flex h-16 w-16 items-center justify-center rounded-full">
+              <Bookmark className="text-muted-foreground h-8 w-8" />
             </div>
             <h3 className="text-xl font-semibold">No shortlisted profiles</h3>
-            <p className="text-muted-foreground max-w-md mx-auto">
-              Browse matches and shortlist profiles you are interested in.
-              They will appear here for easy access.
+            <p className="text-muted-foreground mx-auto max-w-md">
+              Browse matches and shortlist profiles you are interested in. They will appear here for
+              easy access.
             </p>
             <Button asChild>
               <Link href="/matches">Browse Matches</Link>
@@ -106,25 +102,18 @@ export default function ShortlistPage() {
 
             const { profile } = item;
             const fullName =
-              [profile.firstName, profile.lastName].filter(Boolean).join(" ") ||
-              "Anonymous";
+              [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "Anonymous";
             const initials = getInitials(profile.firstName, profile.lastName);
-            const age = profile.dateOfBirth
-              ? calculateAge(profile.dateOfBirth)
-              : null;
+            const age = profile.dateOfBirth ? calculateAge(profile.dateOfBirth) : null;
             const isRemoving = removingIds.has(item.shortlistedUserId);
 
             return (
-              <Card
-                key={item.id}
-                variant="elevated"
-                className="overflow-hidden group"
-              >
+              <Card key={item.id} variant="elevated" className="group overflow-hidden">
                 <CardContent className="p-0">
                   <div className="flex items-center gap-4 p-4">
                     <Link
                       href={`/profile/${profile.userId}`}
-                      className="relative h-16 w-16 rounded-full overflow-hidden shrink-0 bg-primary/10"
+                      className="bg-primary/10 relative h-16 w-16 shrink-0 overflow-hidden rounded-full"
                     >
                       {profile.profileImage ? (
                         <Image
@@ -134,37 +123,37 @@ export default function ShortlistPage() {
                           className="object-cover"
                         />
                       ) : (
-                        <div className="h-full w-full flex items-center justify-center text-primary font-semibold text-lg">
+                        <div className="text-primary flex h-full w-full items-center justify-center text-lg font-semibold">
                           {initials}
                         </div>
                       )}
                     </Link>
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       <Link href={`/profile/${profile.userId}`}>
-                        <p className="font-semibold text-base truncate group-hover:text-primary transition-colors">
+                        <p className="group-hover:text-primary truncate text-base font-semibold transition-colors">
                           {fullName}
                         </p>
                       </Link>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         {age ? `${age} yrs` : ""}
                         {age && profile.residingCity ? " · " : ""}
                         {profile.residingCity || ""}
                       </p>
-                      <div className="flex flex-wrap gap-1.5 mt-2">
+                      <div className="mt-2 flex flex-wrap gap-1.5">
                         {profile.residingState && (
-                          <Badge variant="secondary" className="text-xs gap-1">
+                          <Badge variant="secondary" className="gap-1 text-xs">
                             <MapPin className="h-3 w-3" />
                             {profile.residingState}
                           </Badge>
                         )}
                         {profile.highestEducation && (
-                          <Badge variant="secondary" className="text-xs gap-1">
+                          <Badge variant="secondary" className="gap-1 text-xs">
                             <GraduationCap className="h-3 w-3" />
                             {profile.highestEducation}
                           </Badge>
                         )}
                         {profile.occupation && (
-                          <Badge variant="secondary" className="text-xs gap-1">
+                          <Badge variant="secondary" className="gap-1 text-xs">
                             <Briefcase className="h-3 w-3" />
                             {profile.occupation}
                           </Badge>
@@ -174,7 +163,7 @@ export default function ShortlistPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="shrink-0 text-primary hover:text-destructive hover:bg-destructive/10"
+                      className="text-primary hover:text-destructive hover:bg-destructive/10 shrink-0"
                       onClick={() => handleRemove(item.shortlistedUserId)}
                       disabled={isRemoving}
                       title="Remove from shortlist"
@@ -187,8 +176,8 @@ export default function ShortlistPage() {
                     </Button>
                   </div>
                   {item.createdAt && (
-                    <div className="px-4 pb-3 pt-0">
-                      <p className="text-xs text-muted-foreground">
+                    <div className="px-4 pt-0 pb-3">
+                      <p className="text-muted-foreground text-xs">
                         Shortlisted on{" "}
                         {new Date(item.createdAt).toLocaleDateString("en-IN", {
                           day: "numeric",

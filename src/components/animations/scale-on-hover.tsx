@@ -10,14 +10,6 @@ interface ScaleOnHoverProps {
   scale?: number;
 }
 
-/**
- * Wrapper that scales its children on hover using framer-motion spring physics.
- *
- * @example
- * <ScaleOnHover scale={1.1}>
- *   <Card>Hover me</Card>
- * </ScaleOnHover>
- */
 export function ScaleOnHover({ children, className, scale = 1.05 }: ScaleOnHoverProps) {
   return (
     <motion.div
@@ -30,15 +22,13 @@ export function ScaleOnHover({ children, className, scale = 1.05 }: ScaleOnHover
   );
 }
 
-/**
- * Interactive card wrapper with hover lift effect using framer-motion.
- *
- * @example
- * <InteractiveCard>
- *   <Card>Content</Card>
- * </InteractiveCard>
- */
-export function InteractiveCard({ children, className }: { children: ReactNode; className?: string }) {
+export function InteractiveCard({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <motion.div
       className={cn("cursor-pointer", className)}
@@ -51,14 +41,6 @@ export function InteractiveCard({ children, className }: { children: ReactNode; 
   );
 }
 
-/**
- * Button-like wrapper with press effect using framer-motion.
- *
- * @example
- * <PressEffect>
- *   <div>Click me</div>
- * </PressEffect>
- */
 export function PressEffect({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <motion.div

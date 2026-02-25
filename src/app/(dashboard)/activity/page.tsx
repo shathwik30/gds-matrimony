@@ -3,17 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import {
-  Loader2,
-  Eye,
-  Heart,
-  Check,
-  Star,
-  Clock,
-  TrendingUp,
-  Crown,
-  Lock,
-} from "lucide-react";
+import { Loader2, Eye, Heart, Check, Star, Clock, TrendingUp, Crown, Lock } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -69,17 +59,21 @@ function StatCard({
   return (
     <Card variant="elevated" className="group animate-fade-in-up">
       <CardContent className="pt-4 pb-4 sm:pt-6 sm:pb-6">
-        <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-          <div className={`h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-xl ${bgColor} flex items-center justify-center shadow-premium-sm group-hover:scale-110 transition-transform`}>
+        <div className="mb-3 flex items-center gap-3 sm:mb-4 sm:gap-4">
+          <div
+            className={`h-10 w-10 rounded-xl sm:h-12 sm:w-12 md:h-14 md:w-14 ${bgColor} shadow-premium-sm flex items-center justify-center transition-transform group-hover:scale-110`}
+          >
             <Icon className={`h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 ${color}`} />
           </div>
           <div>
-            <p className="text-xl sm:text-2xl md:text-3xl font-bold group-hover:text-primary transition-colors">{value}</p>
-            <p className="text-sm text-muted-foreground font-medium">{title}</p>
+            <p className="group-hover:text-primary text-xl font-bold transition-colors sm:text-2xl md:text-3xl">
+              {value}
+            </p>
+            <p className="text-muted-foreground text-sm font-medium">{title}</p>
           </div>
         </div>
         {trend && (
-          <p className="text-sm text-green-500 flex items-center gap-1">
+          <p className="flex items-center gap-1 text-sm text-green-500">
             <TrendingUp className="h-3 w-3" />
             {trend}
           </p>
@@ -120,7 +114,7 @@ function ActivityCard({ activity }: { activity: ActivityItem }) {
   };
 
   return (
-    <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 border-b last:border-0">
+    <div className="flex items-start gap-3 border-b p-3 last:border-0 sm:gap-4 sm:p-4">
       {activity.user ? (
         <Link href={`/profile/${activity.user.id}`}>
           <Avatar className="h-10 w-10">
@@ -131,22 +125,18 @@ function ActivityCard({ activity }: { activity: ActivityItem }) {
           </Avatar>
         </Link>
       ) : (
-        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+        <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-full">
           {getIcon()}
         </div>
       )}
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1">
-            {getIcon()}
-          </span>
-          <p className="font-medium truncate">{activity.title}</p>
+          <span className="flex items-center gap-1">{getIcon()}</span>
+          <p className="truncate font-medium">{activity.title}</p>
         </div>
-        <p className="text-sm text-muted-foreground truncate">
-          {activity.description}
-        </p>
+        <p className="text-muted-foreground truncate text-sm">{activity.description}</p>
       </div>
-      <span className="text-xs text-muted-foreground whitespace-nowrap">
+      <span className="text-muted-foreground text-xs whitespace-nowrap">
         {formatDate(activity.createdAt)}
       </span>
     </div>
@@ -170,7 +160,7 @@ function ViewerCard({ viewer }: { viewer: ProfileViewData }) {
   return (
     <Link
       href={`/profile/${viewer.viewerId}`}
-      className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border-b last:border-0 hover:bg-muted/50 transition-colors"
+      className="hover:bg-muted/50 flex items-center gap-3 border-b p-3 transition-colors last:border-0 sm:gap-4 sm:p-4"
     >
       <Avatar className="h-12 w-12">
         <AvatarImage src={viewer.viewer.profileImage || undefined} />
@@ -178,17 +168,17 @@ function ViewerCard({ viewer }: { viewer: ProfileViewData }) {
           {getInitials(viewer.viewer.firstName, viewer.viewer.lastName)}
         </AvatarFallback>
       </Avatar>
-      <div className="flex-1 min-w-0">
-        <p className="font-medium truncate">
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium">
           {viewer.viewer.firstName} {viewer.viewer.lastName}
         </p>
-        <p className="text-sm text-muted-foreground truncate">
+        <p className="text-muted-foreground truncate text-sm">
           {viewer.viewer.age && `${viewer.viewer.age} yrs`}
           {viewer.viewer.age && viewer.viewer.residingCity && " | "}
           {viewer.viewer.residingCity}
         </p>
       </div>
-      <span className="text-xs text-muted-foreground whitespace-nowrap">
+      <span className="text-muted-foreground text-xs whitespace-nowrap">
         {formatDate(viewer.viewedAt)}
       </span>
     </Link>
@@ -240,24 +230,25 @@ export default function ActivityPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-brand" />
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="text-brand h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="container-wide py-6 sm:py-8 px-4 sm:px-6">
+    <div className="container-wide px-4 py-6 sm:px-6 sm:py-8">
       <div className="mb-6 sm:mb-8 md:mb-10">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">Activity</h1>
-        <p className="text-sm sm:text-base md:text-lg text-muted-foreground mt-1 sm:mt-2">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">
+          Activity
+        </h1>
+        <p className="text-muted-foreground mt-1 text-sm sm:mt-2 sm:text-base md:text-lg">
           See who viewed your profile and track your activity
         </p>
       </div>
 
-      {/* Stats Grid */}
       {stats && (
-        <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-2 md:grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:mb-8 sm:gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
           <StatCard
             title="Profile Views"
             value={stats.profileViews}
@@ -272,11 +263,7 @@ export default function ActivityPage() {
             icon={Heart}
             color="text-pink-600"
             bgColor="bg-pink-100"
-            trend={
-              stats.pendingInterests > 0
-                ? `${stats.pendingInterests} pending`
-                : undefined
-            }
+            trend={stats.pendingInterests > 0 ? `${stats.pendingInterests} pending` : undefined}
           />
           <StatCard
             title="Interests Sent"
@@ -312,30 +299,29 @@ export default function ActivityPage() {
           <Card variant="elevated">
             <CardHeader>
               <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>
-                Your recent interactions and notifications
-              </CardDescription>
+              <CardDescription>Your recent interactions and notifications</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               {!canSeeWhoLiked && !canSeeViewers ? (
                 <div className="p-8 text-center">
-                  <div className="h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
                     <Lock className="h-8 w-8 text-amber-600" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">Premium Feature</h3>
-                  <p className="text-muted-foreground text-sm mb-4 max-w-md mx-auto">
-                    Upgrade to Silver to see profile views, or Gold to also see who sent you interests.
+                  <h3 className="mb-2 text-lg font-semibold">Premium Feature</h3>
+                  <p className="text-muted-foreground mx-auto mb-4 max-w-md text-sm">
+                    Upgrade to Silver to see profile views, or Gold to also see who sent you
+                    interests.
                   </p>
                   <Button asChild>
                     <Link href="/membership">
-                      <Crown className="h-4 w-4 mr-2" />
+                      <Crown className="mr-2 h-4 w-4" />
                       Upgrade Plan
                     </Link>
                   </Button>
                 </div>
               ) : activities.length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  <Clock className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <div className="text-muted-foreground p-8 text-center">
+                  <Clock className="mx-auto mb-2 h-12 w-12 opacity-50" />
                   <p>No recent activity</p>
                   <p className="text-sm">
                     Your activity will appear here as you interact with other profiles
@@ -356,34 +342,30 @@ export default function ActivityPage() {
           <Card variant="elevated">
             <CardHeader>
               <CardTitle>Who Viewed Your Profile</CardTitle>
-              <CardDescription>
-                People who recently viewed your profile
-              </CardDescription>
+              <CardDescription>People who recently viewed your profile</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
               {!canSeeViewers ? (
                 <div className="p-8 text-center">
-                  <div className="h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
                     <Lock className="h-8 w-8 text-amber-600" />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">Silver Plan Required</h3>
-                  <p className="text-muted-foreground text-sm mb-4 max-w-md mx-auto">
+                  <h3 className="mb-2 text-lg font-semibold">Silver Plan Required</h3>
+                  <p className="text-muted-foreground mx-auto mb-4 max-w-md text-sm">
                     Upgrade to Silver or higher to see who viewed your profile.
                   </p>
                   <Button asChild>
                     <Link href="/membership">
-                      <Crown className="h-4 w-4 mr-2" />
+                      <Crown className="mr-2 h-4 w-4" />
                       Upgrade Plan
                     </Link>
                   </Button>
                 </div>
               ) : viewers.length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  <Eye className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <div className="text-muted-foreground p-8 text-center">
+                  <Eye className="mx-auto mb-2 h-12 w-12 opacity-50" />
                   <p>No profile views yet</p>
-                  <p className="text-sm">
-                    Complete your profile to attract more visitors
-                  </p>
+                  <p className="text-sm">Complete your profile to attract more visitors</p>
                 </div>
               ) : (
                 <div className="divide-y">

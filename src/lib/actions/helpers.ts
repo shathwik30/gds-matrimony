@@ -6,12 +6,14 @@ import { auth } from "@/lib/auth";
 import { parseUserId } from "@/lib/utils";
 import type { ActionResult } from "@/types";
 
-// ── Auth ────────────────────────────────────────────────────────────────
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/**
- * Authenticate the current session and return the numeric userId.
- * Returns an ActionResult error when the user is not authenticated.
- */
+export function parseAdminEmails(envValue?: string): string[] {
+  return (envValue?.split(",") || [])
+    .map((e) => e.trim().toLowerCase())
+    .filter((e) => EMAIL_REGEX.test(e));
+}
+
 export async function requireAuth(): Promise<
   { userId: number; error?: never } | { userId?: never; error: ActionResult<never> }
 > {
@@ -23,10 +25,6 @@ export async function requireAuth(): Promise<
   return { userId };
 }
 
-/**
- * Authenticate + verify admin access. Returns the admin's userId or an error.
- * Admin access is controlled via the ADMIN_EMAILS environment variable.
- */
 export async function requireAdmin(): Promise<
   { userId: number; error?: never } | { userId?: never; error: ActionResult<never> }
 > {
@@ -41,13 +39,12 @@ export async function requireAdmin(): Promise<
     return { error: { success: false, error: "Unauthorized" } };
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const adminEmails = (process.env.ADMIN_EMAILS?.split(",") || [])
-    .map(e => e.trim().toLowerCase())
-    .filter(e => emailRegex.test(e));
+  const adminEmails = parseAdminEmails(process.env.ADMIN_EMAILS);
 
   if (adminEmails.length === 0) {
-    console.error("ADMIN_EMAILS environment variable is not configured or contains no valid emails");
+    console.error(
+      "ADMIN_EMAILS environment variable is not configured or contains no valid emails"
+    );
     return { error: { success: false, error: "Unauthorized" } };
   }
 
@@ -58,11 +55,6 @@ export async function requireAdmin(): Promise<
   return { userId: authResult.userId };
 }
 
-// ── Block checks ────────────────────────────────────────────────────────
-
-/**
- * Check if either user has blocked the other (bidirectional).
- */
 export async function checkBlocked(userId1: number, userId2: number): Promise<boolean> {
   const blockExists = await db.query.blocks.findFirst({
     where: or(
@@ -72,4 +64,3 @@ export async function checkBlocked(userId1: number, userId2: number): Promise<bo
   });
   return !!blockExists;
 }
-

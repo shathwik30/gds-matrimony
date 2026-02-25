@@ -22,8 +22,8 @@ interface RevenueChartProps {
 
 export function RevenueChart({ data }: RevenueChartProps) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-      <h3 className="text-lg font-semibold text-slate-900 mb-4">Revenue Overview</h3>
+    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 className="mb-4 text-lg font-semibold text-slate-900">Revenue Overview</h3>
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
@@ -65,8 +65,8 @@ interface UserGrowthChartProps {
 
 export function UserGrowthChart({ data }: UserGrowthChartProps) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-      <h3 className="text-lg font-semibold text-slate-900 mb-4">User Growth</h3>
+    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 className="mb-4 text-lg font-semibold text-slate-900">User Growth</h3>
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
@@ -104,8 +104,8 @@ export function GenderDistributionChart({ male, female }: GenderDistributionChar
   ];
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-      <h3 className="text-lg font-semibold text-slate-900 mb-4">Gender Distribution</h3>
+    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 className="mb-4 text-lg font-semibold text-slate-900">Gender Distribution</h3>
       <div className="h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -128,13 +128,13 @@ export function GenderDistributionChart({ male, female }: GenderDistributionChar
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <div className="flex justify-center gap-6 mt-2">
+      <div className="mt-2 flex justify-center gap-6">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-blue-500" />
+          <div className="h-3 w-3 rounded-full bg-blue-500" />
           <span className="text-sm text-slate-600">Male ({male})</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-pink-500" />
+          <div className="h-3 w-3 rounded-full bg-pink-500" />
           <span className="text-sm text-slate-600">Female ({female})</span>
         </div>
       </div>
@@ -148,8 +148,8 @@ interface SubscriptionDistributionChartProps {
 
 export function SubscriptionDistributionChart({ data }: SubscriptionDistributionChartProps) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-      <h3 className="text-lg font-semibold text-slate-900 mb-4">Subscription Plans</h3>
+    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 className="mb-4 text-lg font-semibold text-slate-900">Subscription Plans</h3>
       <div className="h-[250px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -172,11 +172,13 @@ export function SubscriptionDistributionChart({ data }: SubscriptionDistribution
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <div className="flex flex-wrap justify-center gap-4 mt-2">
+      <div className="mt-2 flex flex-wrap justify-center gap-4">
         {data.map((item) => (
           <div key={item.name} className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-            <span className="text-sm text-slate-600">{item.name} ({item.value})</span>
+            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
+            <span className="text-sm text-slate-600">
+              {item.name} ({item.value})
+            </span>
           </div>
         ))}
       </div>

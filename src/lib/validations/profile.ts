@@ -2,7 +2,6 @@ import { z } from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import { calculateAge } from "@/lib/utils";
 
-// Reusable Indian phone number validator
 export const indianPhoneSchema = z
   .string()
   .optional()
@@ -16,23 +15,31 @@ export const basicInfoSchema = z.object({
     .string()
     .min(2, "First name must be at least 2 characters")
     .max(50, "First name must be less than 50 characters")
-    .regex(/^[a-zA-Z\s'-]+$/, "First name can only contain letters, spaces, hyphens, and apostrophes"),
+    .regex(
+      /^[a-zA-Z\s'-]+$/,
+      "First name can only contain letters, spaces, hyphens, and apostrophes"
+    ),
   lastName: z
     .string()
     .min(2, "Last name must be at least 2 characters")
     .max(50, "Last name must be less than 50 characters")
-    .regex(/^[a-zA-Z\s'-]+$/, "Last name can only contain letters, spaces, hyphens, and apostrophes"),
+    .regex(
+      /^[a-zA-Z\s'-]+$/,
+      "Last name can only contain letters, spaces, hyphens, and apostrophes"
+    ),
   gender: z.enum(["male", "female"], {
     message: "Please select your gender",
   }),
-  dateOfBirth: z.date({
-    message: "Date of birth is required",
-  }).refine((date) => {
-    return calculateAge(date) >= 18;
-  }, "You must be at least 18 years old")
-  .refine((date) => {
-    return date <= new Date();
-  }, "Date of birth cannot be in the future"),
+  dateOfBirth: z
+    .date({
+      message: "Date of birth is required",
+    })
+    .refine((date) => {
+      return calculateAge(date) >= 18;
+    }, "You must be at least 18 years old")
+    .refine((date) => {
+      return date <= new Date();
+    }, "Date of birth cannot be in the future"),
   phoneNumber: z
     .string()
     .min(1, "Mobile number is required")
@@ -47,8 +54,15 @@ export const basicInfoSchema = z.object({
 });
 
 export const physicalDetailsSchema = z.object({
-  height: z.number().min(140, "Height must be at least 140 cm").max(213, "Height must be less than 213 cm"),
-  weight: z.number().min(30, "Weight must be at least 30 kg").max(200, "Weight must be less than 200 kg").optional(),
+  height: z
+    .number()
+    .min(140, "Height must be at least 140 cm")
+    .max(213, "Height must be less than 213 cm"),
+  weight: z
+    .number()
+    .min(30, "Weight must be at least 30 kg")
+    .max(200, "Weight must be less than 200 kg")
+    .optional(),
   bodyType: z.string().optional(),
   complexion: z.string().optional(),
   physicalStatus: z.string().optional(),
@@ -85,33 +99,42 @@ export const lifestyleSchema = z.object({
   hobbies: z.string().optional(),
 });
 
-export const familyDetailsSchema = z.object({
-  familyStatus: z.string().optional(),
-  familyType: z.string().optional(),
-  familyValue: z.string().optional(),
-  fatherOccupation: z.string().optional(),
-  motherOccupation: z.string().optional(),
-  brothers: z.number().min(0).max(10).optional(),
-  brothersMarried: z.number().min(0).max(10).optional(),
-  sisters: z.number().min(0).max(10).optional(),
-  sistersMarried: z.number().min(0).max(10).optional(),
-}).refine((data) => {
-  if (data.brothers != null && data.brothersMarried != null) {
-    return data.brothersMarried <= data.brothers;
-  }
-  return true;
-}, {
-  message: "Married brothers cannot exceed total brothers",
-  path: ["brothersMarried"],
-}).refine((data) => {
-  if (data.sisters != null && data.sistersMarried != null) {
-    return data.sistersMarried <= data.sisters;
-  }
-  return true;
-}, {
-  message: "Married sisters cannot exceed total sisters",
-  path: ["sistersMarried"],
-});
+export const familyDetailsSchema = z
+  .object({
+    familyStatus: z.string().optional(),
+    familyType: z.string().optional(),
+    familyValue: z.string().optional(),
+    fatherOccupation: z.string().optional(),
+    motherOccupation: z.string().optional(),
+    brothers: z.number().min(0).max(10).optional(),
+    brothersMarried: z.number().min(0).max(10).optional(),
+    sisters: z.number().min(0).max(10).optional(),
+    sistersMarried: z.number().min(0).max(10).optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.brothers != null && data.brothersMarried != null) {
+        return data.brothersMarried <= data.brothers;
+      }
+      return true;
+    },
+    {
+      message: "Married brothers cannot exceed total brothers",
+      path: ["brothersMarried"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.sisters != null && data.sistersMarried != null) {
+        return data.sistersMarried <= data.sisters;
+      }
+      return true;
+    },
+    {
+      message: "Married sisters cannot exceed total sisters",
+      path: ["sistersMarried"],
+    }
+  );
 
 export const aboutMeSchema = z.object({
   aboutMe: z
@@ -120,7 +143,6 @@ export const aboutMeSchema = z.object({
     .max(2000, "About me should be less than 2000 characters"),
 });
 
-// Combined profile schema
 export const profileSchema = basicInfoSchema
   .merge(physicalDetailsSchema)
   .merge(religionLocationSchema)
@@ -129,39 +151,44 @@ export const profileSchema = basicInfoSchema
   .merge(familyDetailsSchema)
   .merge(aboutMeSchema);
 
-// Partner preferences schema
-export const partnerPreferencesSchema = z.object({
-  ageMin: z.number().min(18, "Minimum age must be at least 18").max(70),
-  ageMax: z.number().min(18).max(70, "Maximum age must be less than 70"),
-  heightMin: z.number().min(140).max(220).optional(),
-  heightMax: z.number().min(140).max(220).optional(),
-  religions: z.array(z.string()).optional(),
-  castes: z.array(z.string()).optional(),
-  motherTongues: z.array(z.string()).optional(),
-  countries: z.array(z.string()).optional(),
-  states: z.array(z.string()).optional(),
-  cities: z.array(z.string()).optional(),
-  educations: z.array(z.string()).optional(),
-  occupations: z.array(z.string()).optional(),
-  incomeMin: z.string().optional(),
-  incomeMax: z.string().optional(),
-  maritalStatuses: z.array(z.string()).optional(),
-  diets: z.array(z.string()).optional(),
-  smoking: z.string().optional(),
-  drinking: z.string().optional(),
-  aboutPartner: z.string().max(1000).optional(),
-}).refine((data) => data.ageMax >= data.ageMin, {
-  message: "Maximum age must be greater than minimum age",
-  path: ["ageMax"],
-}).refine((data) => {
-  if (data.heightMin != null && data.heightMax != null) {
-    return data.heightMax >= data.heightMin;
-  }
-  return true;
-}, {
-  message: "Maximum height must be greater than minimum height",
-  path: ["heightMax"],
-});
+export const partnerPreferencesSchema = z
+  .object({
+    ageMin: z.number().min(18, "Minimum age must be at least 18").max(70),
+    ageMax: z.number().min(18).max(70, "Maximum age must be less than 70"),
+    heightMin: z.number().min(140).max(220).optional(),
+    heightMax: z.number().min(140).max(220).optional(),
+    religions: z.array(z.string()).optional(),
+    castes: z.array(z.string()).optional(),
+    motherTongues: z.array(z.string()).optional(),
+    countries: z.array(z.string()).optional(),
+    states: z.array(z.string()).optional(),
+    cities: z.array(z.string()).optional(),
+    educations: z.array(z.string()).optional(),
+    occupations: z.array(z.string()).optional(),
+    incomeMin: z.string().optional(),
+    incomeMax: z.string().optional(),
+    maritalStatuses: z.array(z.string()).optional(),
+    diets: z.array(z.string()).optional(),
+    smoking: z.string().optional(),
+    drinking: z.string().optional(),
+    aboutPartner: z.string().max(1000).optional(),
+  })
+  .refine((data) => data.ageMax >= data.ageMin, {
+    message: "Maximum age must be greater than minimum age",
+    path: ["ageMax"],
+  })
+  .refine(
+    (data) => {
+      if (data.heightMin != null && data.heightMax != null) {
+        return data.heightMax >= data.heightMin;
+      }
+      return true;
+    },
+    {
+      message: "Maximum height must be greater than minimum height",
+      path: ["heightMax"],
+    }
+  );
 
 export type BasicInfoInput = z.infer<typeof basicInfoSchema>;
 export type PhysicalDetailsInput = z.infer<typeof physicalDetailsSchema>;

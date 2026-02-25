@@ -1,6 +1,14 @@
 "use server";
 
-import { db, profileViews, interests, shortlists, profiles, messages, activityLogs } from "@/lib/db";
+import {
+  db,
+  profileViews,
+  interests,
+  shortlists,
+  profiles,
+  messages,
+  activityLogs,
+} from "@/lib/db";
 import { eq, and, desc, sql, gte, inArray } from "drizzle-orm";
 import { getActiveSubscription } from "@/lib/actions/subscription";
 import { requireAuth } from "@/lib/actions/helpers";
@@ -34,7 +42,6 @@ interface ActivityItem {
   };
 }
 
-// Record a profile view
 export async function recordProfileView(viewedUserId: number): Promise<ActionResult> {
   try {
     const authResult = await requireAuth();
@@ -42,10 +49,9 @@ export async function recordProfileView(viewedUserId: number): Promise<ActionRes
     const viewerId = authResult.userId;
 
     if (viewerId === viewedUserId) {
-      return { success: true }; // Don't record self-views
+      return { success: true };
     }
 
-    // Check if already viewed today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -71,10 +77,7 @@ export async function recordProfileView(viewedUserId: number): Promise<ActionRes
   }
 }
 
-// Get profiles that I have viewed
-export async function getViewedByMe(
-  limit: number = 30
-): Promise<ActionResult<ProfileViewData[]>> {
+export async function getViewedByMe(limit: number = 30): Promise<ActionResult<ProfileViewData[]>> {
   try {
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
@@ -111,9 +114,7 @@ export async function getViewedByMe(
             lastName: viewedProfile.lastName,
             profileImage: viewedProfile.profileImage,
             residingCity: viewedProfile.residingCity,
-            age: viewedProfile.dateOfBirth
-              ? calculateAge(viewedProfile.dateOfBirth)
-              : undefined,
+            age: viewedProfile.dateOfBirth ? calculateAge(viewedProfile.dateOfBirth) : undefined,
           },
         });
       }
@@ -126,7 +127,6 @@ export async function getViewedByMe(
   }
 }
 
-// Get who viewed my profile (requires subscription with seeProfileViewers)
 export async function getProfileViewers(
   limit: number = 20
 ): Promise<ActionResult<ProfileViewData[]>> {
@@ -135,13 +135,15 @@ export async function getProfileViewers(
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
-    // Check subscription allows viewing profile viewers (Silver+ only)
     const subscription = await getActiveSubscription(userId);
     const plan = subscription?.plan || "free";
     const canSeeViewers = ["silver", "gold", "platinum"].includes(plan);
 
     if (!canSeeViewers) {
-      return { success: false, error: "Upgrade to Silver or higher to see who viewed your profile" };
+      return {
+        success: false,
+        error: "Upgrade to Silver or higher to see who viewed your profile",
+      };
     }
 
     const safeLimit = Math.min(Math.max(1, limit), 50);
@@ -156,7 +158,6 @@ export async function getProfileViewers(
       return { success: true, data: [] };
     }
 
-    // Batch fetch all viewer profiles at once
     const viewerIds = views.map((view) => view.viewerId);
     const viewerProfiles = await db.query.profiles.findMany({
       where: inArray(profiles.userId, viewerIds),
@@ -176,12 +177,7 @@ export async function getProfileViewers(
             lastName: viewerProfile.lastName,
             profileImage: viewerProfile.profileImage,
             residingCity: viewerProfile.residingCity,
-            age: viewerProfile.dateOfBirth
-              ? Math.floor(
-                  (Date.now() - new Date(viewerProfile.dateOfBirth).getTime()) /
-                    (365.25 * 24 * 60 * 60 * 1000)
-                )
-              : undefined,
+            age: viewerProfile.dateOfBirth ? calculateAge(viewerProfile.dateOfBirth) : undefined,
           },
         });
       }
@@ -194,16 +190,12 @@ export async function getProfileViewers(
   }
 }
 
-// Get recent activity
-export async function getRecentActivity(
-  limit: number = 20
-): Promise<ActionResult<ActivityItem[]>> {
+export async function getRecentActivity(limit: number = 20): Promise<ActionResult<ActivityItem[]>> {
   try {
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
-    // Check subscription for feature gating
     const subscription = await getActiveSubscription(userId);
     const plan = subscription?.plan || "free";
     const canSeeViewers = ["silver", "gold", "platinum"].includes(plan);
@@ -211,9 +203,7 @@ export async function getRecentActivity(
 
     const activities: ActivityItem[] = [];
 
-    // Fetch data based on subscription level
     const [views, receivedInterests] = await Promise.all([
-      // Profile views: only fetch if Silver+ can see viewers
       canSeeViewers
         ? db.query.profileViews.findMany({
             where: eq(profileViews.viewedUserId, userId),
@@ -221,7 +211,6 @@ export async function getRecentActivity(
             limit: 10,
           })
         : Promise.resolve([]),
-      // Received interests: only fetch if Gold+ can see who liked them
       canSeeWhoLiked
         ? db.query.interests.findMany({
             where: eq(interests.receiverId, userId),
@@ -231,12 +220,10 @@ export async function getRecentActivity(
         : Promise.resolve([]),
     ]);
 
-    // Collect all user IDs that need profile lookup
     const userIdsToFetch = new Set<number>();
     views.forEach((view) => userIdsToFetch.add(view.viewerId));
     receivedInterests.forEach((interest) => userIdsToFetch.add(interest.senderId));
 
-    // Batch fetch all profiles at once
     let profileMap = new Map<number, typeof profiles.$inferSelect>();
     if (userIdsToFetch.size > 0) {
       const profilesList = await db.query.profiles.findMany({
@@ -245,7 +232,6 @@ export async function getRecentActivity(
       profileMap = new Map(profilesList.map((p) => [p.userId, p]));
     }
 
-    // Process views
     for (const view of views) {
       const viewerProfile = profileMap.get(view.viewerId);
       if (viewerProfile) {
@@ -265,12 +251,11 @@ export async function getRecentActivity(
       }
     }
 
-    // Process interests
     for (const interest of receivedInterests) {
       const senderProfile = profileMap.get(interest.senderId);
       if (senderProfile) {
         activities.push({
-          id: -(interest.id), // Negative ID to avoid collision with view IDs
+          id: -interest.id,
           type: "interest_received",
           title: interest.status === "accepted" ? "Interest Accepted" : "Interest Received",
           description:
@@ -288,10 +273,7 @@ export async function getRecentActivity(
       }
     }
 
-    // Sort by date
-    activities.sort((a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    activities.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return { success: true, data: activities.slice(0, limit) };
   } catch (error) {
@@ -300,7 +282,6 @@ export async function getRecentActivity(
   }
 }
 
-// Get dashboard stats
 export async function getDashboardStats(): Promise<ActionResult<DashboardStats>> {
   try {
     const authResult = await requireAuth();
@@ -310,7 +291,6 @@ export async function getDashboardStats(): Promise<ActionResult<DashboardStats>>
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Run all count queries in parallel for better performance
     const [
       [totalViewsResult],
       [todayViewsResult],
@@ -323,16 +303,46 @@ export async function getDashboardStats(): Promise<ActionResult<DashboardStats>>
       [shortlistedResult],
       [unreadMessagesResult],
     ] = await Promise.all([
-      db.select({ count: sql<number>`count(*)` }).from(profileViews).where(eq(profileViews.viewedUserId, userId)),
-      db.select({ count: sql<number>`count(*)` }).from(profileViews).where(and(eq(profileViews.viewedUserId, userId), gte(profileViews.viewedAt, today))),
-      db.select({ count: sql<number>`count(*)` }).from(profileViews).where(eq(profileViews.viewerId, userId)),
-      db.select({ count: sql<number>`count(*)` }).from(profileViews).where(and(eq(profileViews.viewerId, userId), gte(profileViews.viewedAt, today))),
-      db.select({ count: sql<number>`count(*)` }).from(interests).where(eq(interests.senderId, userId)),
-      db.select({ count: sql<number>`count(*)` }).from(interests).where(eq(interests.receiverId, userId)),
-      db.select({ count: sql<number>`count(*)` }).from(interests).where(and(eq(interests.receiverId, userId), eq(interests.status, "accepted"))),
-      db.select({ count: sql<number>`count(*)` }).from(interests).where(and(eq(interests.receiverId, userId), eq(interests.status, "pending"))),
-      db.select({ count: sql<number>`count(*)` }).from(shortlists).where(eq(shortlists.userId, userId)),
-      db.select({ count: sql<number>`count(*)` }).from(messages).where(and(eq(messages.receiverId, userId), eq(messages.isRead, false))),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(profileViews)
+        .where(eq(profileViews.viewedUserId, userId)),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(profileViews)
+        .where(and(eq(profileViews.viewedUserId, userId), gte(profileViews.viewedAt, today))),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(profileViews)
+        .where(eq(profileViews.viewerId, userId)),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(profileViews)
+        .where(and(eq(profileViews.viewerId, userId), gte(profileViews.viewedAt, today))),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(interests)
+        .where(eq(interests.senderId, userId)),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(interests)
+        .where(eq(interests.receiverId, userId)),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(interests)
+        .where(and(eq(interests.receiverId, userId), eq(interests.status, "accepted"))),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(interests)
+        .where(and(eq(interests.receiverId, userId), eq(interests.status, "pending"))),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(shortlists)
+        .where(eq(shortlists.userId, userId)),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(messages)
+        .where(and(eq(messages.receiverId, userId), eq(messages.isRead, false))),
     ]);
 
     return {
@@ -356,7 +366,6 @@ export async function getDashboardStats(): Promise<ActionResult<DashboardStats>>
   }
 }
 
-// Helper function to log user activity
 export async function logActivity(
   userId: number,
   action: string,

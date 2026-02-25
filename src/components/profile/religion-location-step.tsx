@@ -20,7 +20,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { religionLocationSchema, type ReligionLocationInput } from "@/lib/validations/profile";
-import { RELIGION_OPTIONS, CASTE_OPTIONS, MOTHER_TONGUE_OPTIONS, STATE_OPTIONS, CITIES_BY_STATE } from "@/constants";
+import {
+  RELIGION_OPTIONS,
+  CASTE_OPTIONS,
+  MOTHER_TONGUE_OPTIONS,
+  STATE_OPTIONS,
+  CITIES_BY_STATE,
+} from "@/constants";
 import { useProfileStep, type ProfileStepProps } from "@/hooks/use-profile-step";
 
 function getDefaults(data: Record<string, unknown>): ReligionLocationInput {
@@ -64,7 +70,7 @@ export function ReligionLocationStep({ data, onUpdate, registerValidate }: Profi
 
   const castes = useMemo(() => {
     const religionKey = selectedReligion
-      ? Object.keys(CASTE_OPTIONS).find(k => k.toLowerCase() === selectedReligion.toLowerCase())
+      ? Object.keys(CASTE_OPTIONS).find((k) => k.toLowerCase() === selectedReligion.toLowerCase())
       : undefined;
     if (religionKey && Object.prototype.hasOwnProperty.call(CASTE_OPTIONS, religionKey)) {
       return CASTE_OPTIONS[religionKey];

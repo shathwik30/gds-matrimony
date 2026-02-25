@@ -20,8 +20,8 @@ async function ReportsContent({ searchParams }: ReportsPageProps) {
 
   if (!result.success || !result.data) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-        <p className="text-slate-500 text-center py-8">Failed to load reports</p>
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p className="py-8 text-center text-slate-500">Failed to load reports</p>
       </div>
     );
   }
@@ -32,21 +32,18 @@ async function ReportsContent({ searchParams }: ReportsPageProps) {
 export default async function ReportsPage({ searchParams }: ReportsPageProps) {
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">User Reports</h1>
         <p className="text-slate-500">Review and manage reported users</p>
       </div>
 
-      {/* Filters */}
       <ReportsFilter />
 
-      {/* Reports Table */}
       <Suspense
         fallback={
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-brand" />
+              <Loader2 className="text-brand h-8 w-8 animate-spin" />
             </div>
           </div>
         }

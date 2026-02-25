@@ -4,15 +4,7 @@ import { useState, useCallback, useRef, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { toast } from "sonner";
-import {
-  Camera,
-  Loader2,
-  X,
-  Upload,
-  ImagePlus,
-  Star,
-  GripVertical,
-} from "lucide-react";
+import { Camera, Loader2, X, Upload, ImagePlus, Star, GripVertical } from "lucide-react";
 import { useUploadThing } from "@/lib/uploadthing";
 import {
   updateProfileImage,
@@ -50,12 +42,10 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
   const [isDragging, setIsDragging] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // Gallery reorder drag state
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [, startTransition] = useTransition();
 
-  // Crop adjuster state
   const [cropMode, setCropMode] = useState<CropMode | null>(null);
   const [cropQueue, setCropQueue] = useState<File[]>([]);
   const [pendingCrops, setPendingCrops] = useState<File[]>([]);
@@ -67,8 +57,6 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
 
   const { startUpload: startProfileUpload } = useUploadThing("profileImage");
   const { startUpload: startGalleryUpload } = useUploadThing("galleryImages");
-
-  // ── Actual upload helpers ─────────────────────────────────────────────────
 
   const doUploadProfile = useCallback(
     async (file: File) => {
@@ -133,13 +121,14 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
     [currentGalleryImages, data, onUpdate, startGalleryUpload, onImagesChange]
   );
 
-  // ── File selection → open crop adjuster ──────────────────────────────────
-
   const handleProfileImageSelect = useCallback((files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];
     const err = validateImageFile(file);
-    if (err) { toast.error(err); return; }
+    if (err) {
+      toast.error(err);
+      return;
+    }
     setCropMode("profile");
     setCropQueue([file]);
     setPendingCrops([]);
@@ -149,12 +138,18 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
     (files: FileList | null) => {
       if (!files || files.length === 0) return;
       const remainingSlots = 5 - currentGalleryImages.length;
-      if (remainingSlots <= 0) { toast.error("Maximum 5 gallery photos allowed"); return; }
+      if (remainingSlots <= 0) {
+        toast.error("Maximum 5 gallery photos allowed");
+        return;
+      }
 
       const candidates = Array.from(files).slice(0, remainingSlots);
       for (const f of candidates) {
         const err = validateImageFile(f);
-        if (err) { toast.error(err); return; }
+        if (err) {
+          toast.error(err);
+          return;
+        }
       }
 
       setCropMode("gallery");
@@ -163,8 +158,6 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
     },
     [currentGalleryImages.length]
   );
-
-  // ── Crop adjuster callbacks ───────────────────────────────────────────────
 
   const handleCropConfirm = useCallback(
     async (croppedFile: File) => {
@@ -177,11 +170,9 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
         const collected = [...pendingCrops, croppedFile];
 
         if (remaining.length > 0) {
-          // More files in queue — show next crop adjuster
           setCropQueue(remaining);
           setPendingCrops(collected);
         } else {
-          // All done — upload everything
           setCropMode(null);
           setCropQueue([]);
           setPendingCrops([]);
@@ -197,8 +188,6 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
     setCropQueue([]);
     setPendingCrops([]);
   }, []);
-
-  // ── Gallery delete ────────────────────────────────────────────────────────
 
   const handleDeleteGallery = async (imageId: number) => {
     setDeletingId(imageId);
@@ -219,8 +208,6 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
       setDeletingId(null);
     }
   };
-
-  // ── Gallery reorder drag handlers ─────────────────────────────────────────
 
   const handleDragStart = (index: number) => setDragIndex(index);
 
@@ -262,24 +249,25 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
     setDragOverIndex(null);
   };
 
-  // ── File drop-zone handlers ───────────────────────────────────────────────
-
-  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
-  const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); };
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     handleGallerySelect(e.dataTransfer.files);
   };
 
-  // ── Crop adjuster config ──────────────────────────────────────────────────
-
-  const queueIndex = pendingCrops.length; // which file in the batch we're currently cropping
+  const queueIndex = pendingCrops.length;
   const totalInBatch = pendingCrops.length + cropQueue.length;
 
   return (
     <div className="space-y-8">
-      {/* Crop adjuster dialog (shown whenever there's a file in the queue) */}
       {cropMode && cropQueue.length > 0 && (
         <ImageCropAdjuster
           file={cropQueue[0]}
@@ -292,24 +280,22 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
         />
       )}
 
-      {/* Queue progress indicator for multi-file gallery crops */}
       {cropMode === "gallery" && totalInBatch > 1 && cropQueue.length > 0 && (
-        <p className="text-sm text-muted-foreground text-center">
+        <p className="text-muted-foreground text-center text-sm">
           Adjusting photo {queueIndex + 1} of {totalInBatch}
         </p>
       )}
 
-      {/* Profile Photo Section */}
       <div>
-        <h3 className="text-lg font-semibold mb-1">Profile Photo</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          This is your main photo that others will see first. Choose a clear, recent photo of yourself.
+        <h3 className="mb-1 text-lg font-semibold">Profile Photo</h3>
+        <p className="text-muted-foreground mb-4 text-sm">
+          This is your main photo that others will see first. Choose a clear, recent photo of
+          yourself.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center gap-6">
-          {/* Profile Image Preview */}
-          <div className="relative group">
-            <div className="relative w-40 h-40 rounded-2xl overflow-hidden bg-gradient-to-br from-brand-light to-brand/10 border-2 border-dashed border-brand/30 shadow-lg">
+        <div className="flex flex-col items-center gap-6 sm:flex-row">
+          <div className="group relative">
+            <div className="from-brand-light to-brand/10 border-brand/30 relative h-40 w-40 overflow-hidden rounded-2xl border-2 border-dashed bg-gradient-to-br shadow-lg">
               {currentProfileImage ? (
                 <Image
                   src={currentProfileImage}
@@ -320,15 +306,15 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
                   className="object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-brand gap-2">
+                <div className="text-brand flex h-full w-full flex-col items-center justify-center gap-2">
                   <Camera className="h-10 w-10 opacity-50" />
                   <span className="text-xs font-medium opacity-60">No photo</span>
                 </div>
               )}
 
               {isUploadingProfile && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-2xl">
-                  <Loader2 className="h-8 w-8 text-white animate-spin" />
+                <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50">
+                  <Loader2 className="h-8 w-8 animate-spin text-white" />
                 </div>
               )}
 
@@ -336,10 +322,10 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
                 <button
                   type="button"
                   onClick={() => profileInputRef.current?.click()}
-                  className="absolute inset-0 bg-black/0 hover:bg-black/40 flex items-center justify-center transition-all opacity-0 hover:opacity-100 cursor-pointer"
+                  className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/0 opacity-0 transition-all hover:bg-black/40 hover:opacity-100"
                 >
-                  <div className="text-white text-center">
-                    <Camera className="h-6 w-6 mx-auto mb-1" />
+                  <div className="text-center text-white">
+                    <Camera className="mx-auto mb-1 h-6 w-6" />
                     <span className="text-xs font-medium">
                       {currentProfileImage ? "Change" : "Upload"}
                     </span>
@@ -349,13 +335,12 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
             </div>
 
             {currentProfileImage && (
-              <div className="absolute -top-2 -right-2 bg-green-500 text-white p-1 rounded-full shadow-md">
+              <div className="absolute -top-2 -right-2 rounded-full bg-green-500 p-1 text-white shadow-md">
                 <Star className="h-3.5 w-3.5 fill-white" />
               </div>
             )}
           </div>
 
-          {/* Upload Button & Info */}
           <div className="flex flex-col gap-3 text-center sm:text-left">
             <Button
               type="button"
@@ -371,7 +356,7 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
               )}
               {currentProfileImage ? "Change Photo" : "Upload Photo"}
             </Button>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               JPG, PNG or WebP. Max 4MB. You&apos;ll crop before uploading.
             </p>
           </div>
@@ -389,26 +374,23 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
         </div>
       </div>
 
-      {/* Divider */}
       <div className="border-t" />
 
-      {/* Gallery Photos Section */}
       <div>
-        <div className="flex items-center justify-between mb-1">
+        <div className="mb-1 flex items-center justify-between">
           <h3 className="text-lg font-semibold">Gallery Photos</h3>
-          <span className="text-sm text-muted-foreground font-medium">
+          <span className="text-muted-foreground text-sm font-medium">
             {currentGalleryImages.length}/5 photos
           </span>
         </div>
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-muted-foreground mb-4 text-sm">
           Add up to 5 photos to showcase yourself.
           {currentGalleryImages.length > 1 && (
-            <span className="ml-1 text-brand/70">Drag to reorder.</span>
+            <span className="text-brand/70 ml-1">Drag to reorder.</span>
           )}
         </p>
 
-        {/* Gallery Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-4">
+        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
           {currentGalleryImages.map((image, index) => (
             <div
               key={image.id}
@@ -417,12 +399,12 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
               onDragOver={(e) => handleDragOverItem(e, index)}
               onDrop={(e) => handleDropItem(e, index)}
               onDragEnd={handleDragEnd}
-              className={`relative aspect-[3/4] group rounded-xl overflow-hidden shadow-md border transition-all select-none ${
+              className={`group relative aspect-[3/4] overflow-hidden rounded-xl border shadow-md transition-all select-none ${
                 dragIndex === index
-                  ? "opacity-40 scale-95 cursor-grabbing"
+                  ? "scale-95 cursor-grabbing opacity-40"
                   : dragOverIndex === index
-                  ? "border-2 border-brand shadow-lg shadow-brand/20 scale-105"
-                  : "border-border/50 hover:shadow-lg cursor-grab"
+                    ? "border-brand shadow-brand/20 scale-105 border-2 shadow-lg"
+                    : "border-border/50 cursor-grab hover:shadow-lg"
               }`}
             >
               <Image
@@ -431,21 +413,19 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
                 fill
                 placeholder="blur"
                 blurDataURL={getBlurDataURL(160, 213)}
-                className="object-cover pointer-events-none"
+                className="pointer-events-none object-cover"
               />
 
-              {/* Drag handle */}
-              <div className="absolute top-2 left-2 bg-black/60 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-md">
+              <div className="absolute top-2 left-2 rounded-full bg-black/60 p-1.5 text-white opacity-0 shadow-md transition-all group-hover:opacity-100">
                 <GripVertical className="h-3.5 w-3.5" />
               </div>
 
-              {/* Delete button */}
               <button
                 type="button"
                 onClick={() => handleDeleteGallery(image.id)}
                 disabled={deletingId === image.id}
                 aria-label={`Delete photo ${index + 1}`}
-                className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all shadow-md"
+                className="absolute top-2 right-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 shadow-md transition-all group-hover:opacity-100 hover:bg-red-600 focus:opacity-100"
               >
                 {deletingId === image.id ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -454,8 +434,7 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
                 )}
               </button>
 
-              {/* Position badge */}
-              <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+              <div className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">
                 {index + 1}
               </div>
 
@@ -463,21 +442,20 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
             </div>
           ))}
 
-          {/* Empty slots */}
           {Array.from({ length: Math.max(0, 5 - currentGalleryImages.length) }).map((_, i) => (
             <button
               key={`empty-${i}`}
               type="button"
               onClick={() => galleryInputRef.current?.click()}
               disabled={isUploadingGallery}
-              className="aspect-[3/4] rounded-xl border-2 border-dashed border-brand/20 hover:border-brand/50 bg-brand-light/30 hover:bg-brand-light/60 flex flex-col items-center justify-center gap-2 transition-all cursor-pointer group"
+              className="border-brand/20 hover:border-brand/50 bg-brand-light/30 hover:bg-brand-light/60 group flex aspect-[3/4] cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-all"
             >
               {isUploadingGallery && i === 0 ? (
-                <Loader2 className="h-6 w-6 text-brand/50 animate-spin" />
+                <Loader2 className="text-brand/50 h-6 w-6 animate-spin" />
               ) : (
                 <>
-                  <ImagePlus className="h-6 w-6 text-brand/30 group-hover:text-brand/60 transition-colors" />
-                  <span className="text-xs text-brand/40 group-hover:text-brand/70 font-medium transition-colors">
+                  <ImagePlus className="text-brand/30 group-hover:text-brand/60 h-6 w-6 transition-colors" />
+                  <span className="text-brand/40 group-hover:text-brand/70 text-xs font-medium transition-colors">
                     Add
                   </span>
                 </>
@@ -486,14 +464,13 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
           ))}
         </div>
 
-        {/* Drag & Drop Zone */}
         {currentGalleryImages.length < 5 && (
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={() => galleryInputRef.current?.click()}
-            className={`relative rounded-xl border-2 border-dashed p-8 text-center cursor-pointer transition-all ${
+            className={`relative cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-all ${
               isDragging
                 ? "border-brand bg-brand/5 scale-[1.01]"
                 : "border-border hover:border-brand/50 hover:bg-muted/30"
@@ -501,20 +478,19 @@ export function PhotosStep({ data, onUpdate, onImagesChange }: PhotosStepProps) 
           >
             {isUploadingGallery ? (
               <div className="flex flex-col items-center gap-3">
-                <Loader2 className="h-10 w-10 text-brand animate-spin" />
-                <p className="text-sm font-medium text-brand">Uploading photos...</p>
+                <Loader2 className="text-brand h-10 w-10 animate-spin" />
+                <p className="text-brand text-sm font-medium">Uploading photos...</p>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-3">
-                <div className="w-14 h-14 rounded-full bg-brand/10 flex items-center justify-center">
-                  <Upload className="h-6 w-6 text-brand" />
+                <div className="bg-brand/10 flex h-14 w-14 items-center justify-center rounded-full">
+                  <Upload className="text-brand h-6 w-6" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold">
-                    Drag & drop photos here, or{" "}
-                    <span className="text-brand">browse</span>
+                    Drag & drop photos here, or <span className="text-brand">browse</span>
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-muted-foreground mt-1 text-xs">
                     JPG, PNG or WebP · Max 4MB each · Crop & position before upload
                   </p>
                 </div>

@@ -15,22 +15,19 @@ export function PasswordInput({ className, ...props }: PasswordInputProps) {
 
   return (
     <div className={cn("relative", className)}>
-      <Input
-        type={showPassword ? "text" : "password"}
-        {...props}
-      />
+      <Input type={showPassword ? "text" : "password"} {...props} />
       <Button
         type="button"
         variant="ghost"
         size="icon"
-        className="absolute right-0 top-0 h-full px-3"
+        className="absolute top-0 right-0 h-full px-3"
         onClick={() => setShowPassword(!showPassword)}
         tabIndex={-1}
       >
         {showPassword ? (
-          <EyeOff className="h-4 w-4 text-muted-foreground" />
+          <EyeOff className="text-muted-foreground h-4 w-4" />
         ) : (
-          <Eye className="h-4 w-4 text-muted-foreground" />
+          <Eye className="text-muted-foreground h-4 w-4" />
         )}
       </Button>
     </div>

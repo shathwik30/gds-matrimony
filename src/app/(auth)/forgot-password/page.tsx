@@ -53,11 +53,10 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Side - Image */}
-      <div className="hidden lg:flex lg:w-1/2 bg-brand-light relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand/10 to-transparent" />
-        <div className="relative z-10 flex flex-col justify-center items-center p-12 text-center">
+    <div className="flex min-h-screen">
+      <div className="bg-brand-light relative hidden lg:flex lg:w-1/2">
+        <div className="from-brand/10 absolute inset-0 bg-gradient-to-br to-transparent" />
+        <div className="relative z-10 flex flex-col items-center justify-center p-12 text-center">
           <Image
             src="/images/logo.svg"
             alt="GDS Marriage Links"
@@ -65,9 +64,10 @@ export default function ForgotPasswordPage() {
             height={80}
             className="mb-8"
           />
-          <h1 className="text-4xl font-bold mb-4">Reset Your Password</h1>
-          <p className="text-lg text-muted-foreground max-w-md">
-            Don&apos;t worry, it happens to the best of us. We&apos;ll help you get back into your account.
+          <h1 className="mb-4 text-4xl font-bold">Reset Your Password</h1>
+          <p className="text-muted-foreground max-w-md text-lg">
+            Don&apos;t worry, it happens to the best of us. We&apos;ll help you get back into your
+            account.
           </p>
           <div className="mt-12">
             <Image
@@ -75,27 +75,21 @@ export default function ForgotPasswordPage() {
               alt="Secure"
               width={400}
               height={300}
-              className="rounded-2xl shadow-2xl object-cover"
+              className="rounded-2xl object-cover shadow-2xl"
             />
           </div>
         </div>
       </div>
 
-      {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
-        <Card className="w-full max-w-md border-0 shadow-none lg:shadow-lg lg:border">
+      <div className="flex flex-1 items-center justify-center p-4 sm:p-6 md:p-8">
+        <Card className="w-full max-w-md border-0 shadow-none lg:border lg:shadow-lg">
           <CardHeader className="text-center">
-            <div className="lg:hidden flex justify-center mb-4">
-              <Image
-                src="/images/logo.svg"
-                alt="GDS Marriage Links"
-                width={60}
-                height={60}
-              />
+            <div className="mb-4 flex justify-center lg:hidden">
+              <Image src="/images/logo.svg" alt="GDS Marriage Links" width={60} height={60} />
             </div>
             {isSubmitted ? (
               <>
-                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
                   <CheckCircle className="h-8 w-8 text-green-600" />
                 </div>
                 <CardTitle className="text-xl sm:text-2xl">Check Your Email</CardTitle>
@@ -115,11 +109,11 @@ export default function ForgotPasswordPage() {
           <CardContent>
             {isSubmitted ? (
               <div className="space-y-4">
-                <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
+                <div className="bg-muted/50 text-muted-foreground rounded-lg p-4 text-sm">
                   <p className="mb-2">
                     <strong>Didn&apos;t receive the email?</strong>
                   </p>
-                  <ul className="list-disc list-inside space-y-1">
+                  <ul className="list-inside list-disc space-y-1">
                     <li>Check your spam or junk folder</li>
                     <li>Make sure you entered the correct email</li>
                     <li>Wait a few minutes and try again</li>
@@ -141,7 +135,7 @@ export default function ForgotPasswordPage() {
                 <div className="text-center">
                   <Link
                     href="/login"
-                    className="text-sm text-primary hover:underline inline-flex items-center"
+                    className="text-primary inline-flex items-center text-sm hover:underline"
                   >
                     <ArrowLeft className="mr-1 h-4 w-4" />
                     Back to Login
@@ -181,7 +175,7 @@ export default function ForgotPasswordPage() {
               <div className="mt-6 text-center">
                 <Link
                   href="/login"
-                  className="text-sm text-primary hover:underline inline-flex items-center"
+                  className="text-primary inline-flex items-center text-sm hover:underline"
                 >
                   <ArrowLeft className="mr-1 h-4 w-4" />
                   Back to Login

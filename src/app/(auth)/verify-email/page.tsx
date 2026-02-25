@@ -74,7 +74,7 @@ function VerifyEmailContent() {
 
   if (!email) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8">
+      <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
         <Card className="w-full max-w-md text-center">
           <CardContent className="pt-6">
             <p className="text-muted-foreground">Invalid verification link.</p>
@@ -89,13 +89,13 @@ function VerifyEmailContent() {
 
   if (isVerified) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-brand-light">
+      <div className="bg-brand-light flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
         <Card className="w-full max-w-md text-center">
           <CardContent className="pt-6 pb-6 sm:pt-8 sm:pb-8">
-            <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
               <CheckCircle className="h-10 w-10 text-green-600" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold mb-2">Email Verified!</h2>
+            <h2 className="mb-2 text-xl font-bold sm:text-2xl">Email Verified!</h2>
             <p className="text-muted-foreground mb-6">
               Your email has been verified successfully. Let&apos;s complete your profile...
             </p>
@@ -109,24 +109,19 @@ function VerifyEmailContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-brand-light">
+    <div className="bg-brand-light flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Image
-              src="/images/logo.svg"
-              alt="GDS Marriage Links"
-              width={60}
-              height={60}
-            />
+          <div className="mb-4 flex justify-center">
+            <Image src="/images/logo.svg" alt="GDS Marriage Links" width={60} height={60} />
           </div>
-          <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <Mail className="h-8 w-8 text-primary" />
+          <div className="bg-primary/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+            <Mail className="text-primary h-8 w-8" />
           </div>
           <CardTitle className="text-xl sm:text-2xl">Verify Your Email</CardTitle>
           <CardDescription>
             We&apos;ve sent a 6-digit verification code to{" "}
-            <span className="font-medium text-foreground">{email}</span>
+            <span className="text-foreground font-medium">{email}</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 sm:space-y-6">
@@ -152,11 +147,11 @@ function VerifyEmailContent() {
             Verify Email
           </Button>
 
-          <div className="text-center text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-center text-sm">
             Didn&apos;t receive the code?{" "}
             <Button
               variant="link"
-              className="p-0 h-auto"
+              className="h-auto p-0"
               onClick={handleResend}
               disabled={isResending || countdown > 0}
             >
@@ -171,7 +166,7 @@ function VerifyEmailContent() {
           </div>
 
           <div className="text-center">
-            <Link href="/register" className="text-sm text-primary hover:underline">
+            <Link href="/register" className="text-primary text-sm hover:underline">
               Use a different email
             </Link>
           </div>
@@ -183,7 +178,13 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      }
+    >
       <VerifyEmailContent />
     </Suspense>
   );

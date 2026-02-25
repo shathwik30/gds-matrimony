@@ -63,8 +63,8 @@ export function AboutMeStep({ data, onUpdate, registerValidate }: ProfileStepPro
         />
 
         <div className="bg-muted/50 rounded-lg p-4">
-          <h4 className="font-medium mb-2">Tips for a great profile description:</h4>
-          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+          <h4 className="mb-2 font-medium">Tips for a great profile description:</h4>
+          <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
             <li>Describe your personality and what makes you unique</li>
             <li>Mention your hobbies, interests, and passions</li>
             <li>Share your career aspirations and goals</li>

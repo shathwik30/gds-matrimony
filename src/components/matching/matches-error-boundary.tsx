@@ -9,13 +9,13 @@ function MatchesErrorFallback() {
   return (
     <Card>
       <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
-        <AlertCircle className="h-10 w-10 text-destructive" />
-        <p className="font-semibold text-lg">Something went wrong</p>
-        <p className="text-sm text-muted-foreground">
+        <AlertCircle className="text-destructive h-10 w-10" />
+        <p className="text-lg font-semibold">Something went wrong</p>
+        <p className="text-muted-foreground text-sm">
           We couldn&apos;t load matches right now. Please refresh the page.
         </p>
         <Button variant="outline" onClick={() => window.location.reload()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className="mr-2 h-4 w-4" />
           Refresh
         </Button>
       </CardContent>
@@ -24,9 +24,5 @@ function MatchesErrorFallback() {
 }
 
 export function MatchesErrorBoundary({ children }: { children: React.ReactNode }) {
-  return (
-    <ErrorBoundary FallbackComponent={MatchesErrorFallback}>
-      {children}
-    </ErrorBoundary>
-  );
+  return <ErrorBoundary FallbackComponent={MatchesErrorFallback}>{children}</ErrorBoundary>;
 }

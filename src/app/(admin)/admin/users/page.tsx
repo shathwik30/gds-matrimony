@@ -24,25 +24,18 @@ async function UsersContent({ searchParams }: UsersPageProps) {
 
   if (!result.success || !result.data) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-        <p className="text-slate-500 text-center py-8">Failed to load users</p>
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <p className="py-8 text-center text-slate-500">Failed to load users</p>
       </div>
     );
   }
 
-  return (
-    <UsersTable
-      users={result.data.users}
-      total={result.data.total}
-      currentPage={page}
-    />
-  );
+  return <UsersTable users={result.data.users} total={result.data.total} currentPage={page} />;
 }
 
 export default async function UsersPage({ searchParams }: UsersPageProps) {
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
@@ -50,15 +43,13 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
         </div>
       </div>
 
-      {/* Search & Filters */}
       <UsersSearch />
 
-      {/* Users Table */}
       <Suspense
         fallback={
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-brand" />
+              <Loader2 className="text-brand h-8 w-8 animate-spin" />
             </div>
           </div>
         }

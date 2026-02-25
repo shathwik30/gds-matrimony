@@ -2,6 +2,7 @@
 
 import { sendEmail } from "@/lib/email";
 import { db, contactSubmissions } from "@/lib/db";
+import { escapeHtml } from "@/lib/utils";
 import type { ActionResult } from "@/types";
 
 interface ContactFormData {
@@ -15,7 +16,12 @@ interface ContactFormData {
 export async function submitContactForm(data: ContactFormData): Promise<ActionResult> {
   try {
     // Validate required fields
-    if (!data.name?.trim() || !data.email?.trim() || !data.subject?.trim() || !data.message?.trim()) {
+    if (
+      !data.name?.trim() ||
+      !data.email?.trim() ||
+      !data.subject?.trim() ||
+      !data.message?.trim()
+    ) {
       return { success: false, error: "All required fields must be filled" };
     }
 
@@ -49,11 +55,8 @@ export async function submitContactForm(data: ContactFormData): Promise<ActionRe
     }
 
     const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "GDS Marriage Links";
-    const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || process.env.FROM_EMAIL || "support@gdsmarriagelinks.com";
-
-    // Escape HTML to prevent XSS in email templates
-    const escapeHtml = (str: string) =>
-      str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    const SUPPORT_EMAIL =
+      process.env.SUPPORT_EMAIL || process.env.FROM_EMAIL || "support@gdsmarriagelinks.com";
 
     const safeName = escapeHtml(data.name);
     const safeEmail = escapeHtml(data.email);
@@ -97,12 +100,16 @@ export async function submitContactForm(data: ContactFormData): Promise<ActionRe
                 <a href="mailto:${safeEmail}" style="color: #C00F0C;">${safeEmail}</a>
               </td>
             </tr>
-            ${safePhone ? `
+            ${
+              safePhone
+                ? `
             <tr>
               <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Phone:</td>
               <td style="padding: 10px; border-bottom: 1px solid #eee;">${safePhone}</td>
             </tr>
-            ` : ""}
+            `
+                : ""
+            }
             <tr>
               <td style="padding: 10px; border-bottom: 1px solid #eee; font-weight: bold;">Subject:</td>
               <td style="padding: 10px; border-bottom: 1px solid #eee;">${safeSubject}</td>

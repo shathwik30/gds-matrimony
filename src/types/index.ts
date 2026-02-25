@@ -1,6 +1,5 @@
 import type { User, Profile, Message } from "@/lib/db/schema";
 
-// Auth Types
 export interface SessionUser {
   id: string;
   email: string;
@@ -10,7 +9,6 @@ export interface SessionUser {
   subscriptionPlan: "free" | "basic" | "silver" | "gold" | "platinum";
 }
 
-// Profile Types
 export interface UserProfile extends Profile {
   user?: User;
   age?: number;
@@ -22,7 +20,6 @@ export interface ProfileWithUser {
   matchScore?: number;
 }
 
-// Match Types
 export interface MatchProfile {
   id: number;
   userId: number;
@@ -59,7 +56,6 @@ export interface MatchProfile {
   images?: { id: number; imageUrl: string; sortOrder: number | null }[];
 }
 
-// Interest Types
 export interface InterestWithProfile {
   id: number;
   status: "pending" | "accepted" | "rejected" | null;
@@ -86,7 +82,6 @@ export interface InterestWithProfile {
   };
 }
 
-// Message Types
 export interface MessageWithSender extends Message {
   sender?: {
     id: number;
@@ -115,7 +110,6 @@ export interface Conversation {
   unreadCount: number;
 }
 
-// Subscription Types
 export interface SubscriptionPlan {
   id: "free" | "basic" | "silver" | "gold" | "platinum";
   name: string;
@@ -135,7 +129,6 @@ export interface SubscriptionPlan {
   };
 }
 
-// Server Action Result Type (used across all server actions)
 export interface ActionResult<T = unknown> {
   success: boolean;
   error?: string;
@@ -143,7 +136,6 @@ export interface ActionResult<T = unknown> {
   data?: T;
 }
 
-// Form Types
 export interface RegisterFormData {
   profileFor: "myself" | "son" | "daughter" | "brother" | "sister" | "friend";
   email: string;
@@ -178,7 +170,6 @@ export interface PreferenceFormData {
   aboutPartner?: string;
 }
 
-// Search & Filter Types
 export interface SearchFilters {
   ageMin?: number;
   ageMax?: number;
@@ -202,7 +193,6 @@ export interface SortOption {
   label: string;
 }
 
-// Dashboard Stats
 export interface DashboardStats {
   profileViews: number;
   todayViews: number;
@@ -216,7 +206,6 @@ export interface DashboardStats {
   unreadMessages: number;
 }
 
-// Notification Types
 export interface Notification {
   id: number;
   type: "interest_received" | "interest_accepted" | "new_message" | "profile_view" | "match";

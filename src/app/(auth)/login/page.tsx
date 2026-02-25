@@ -27,7 +27,8 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const rawCallback = searchParams.get("callbackUrl") || "/dashboard";
   // Strict validation: must start with /, no protocol-relative URLs, no encoded slashes, no backslashes
-  const isValidCallback = /^\/[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;=%]*$/.test(rawCallback) &&
+  const isValidCallback =
+    /^\/[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;=%]*$/.test(rawCallback) &&
     !rawCallback.startsWith("//") &&
     !rawCallback.includes("\\") &&
     !rawCallback.includes("%2f") &&
@@ -52,9 +53,7 @@ function LoginForm() {
 
       if (result.success) {
         toast.success("Login successful!");
-        // Redirect admins to admin panel, others to callbackUrl
         const redirectTo = result.data?.isAdmin ? "/admin" : callbackUrl;
-        // Use window.location to force full page reload and refresh session
         // eslint-disable-next-line react-hooks/immutability
         window.location.href = redirectTo;
       } else {
@@ -68,20 +67,13 @@ function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md border-0 shadow-none lg:shadow-lg lg:border">
+    <Card className="w-full max-w-md border-0 shadow-none lg:border lg:shadow-lg">
       <CardHeader className="text-center">
-        <div className="lg:hidden flex justify-center mb-4">
-          <Image
-            src="/images/logo.svg"
-            alt="GDS Marriage Links"
-            width={60}
-            height={60}
-          />
+        <div className="mb-4 flex justify-center lg:hidden">
+          <Image src="/images/logo.svg" alt="GDS Marriage Links" width={60} height={60} />
         </div>
         <CardTitle className="text-xl sm:text-2xl">Login to Your Account</CardTitle>
-        <CardDescription>
-          Enter your email and password to access your account
-        </CardDescription>
+        <CardDescription>Enter your email and password to access your account</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -93,11 +85,7 @@ function LoginForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="Enter your email"
-                      {...field}
-                    />
+                    <Input type="email" placeholder="Enter your email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -111,10 +99,7 @@ function LoginForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <PasswordInput
-                      placeholder="Enter your password"
-                      {...field}
-                    />
+                    <PasswordInput placeholder="Enter your password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -122,10 +107,7 @@ function LoginForm() {
             />
 
             <div className="flex items-center justify-end">
-              <Link
-                href="/forgot-password"
-                className="text-sm text-primary hover:underline"
-              >
+              <Link href="/forgot-password" className="text-primary text-sm hover:underline">
                 Forgot Password?
               </Link>
             </div>
@@ -137,7 +119,7 @@ function LoginForm() {
           </form>
         </Form>
 
-        <div className="mt-6 text-center text-sm text-muted-foreground">
+        <div className="text-muted-foreground mt-6 text-center text-sm">
           Don&apos;t have an account?{" "}
           <Link href="/register" className="text-primary font-medium hover:underline">
             Register Free
@@ -150,10 +132,9 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex">
-      {/* Left Side - Image */}
-      <div className="hidden lg:flex lg:w-1/2 bg-brand-light relative items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand/10 to-transparent" />
+    <div className="flex min-h-screen">
+      <div className="bg-brand-light relative hidden items-center justify-center lg:flex lg:w-1/2">
+        <div className="from-brand/10 absolute inset-0 bg-gradient-to-br to-transparent" />
         <div className="relative z-10 flex flex-col items-center p-12 text-center">
           <Image
             src="/images/logo.svg"
@@ -162,8 +143,8 @@ export default function LoginPage() {
             height={80}
             className="mb-8"
           />
-          <h1 className="text-4xl font-bold mb-4">Welcome Back!</h1>
-          <p className="text-lg text-muted-foreground max-w-md">
+          <h1 className="mb-4 text-4xl font-bold">Welcome Back!</h1>
+          <p className="text-muted-foreground max-w-md text-lg">
             Log in to continue your journey towards finding your perfect life partner.
           </p>
           <div className="mt-12">
@@ -172,15 +153,20 @@ export default function LoginPage() {
               alt="Happy couple"
               width={400}
               height={300}
-              className="rounded-2xl shadow-2xl object-cover"
+              className="rounded-2xl object-cover shadow-2xl"
             />
           </div>
         </div>
       </div>
 
-      {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
-        <Suspense fallback={<div className="w-full max-w-md"><Loader2 className="h-8 w-8 animate-spin mx-auto" /></div>}>
+      <div className="flex flex-1 items-center justify-center p-4 sm:p-6 md:p-8">
+        <Suspense
+          fallback={
+            <div className="w-full max-w-md">
+              <Loader2 className="mx-auto h-8 w-8 animate-spin" />
+            </div>
+          }
+        >
           <LoginForm />
         </Suspense>
       </div>

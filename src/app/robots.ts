@@ -28,7 +28,16 @@ export default function robots(): MetadataRoute.Robots {
           "PerplexityBot",
           "Google-Extended",
         ],
-        allow: ["/", "/about", "/pricing", "/contact", "/privacy", "/terms", "/llms.txt", "/llms-full.txt"],
+        allow: [
+          "/",
+          "/about",
+          "/pricing",
+          "/contact",
+          "/privacy",
+          "/terms",
+          "/llms.txt",
+          "/llms-full.txt",
+        ],
         disallow: [
           "/dashboard/",
           "/admin/",

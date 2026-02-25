@@ -65,14 +65,11 @@ export function UserActionsCard({ user }: UserActionsCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
+    <div className="space-y-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <h3 className="text-lg font-semibold text-slate-900">Actions</h3>
 
-      {/* Account Status */}
       <div>
-        <label className="text-sm font-medium text-slate-700 block mb-2">
-          Account Status
-        </label>
+        <label className="mb-2 block text-sm font-medium text-slate-700">Account Status</label>
         <Button
           variant={user.isActive ? "destructive" : "default"}
           className={user.isActive ? "" : "bg-emerald-600 hover:bg-emerald-700"}
@@ -90,9 +87,8 @@ export function UserActionsCard({ user }: UserActionsCardProps) {
         </Button>
       </div>
 
-      {/* Verification Level */}
       <div>
-        <label className="text-sm font-medium text-slate-700 block mb-2">
+        <label className="mb-2 block text-sm font-medium text-slate-700">
           <div className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Verification Level
@@ -112,14 +108,13 @@ export function UserActionsCard({ user }: UserActionsCardProps) {
             <SelectItem value="highly_trusted">Highly Trusted</SelectItem>
           </SelectContent>
         </Select>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="mt-1 text-xs text-slate-500">
           Change the user&apos;s verification trust level
         </p>
       </div>
 
-      {/* Quick Links */}
-      <div className="pt-4 border-t border-slate-200">
-        <p className="text-sm font-medium text-slate-700 mb-2">Quick Links</p>
+      <div className="border-t border-slate-200 pt-4">
+        <p className="mb-2 text-sm font-medium text-slate-700">Quick Links</p>
         <div className="space-y-2">
           <Button variant="outline" className="w-full justify-start" asChild>
             <a href={`/profile/${user.id}`} target="_blank" rel="noopener noreferrer">

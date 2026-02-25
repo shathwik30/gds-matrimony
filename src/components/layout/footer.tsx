@@ -20,69 +20,75 @@ const socialLinks = [
   { icon: Instagram, href: SITE_CONFIG.social.instagram, label: "Instagram" },
   { icon: Twitter, href: SITE_CONFIG.social.twitter, label: "Twitter" },
   { icon: Linkedin, href: SITE_CONFIG.social.linkedin, label: "LinkedIn" },
-].filter(link => link.href); // Only show social links that are configured
+].filter((link) => link.href);
 
 export function Footer() {
   return (
-    <footer className="border-t bg-gradient-to-b from-muted/20 to-muted/40">
+    <footer className="from-muted/20 to-muted/40 border-t bg-gradient-to-b">
       <div className="container-wide py-10 sm:py-14 md:py-20">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {/* Brand Section */}
           <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 group w-fit">
+            <Link href="/" className="group mb-4 flex w-fit items-center gap-2 sm:mb-6 sm:gap-3">
               <Image
                 src="/images/logo.svg"
                 alt={SITE_CONFIG.name}
                 width={120}
                 height={77}
                 unoptimized
-                className="h-10 sm:h-14 w-auto transition-transform group-hover:scale-110"
+                className="h-10 w-auto transition-transform group-hover:scale-110 sm:h-14"
               />
-              <span className="font-semibold text-base sm:text-xl transition-colors group-hover:text-primary">{SITE_CONFIG.name}</span>
+              <span className="group-hover:text-primary text-base font-semibold transition-colors sm:text-xl">
+                {SITE_CONFIG.name}
+              </span>
             </Link>
-            <p className="text-muted-foreground text-sm sm:text-base max-w-md mb-5 sm:mb-8 leading-relaxed">
-              A premium matrimonial platform designed for Indians seeking serious marriage relationships.
-              Verified profiles, strong privacy, and family-friendly matchmaking.
+            <p className="text-muted-foreground mb-5 max-w-md text-sm leading-relaxed sm:mb-8 sm:text-base">
+              A premium matrimonial platform designed for Indians seeking serious marriage
+              relationships. Verified profiles, strong privacy, and family-friendly matchmaking.
             </p>
             <div className="space-y-3 text-sm">
-              <div className="flex items-center gap-3 group">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                  <Mail className="h-4 w-4 text-primary" />
+              <div className="group flex items-center gap-3">
+                <div className="bg-primary/10 group-hover:bg-primary/20 flex h-10 w-10 items-center justify-center rounded-lg transition-colors">
+                  <Mail className="text-primary h-4 w-4" />
                 </div>
-                <a href={`mailto:${SITE_CONFIG.supportEmail}`} className="text-muted-foreground hover:text-primary transition-colors">
+                <a
+                  href={`mailto:${SITE_CONFIG.supportEmail}`}
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
                   {SITE_CONFIG.supportEmail}
                 </a>
               </div>
-              <div className="flex items-center gap-3 group">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                  <Phone className="h-4 w-4 text-primary" />
+              <div className="group flex items-center gap-3">
+                <div className="bg-primary/10 group-hover:bg-primary/20 flex h-10 w-10 items-center justify-center rounded-lg transition-colors">
+                  <Phone className="text-primary h-4 w-4" />
                 </div>
-                <a href={SITE_CONFIG.phoneHref} className="text-muted-foreground hover:text-primary transition-colors">
+                <a
+                  href={SITE_CONFIG.phoneHref}
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
                   {SITE_CONFIG.phone}
                 </a>
               </div>
-              <div className="flex items-center gap-3 group">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <MapPin className="h-4 w-4 text-primary" />
+              <div className="group flex items-center gap-3">
+                <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                  <MapPin className="text-primary h-4 w-4" />
                 </div>
                 <span className="text-muted-foreground">{SITE_CONFIG.address}</span>
               </div>
             </div>
           </div>
 
-          {/* Company Links */}
           <div>
-            <h3 className="font-semibold text-lg mb-6">Company</h3>
+            <h3 className="mb-6 text-lg font-semibold">Company</h3>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="group inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors relative"
+                    className="group text-muted-foreground hover:text-primary relative inline-flex items-center text-sm transition-colors"
                   >
                     <span className="relative">
                       {link.label}
-                      <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary transition-all group-hover:w-full" />
+                      <span className="bg-primary absolute -bottom-0.5 left-0 h-px w-0 transition-all group-hover:w-full" />
                     </span>
                   </Link>
                 </li>
@@ -90,19 +96,18 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Legal Links */}
           <div>
-            <h3 className="font-semibold text-lg mb-6">Legal</h3>
+            <h3 className="mb-6 text-lg font-semibold">Legal</h3>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="group inline-flex items-center text-sm text-muted-foreground hover:text-primary transition-colors relative"
+                    className="group text-muted-foreground hover:text-primary relative inline-flex items-center text-sm transition-colors"
                   >
                     <span className="relative">
                       {link.label}
-                      <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary transition-all group-hover:w-full" />
+                      <span className="bg-primary absolute -bottom-0.5 left-0 h-px w-0 transition-all group-hover:w-full" />
                     </span>
                   </Link>
                 </li>
@@ -112,10 +117,9 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="bg-gradient-to-r from-primary via-primary to-primary/90 text-white">
-        <div className="container-wide py-4 sm:py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs sm:text-sm font-medium text-center sm:text-left">
+      <div className="from-primary via-primary to-primary/90 bg-gradient-to-r text-white">
+        <div className="container-wide flex flex-col items-center justify-between gap-4 py-4 sm:flex-row sm:py-6">
+          <p className="text-center text-xs font-medium sm:text-left sm:text-sm">
             &copy; {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved.
           </p>
           <div className="flex items-center gap-3">
@@ -125,7 +129,7 @@ export function Footer() {
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all hover:scale-110"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all hover:scale-110 hover:bg-white/20"
                 aria-label={social.label}
               >
                 <social.icon className="h-5 w-5" />

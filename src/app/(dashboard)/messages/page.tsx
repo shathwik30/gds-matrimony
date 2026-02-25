@@ -69,13 +69,13 @@ function MessagesErrorFallback() {
   return (
     <Card>
       <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
-        <AlertCircle className="h-10 w-10 text-destructive" />
-        <p className="font-semibold text-lg">Something went wrong</p>
-        <p className="text-sm text-muted-foreground">
+        <AlertCircle className="text-destructive h-10 w-10" />
+        <p className="text-lg font-semibold">Something went wrong</p>
+        <p className="text-muted-foreground text-sm">
           We couldn&#39;t load messages right now. Please refresh the page.
         </p>
         <Button variant="outline" onClick={() => window.location.reload()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className="mr-2 h-4 w-4" />
           Refresh
         </Button>
       </CardContent>
@@ -86,7 +86,13 @@ function MessagesErrorFallback() {
 export default function MessagesPage() {
   return (
     <ErrorBoundary FallbackComponent={MessagesErrorFallback}>
-      <Suspense fallback={<div className="flex items-center justify-center h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <Suspense
+        fallback={
+          <div className="flex h-screen items-center justify-center">
+            <Loader2 className="text-primary h-8 w-8 animate-spin" />
+          </div>
+        }
+      >
         <MessagesContent />
       </Suspense>
     </ErrorBoundary>
@@ -194,167 +200,166 @@ function MessagesContent() {
         // User authenticated via JWT
       });
 
-    // Receive list of currently online users
-    socketInstance.on("online_users", ({ userIds }) => {
-
-      // Update all conversations with online status
-      setConversations((prev) => {
-        return prev.map((convo) => {
-          const isOnline = userIds.includes(convo.otherUser.id);
-          return {
-            ...convo,
-            otherUser: { ...convo.otherUser, isOnline },
-          };
-        });
-      });
-
-      // Update selected user if they're in the online list
-      setSelectedUser((prev) => {
-        if (!prev) return null;
-        const isOnline = userIds.includes(prev.id);
-        return { ...prev, isOnline };
-      });
-    });
-
-    socketInstance.on("disconnect", () => {
-      setIsConnected(false);
-    });
-
-    socketInstance.on("connect_error", () => {
-      setIsConnected(false);
-    });
-
-    socketInstance.on("reconnect_attempt", () => {
-      // Reconnecting...
-    });
-
-    socketInstance.on("reconnect", () => {
-      setIsConnected(true);
-    });
-
-    // Handle online/offline status updates
-    socketInstance.on("user_status", ({ userId, isOnline }) => {
-
-      // Update selected user if they're the one whose status changed
-      setSelectedUser((prev) => {
-        if (!prev || prev.id !== userId) return prev;
-        return { ...prev, isOnline };
-      });
-
-      // Update in conversations list
-      setConversations((prev) => {
-        return prev.map((convo) => {
-          if (convo.otherUser.id === userId) {
+      // Receive list of currently online users
+      socketInstance.on("online_users", ({ userIds }) => {
+        // Update all conversations with online status
+        setConversations((prev) => {
+          return prev.map((convo) => {
+            const isOnline = userIds.includes(convo.otherUser.id);
             return {
               ...convo,
               otherUser: { ...convo.otherUser, isOnline },
             };
-          }
-          return convo;
-        });
-      });
-    });
-
-    socketInstance.on("message_received", ({ message, from }) => {
-      // Announce new message to screen readers
-      if (message.senderId !== currentUserId) {
-        setAnnouncement(`New message: ${message.content}`);
-        setTimeout(() => setAnnouncement(""), 1000);
-      }
-
-      // Only add if it's for the current conversation (use ref to avoid re-renders)
-      if (from === selectedUserIdRef.current || message.senderId === selectedUserIdRef.current) {
-        setMessages((prev) => {
-          // Avoid duplicates
-          if (prev.some((m) => m.id === message.id)) return prev;
-          return [...prev, message].sort((a, b) => {
-            const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-            const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-            return timeA - timeB;
           });
         });
 
-        // Auto-mark as read since conversation is open
-        if (message.senderId === selectedUserIdRef.current && socketRef.current && currentUserId) {
-          socketRef.current.emit("messages_read", {
-            otherUserId: from,
-            messageIds: [message.id],
-          });
-        }
-      }
-
-      // Update conversations WITHOUT causing a refresh - just update the list
-      setConversations((prev) => {
-        const updated = [...prev];
-        const convoIndex = updated.findIndex((c) => c.otherUser.id === from);
-        if (convoIndex >= 0) {
-          // Move to top and update last message
-          const convo = updated.splice(convoIndex, 1)[0];
-          convo.lastMessage = {
-            content: message.content,
-            createdAt: message.createdAt || new Date(),
-            isRead: from === selectedUserIdRef.current ? true : false, // Mark as read if conversation is open
-          };
-          // Reset unread count if this conversation is currently open
-          if (from === selectedUserIdRef.current) {
-            convo.unreadCount = 0;
-          } else {
-            convo.unreadCount = (convo.unreadCount || 0) + 1;
-          }
-          updated.unshift(convo);
-        }
-        return updated;
+        // Update selected user if they're in the online list
+        setSelectedUser((prev) => {
+          if (!prev) return null;
+          const isOnline = userIds.includes(prev.id);
+          return { ...prev, isOnline };
+        });
       });
-    });
 
-    socketInstance.on("message_sent", ({ tempId, message }) => {
-      // Replace temp message with real one
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.tempId === tempId
-            ? { ...message, tempId: undefined, pending: false }
-            : msg
-        )
-      );
-    });
+      socketInstance.on("disconnect", () => {
+        setIsConnected(false);
+      });
 
-    socketInstance.on("user_typing", ({ userId, isTyping }) => {
-      // Use ref to avoid re-renders
-      if (userId === selectedUserIdRef.current) {
-        setTypingUsers((prev) => {
-          const next = new Set(prev);
-          if (isTyping) {
-            next.add(userId);
-          } else {
-            next.delete(userId);
-          }
-          return next;
+      socketInstance.on("connect_error", () => {
+        setIsConnected(false);
+      });
+
+      socketInstance.on("reconnect_attempt", () => {
+        // Reconnecting...
+      });
+
+      socketInstance.on("reconnect", () => {
+        setIsConnected(true);
+      });
+
+      // Handle online/offline status updates
+      socketInstance.on("user_status", ({ userId, isOnline }) => {
+        // Update selected user if they're the one whose status changed
+        setSelectedUser((prev) => {
+          if (!prev || prev.id !== userId) return prev;
+          return { ...prev, isOnline };
         });
 
-        // Auto-clear typing after 3 seconds
-        if (isTyping) {
-          setTimeout(() => {
-            setTypingUsers((prev) => {
-              const next = new Set(prev);
-              next.delete(userId);
-              return next;
+        // Update in conversations list
+        setConversations((prev) => {
+          return prev.map((convo) => {
+            if (convo.otherUser.id === userId) {
+              return {
+                ...convo,
+                otherUser: { ...convo.otherUser, isOnline },
+              };
+            }
+            return convo;
+          });
+        });
+      });
+
+      socketInstance.on("message_received", ({ message, from }) => {
+        // Announce new message to screen readers
+        if (message.senderId !== currentUserId) {
+          setAnnouncement(`New message: ${message.content}`);
+          setTimeout(() => setAnnouncement(""), 1000);
+        }
+
+        // Only add if it's for the current conversation (use ref to avoid re-renders)
+        if (from === selectedUserIdRef.current || message.senderId === selectedUserIdRef.current) {
+          setMessages((prev) => {
+            // Avoid duplicates
+            if (prev.some((m) => m.id === message.id)) return prev;
+            return [...prev, message].sort((a, b) => {
+              const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+              const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+              return timeA - timeB;
             });
-          }, 3000);
+          });
+
+          // Auto-mark as read since conversation is open
+          if (
+            message.senderId === selectedUserIdRef.current &&
+            socketRef.current &&
+            currentUserId
+          ) {
+            socketRef.current.emit("messages_read", {
+              otherUserId: from,
+              messageIds: [message.id],
+            });
+          }
         }
-      }
-    });
 
-    socketInstance.on("messages_read", ({ messageIds, readAt }) => {
-      // Update message statuses to read
-      setMessages((prev) =>
-        prev.map((msg) =>
-          messageIds.includes(msg.id)
-            ? { ...msg, status: "read", isRead: true, readAt: new Date(readAt) }
-            : msg
-        )
-      );
-    });
+        // Update conversations WITHOUT causing a refresh - just update the list
+        setConversations((prev) => {
+          const updated = [...prev];
+          const convoIndex = updated.findIndex((c) => c.otherUser.id === from);
+          if (convoIndex >= 0) {
+            // Move to top and update last message
+            const convo = updated.splice(convoIndex, 1)[0];
+            convo.lastMessage = {
+              content: message.content,
+              createdAt: message.createdAt || new Date(),
+              isRead: from === selectedUserIdRef.current ? true : false, // Mark as read if conversation is open
+            };
+            // Reset unread count if this conversation is currently open
+            if (from === selectedUserIdRef.current) {
+              convo.unreadCount = 0;
+            } else {
+              convo.unreadCount = (convo.unreadCount || 0) + 1;
+            }
+            updated.unshift(convo);
+          }
+          return updated;
+        });
+      });
 
+      socketInstance.on("message_sent", ({ tempId, message }) => {
+        // Replace temp message with real one
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.tempId === tempId ? { ...message, tempId: undefined, pending: false } : msg
+          )
+        );
+      });
+
+      socketInstance.on("user_typing", ({ userId, isTyping }) => {
+        // Use ref to avoid re-renders
+        if (userId === selectedUserIdRef.current) {
+          setTypingUsers((prev) => {
+            const next = new Set(prev);
+            if (isTyping) {
+              next.add(userId);
+            } else {
+              next.delete(userId);
+            }
+            return next;
+          });
+
+          // Auto-clear typing after 3 seconds
+          if (isTyping) {
+            setTimeout(() => {
+              setTypingUsers((prev) => {
+                const next = new Set(prev);
+                next.delete(userId);
+                return next;
+              });
+            }, 3000);
+          }
+        }
+      });
+
+      socketInstance.on("messages_read", ({ messageIds, readAt }) => {
+        // Update message statuses to read
+        setMessages((prev) =>
+          prev.map((msg) =>
+            messageIds.includes(msg.id)
+              ? { ...msg, status: "read", isRead: true, readAt: new Date(readAt) }
+              : msg
+          )
+        );
+      });
     };
 
     initSocket();
@@ -391,26 +396,29 @@ function MessagesContent() {
   }, [loadConversations]);
 
   // Load messages for selected user (memoized to prevent repeated calls)
-  const loadMessages = useCallback(async (userId: number) => {
-    const result = await getMessages(userId);
-    if (result.success && result.data) {
-      setMessages(result.data as Message[]);
+  const loadMessages = useCallback(
+    async (userId: number) => {
+      const result = await getMessages(userId);
+      if (result.success && result.data) {
+        setMessages(result.data as Message[]);
 
-      // Mark messages as read using ref to avoid dependency
-      const unreadMessageIds = result.data
-        .filter((m: Message) => !m.isRead && m.receiverId === currentUserId)
-        .map((m: Message) => m.id);
+        // Mark messages as read using ref to avoid dependency
+        const unreadMessageIds = result.data
+          .filter((m: Message) => !m.isRead && m.receiverId === currentUserId)
+          .map((m: Message) => m.id);
 
-      if (unreadMessageIds.length > 0 && socketRef.current && currentUserId) {
-        socketRef.current.emit("messages_read", {
-          otherUserId: userId,
-          messageIds: unreadMessageIds,
-        });
+        if (unreadMessageIds.length > 0 && socketRef.current && currentUserId) {
+          socketRef.current.emit("messages_read", {
+            otherUserId: userId,
+            messageIds: unreadMessageIds,
+          });
+        }
+      } else if (result.error) {
+        toast.error(result.error);
       }
-    } else if (result.error) {
-      toast.error(result.error);
-    }
-  }, [currentUserId]);
+    },
+    [currentUserId]
+  );
 
   // Update selected user info when conversations change
   useEffect(() => {
@@ -528,11 +536,7 @@ function MessagesContent() {
 
         // Replace optimistic message with real one
         setMessages((prev) =>
-          prev.map((msg) =>
-            msg.tempId === tempId
-              ? { ...realMessage, pending: false }
-              : msg
-          )
+          prev.map((msg) => (msg.tempId === tempId ? { ...realMessage, pending: false } : msg))
         );
 
         // Emit to Socket.io if connected (server uses authenticated userId as sender)
@@ -577,18 +581,18 @@ function MessagesContent() {
     if (!isMe) return null;
 
     if (msg.pending) {
-      return <Circle className="h-3 w-3 text-muted-foreground animate-pulse" />;
+      return <Circle className="text-muted-foreground h-3 w-3 animate-pulse" />;
     }
 
     switch (msg.status) {
       case "sent":
-        return <Check className="h-3 w-3 text-muted-foreground" />;
+        return <Check className="text-muted-foreground h-3 w-3" />;
       case "delivered":
-        return <CheckCheck className="h-3 w-3 text-muted-foreground" />;
+        return <CheckCheck className="text-muted-foreground h-3 w-3" />;
       case "read":
         return <CheckCheck className="h-3 w-3 text-yellow-500" />; // Yellow for read
       default:
-        return <Check className="h-3 w-3 text-muted-foreground" />;
+        return <Check className="text-muted-foreground h-3 w-3" />;
     }
   };
 
@@ -599,7 +603,7 @@ function MessagesContent() {
   if (subscriptionPlan === "free") {
     return (
       <div className="container-wide py-16">
-        <Card className="max-w-md mx-auto p-8 text-center space-y-4">
+        <Card className="mx-auto max-w-md space-y-4 p-8 text-center">
           <h2 className="text-2xl font-bold">Upgrade to Message</h2>
           <p className="text-muted-foreground">
             Free users cannot access messaging. Upgrade to a premium plan to start conversations.
@@ -613,44 +617,35 @@ function MessagesContent() {
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex">
-      {/* ARIA live region for screen reader announcements */}
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
+    <div className="flex h-[calc(100vh-4rem)]">
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {announcement}
       </div>
-      {/* Conversations List */}
       <div
-        className={`w-full md:w-80 border-r bg-background ${
+        className={`bg-background w-full border-r md:w-80 ${
           selectedUserId ? "hidden md:block" : ""
         }`}
       >
-        <div className="p-4 border-b flex items-center justify-between">
+        <div className="flex items-center justify-between border-b p-4">
           <h2 className="text-xl font-bold">Messages</h2>
           {!isConnected && (
             <span title="Reconnecting...">
-              <WifiOff className="h-5 w-5 text-muted-foreground animate-pulse" />
+              <WifiOff className="text-muted-foreground h-5 w-5 animate-pulse" />
             </span>
           )}
         </div>
-        <div className="overflow-y-auto h-[calc(100%-4rem)]">
+        <div className="h-[calc(100%-4rem)] overflow-y-auto">
           {conversations.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">
+            <div className="text-muted-foreground p-8 text-center">
               <p>No conversations yet</p>
-              <p className="text-sm mt-2">
-                Send an interest to start chatting
-              </p>
+              <p className="mt-2 text-sm">Send an interest to start chatting</p>
             </div>
           ) : (
             conversations.map((convo) => (
               <button
                 key={convo.id}
                 onClick={() => setSelectedUserId(convo.otherUser.id)}
-                className={`w-full p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors ${
+                className={`hover:bg-muted/50 flex w-full items-center gap-3 p-4 transition-colors ${
                   selectedUserId === convo.otherUser.id ? "bg-muted" : ""
                 }`}
               >
@@ -658,14 +653,11 @@ function MessagesContent() {
                   <Avatar>
                     <AvatarImage src={convo.otherUser.profileImage || ""} />
                     <AvatarFallback>
-                      {getInitials(
-                        convo.otherUser.firstName,
-                        convo.otherUser.lastName
-                      )}
+                      {getInitials(convo.otherUser.firstName, convo.otherUser.lastName)}
                     </AvatarFallback>
                   </Avatar>
                   {convo.otherUser.isOnline && (
-                    <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full border-2 border-background" />
+                    <div className="border-background absolute right-0 bottom-0 h-3 w-3 rounded-full border-2 bg-green-500" />
                   )}
                 </div>
                 <div className="flex-1 text-left">
@@ -679,11 +671,11 @@ function MessagesContent() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground truncate">
+                  <p className="text-muted-foreground truncate text-sm">
                     {convo.lastMessage?.content || "No messages yet"}
                   </p>
                   {convo.lastMessage?.createdAt && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {formatTimeAgo(new Date(convo.lastMessage.createdAt))}
                     </p>
                   )}
@@ -694,12 +686,10 @@ function MessagesContent() {
         </div>
       </div>
 
-      {/* Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex flex-1 flex-col">
         {selectedUser ? (
           <>
-            {/* Chat Header */}
-            <div className="p-4 border-b flex items-center gap-3">
+            <div className="flex items-center gap-3 border-b p-4">
               <Button
                 variant="ghost"
                 size="icon"
@@ -719,44 +709,41 @@ function MessagesContent() {
                   {selectedUser.firstName} {selectedUser.lastName}
                 </p>
                 {isUserTyping ? (
-                  <p className="text-sm text-primary font-medium animate-pulse">
-                    typing...
-                  </p>
+                  <p className="text-primary animate-pulse text-sm font-medium">typing...</p>
                 ) : (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     {selectedUser.isOnline ? "Online" : "Offline"}
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 space-y-4 overflow-y-auto p-4">
               {isLoading ? (
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <div className="flex h-full items-center justify-center">
+                  <Loader2 className="text-primary h-8 w-8 animate-spin" />
                 </div>
               ) : messages.length === 0 ? (
-                <div className="flex items-center justify-center h-full text-muted-foreground">
+                <div className="text-muted-foreground flex h-full items-center justify-center">
                   <p>No messages yet. Say hi! 👋</p>
                 </div>
               ) : (
                 messages.map((msg) => {
-                  const isMe = currentUserId ? msg.senderId === currentUserId : msg.senderId !== selectedUserId;
+                  const isMe = currentUserId
+                    ? msg.senderId === currentUserId
+                    : msg.senderId !== selectedUserId;
                   return (
                     <div
                       key={msg.id || msg.tempId}
                       className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                          isMe
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
+                        className={`max-w-xs rounded-lg px-4 py-2 lg:max-w-md ${
+                          isMe ? "bg-primary text-primary-foreground" : "bg-muted"
                         } ${msg.pending ? "opacity-60" : ""}`}
                       >
                         <p className="break-words">{msg.content}</p>
-                        <div className="flex items-center gap-1 mt-1">
+                        <div className="mt-1 flex items-center gap-1">
                           <p className="text-xs opacity-70">
                             {msg.createdAt
                               ? new Date(msg.createdAt).toLocaleTimeString([], {
@@ -775,8 +762,7 @@ function MessagesContent() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
-            <div className="p-4 border-t">
+            <div className="border-t p-4">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -803,7 +789,7 @@ function MessagesContent() {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-muted-foreground">
+          <div className="text-muted-foreground flex flex-1 items-center justify-center">
             <p>Select a conversation to start messaging</p>
           </div>
         )}

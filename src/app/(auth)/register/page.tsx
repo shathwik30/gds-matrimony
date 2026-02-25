@@ -13,12 +13,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -37,8 +32,6 @@ import {
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import { registerUser } from "@/lib/actions/auth";
 import { PROFILE_FOR_OPTIONS } from "@/constants";
-
-// ── Consent declarations from USER DECLARATION PDF ──────────────────────────
 
 const MANDATORY_DECLARATIONS = [
   "I am legally eligible to marry under applicable laws.",
@@ -59,18 +52,16 @@ const OPTIONAL_CONSENTS = [
   "I agree to receive promotional offers and marketing communications (optional).",
 ] as const;
 
-// ─────────────────────────────────────────────────────────────────────────────
-
 export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showConsent, setShowConsent] = useState(false);
-  const [mandatoryChecked, setMandatoryChecked] = useState<boolean[]>(
-    () => new Array(MANDATORY_DECLARATIONS.length).fill(false)
+  const [mandatoryChecked, setMandatoryChecked] = useState<boolean[]>(() =>
+    new Array(MANDATORY_DECLARATIONS.length).fill(false)
   );
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [optionalChecked, setOptionalChecked] = useState<boolean[]>(
-    () => new Array(OPTIONAL_CONSENTS.length).fill(false)
+  const [optionalChecked, setOptionalChecked] = useState<boolean[]>(() =>
+    new Array(OPTIONAL_CONSENTS.length).fill(false)
   );
   const pendingData = useRef<RegisterInput | null>(null);
 
@@ -84,17 +75,14 @@ export default function RegisterPage() {
     },
   });
 
-  // Step 1: Form validates → open consent dialog
   const handleFormSubmit = (data: RegisterInput) => {
     pendingData.current = data;
-    // Reset consent state each time dialog opens
     setMandatoryChecked(new Array(MANDATORY_DECLARATIONS.length).fill(false));
     setTermsAccepted(false);
     setOptionalChecked(new Array(OPTIONAL_CONSENTS.length).fill(false));
     setShowConsent(true);
   };
 
-  // Step 2: User agrees → actually register
   const handleConsentAgree = async () => {
     if (!pendingData.current) return;
     setShowConsent(false);
@@ -141,10 +129,9 @@ export default function RegisterPage() {
   ];
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Side - Image */}
-      <div className="hidden lg:flex lg:w-1/2 bg-brand-light relative items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand/10 to-transparent" />
+    <div className="flex min-h-screen">
+      <div className="bg-brand-light relative hidden items-center justify-center lg:flex lg:w-1/2">
+        <div className="from-brand/10 absolute inset-0 bg-gradient-to-br to-transparent" />
         <div className="relative z-10 flex flex-col items-center p-12 text-center">
           <Image
             src="/images/logo.svg"
@@ -153,9 +140,10 @@ export default function RegisterPage() {
             height={80}
             className="mb-8"
           />
-          <h1 className="text-4xl font-bold mb-4">Start Your Journey</h1>
-          <p className="text-lg text-muted-foreground max-w-md">
-            Create your free profile and find your perfect life partner among thousands of verified profiles.
+          <h1 className="mb-4 text-4xl font-bold">Start Your Journey</h1>
+          <p className="text-muted-foreground max-w-md text-lg">
+            Create your free profile and find your perfect life partner among thousands of verified
+            profiles.
           </p>
           <div className="mt-8 space-y-4 text-left">
             {[
@@ -165,7 +153,7 @@ export default function RegisterPage() {
               "Smart Matchmaking",
             ].map((feature) => (
               <div key={feature} className="flex items-center gap-3">
-                <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100">
                   <Check className="h-4 w-4 text-green-600" />
                 </div>
                 <span className="font-medium">{feature}</span>
@@ -175,17 +163,11 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
-        <Card className="w-full max-w-md border-0 shadow-none lg:shadow-lg lg:border">
+      <div className="flex flex-1 items-center justify-center p-4 sm:p-6 md:p-8">
+        <Card className="w-full max-w-md border-0 shadow-none lg:border lg:shadow-lg">
           <CardHeader className="text-center">
-            <div className="lg:hidden flex justify-center mb-4">
-              <Image
-                src="/images/logo.svg"
-                alt="GDS Marriage Links"
-                width={60}
-                height={60}
-              />
+            <div className="mb-4 flex justify-center lg:hidden">
+              <Image src="/images/logo.svg" alt="GDS Marriage Links" width={60} height={60} />
             </div>
             <CardTitle className="text-xl sm:text-2xl">Create Your Account</CardTitle>
             <CardDescription>
@@ -227,11 +209,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Enter your email"
-                          {...field}
-                        />
+                        <Input type="email" placeholder="Enter your email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -245,10 +223,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <PasswordInput
-                          placeholder="Create a password"
-                          {...field}
-                        />
+                        <PasswordInput placeholder="Create a password" {...field} />
                       </FormControl>
                       {password && (
                         <div className="mt-2 space-y-1">
@@ -259,7 +234,9 @@ export default function RegisterPage() {
                                 req.met ? "text-green-600" : "text-muted-foreground"
                               }`}
                             >
-                              <Check className={`h-3 w-3 ${req.met ? "opacity-100" : "opacity-30"}`} />
+                              <Check
+                                className={`h-3 w-3 ${req.met ? "opacity-100" : "opacity-30"}`}
+                              />
                               {req.text}
                             </div>
                           ))}
@@ -277,10 +254,7 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
-                        <PasswordInput
-                          placeholder="Confirm your password"
-                          {...field}
-                        />
+                        <PasswordInput placeholder="Confirm your password" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -294,7 +268,7 @@ export default function RegisterPage() {
               </form>
             </Form>
 
-            <div className="mt-6 text-center text-sm text-muted-foreground">
+            <div className="text-muted-foreground mt-6 text-center text-sm">
               Already have an account?{" "}
               <Link href="/login" className="text-primary font-medium hover:underline">
                 Login
@@ -304,14 +278,12 @@ export default function RegisterPage() {
         </Card>
       </div>
 
-      {/* ── Consent Dialog ──────────────────────────────────────────────── */}
       <Dialog open={showConsent} onOpenChange={setShowConsent}>
-        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-xl max-h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
-          {/* Header */}
-          <div className="px-4 pt-4 pb-3 sm:px-6 sm:pt-6 sm:pb-4 border-b shrink-0">
+        <DialogContent className="flex max-h-[85vh] max-w-[calc(100vw-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-xl">
+          <div className="shrink-0 border-b px-4 pt-4 pb-3 sm:px-6 sm:pt-6 sm:pb-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                <ShieldCheck className="h-5 w-5 text-primary" />
+              <div className="bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                <ShieldCheck className="text-primary h-5 w-5" />
               </div>
               <div>
                 <DialogTitle className="text-lg">User Declaration & Privacy Consent</DialogTitle>
@@ -322,33 +294,30 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Scrollable content */}
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            <div className="px-4 py-4 space-y-4 sm:px-6 sm:py-5 sm:space-y-5">
-              <p className="text-sm text-muted-foreground">
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <div className="space-y-4 px-4 py-4 sm:space-y-5 sm:px-6 sm:py-5">
+              <p className="text-muted-foreground text-sm">
                 By creating an account, I confirm that:
               </p>
 
-              {/* Mandatory checkboxes */}
               <div className="space-y-3.5">
                 {MANDATORY_DECLARATIONS.map((text, i) => (
                   <label
                     key={i}
-                    className="flex items-start gap-3 cursor-pointer group rounded-lg p-2 -mx-2 hover:bg-muted/50 transition-colors"
+                    className="group hover:bg-muted/50 -mx-2 flex cursor-pointer items-start gap-3 rounded-lg p-2 transition-colors"
                   >
                     <Checkbox
                       checked={mandatoryChecked[i]}
                       onCheckedChange={() => toggleMandatory(i)}
                       className="mt-0.5 shrink-0"
                     />
-                    <span className="text-sm leading-relaxed text-muted-foreground group-hover:text-foreground transition-colors">
+                    <span className="text-muted-foreground group-hover:text-foreground text-sm leading-relaxed transition-colors">
                       {text}
                     </span>
                   </label>
                 ))}
 
-                {/* Terms & Privacy — special mandatory with links */}
-                <label className="flex items-start gap-3 cursor-pointer group rounded-lg p-2 -mx-2 hover:bg-muted/50 transition-colors">
+                <label className="group hover:bg-muted/50 -mx-2 flex cursor-pointer items-start gap-3 rounded-lg p-2 transition-colors">
                   <Checkbox
                     checked={termsAccepted}
                     onCheckedChange={() => setTermsAccepted((p) => !p)}
@@ -359,7 +328,7 @@ export default function RegisterPage() {
                     <Link
                       href="/terms"
                       target="_blank"
-                      className="text-primary hover:underline font-semibold"
+                      className="text-primary font-semibold hover:underline"
                       onClick={(e) => e.stopPropagation()}
                     >
                       Terms & Conditions
@@ -368,7 +337,7 @@ export default function RegisterPage() {
                     <Link
                       href="/privacy"
                       target="_blank"
-                      className="text-primary hover:underline font-semibold"
+                      className="text-primary font-semibold hover:underline"
                       onClick={(e) => e.stopPropagation()}
                     >
                       Privacy Policy
@@ -378,24 +347,22 @@ export default function RegisterPage() {
                 </label>
               </div>
 
-              {/* Divider */}
               <div className="border-t" />
 
-              {/* Optional communication consent */}
               <div>
-                <p className="text-sm font-semibold mb-3">Optional Communication Consent</p>
+                <p className="mb-3 text-sm font-semibold">Optional Communication Consent</p>
                 <div className="space-y-3">
                   {OPTIONAL_CONSENTS.map((text, i) => (
                     <label
                       key={i}
-                      className="flex items-start gap-3 cursor-pointer group rounded-lg p-2 -mx-2 hover:bg-muted/50 transition-colors"
+                      className="group hover:bg-muted/50 -mx-2 flex cursor-pointer items-start gap-3 rounded-lg p-2 transition-colors"
                     >
                       <Checkbox
                         checked={optionalChecked[i]}
                         onCheckedChange={() => toggleOptional(i)}
                         className="mt-0.5 shrink-0"
                       />
-                      <span className="text-sm leading-relaxed text-muted-foreground group-hover:text-foreground transition-colors">
+                      <span className="text-muted-foreground group-hover:text-foreground text-sm leading-relaxed transition-colors">
                         {text}
                       </span>
                     </label>
@@ -405,13 +372,13 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="px-4 py-3 sm:px-6 sm:py-4 border-t bg-muted/30 shrink-0">
+          <div className="bg-muted/30 shrink-0 border-t px-4 py-3 sm:px-6 sm:py-4">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-xs text-muted-foreground hidden sm:block">
-                {mandatoryChecked.filter(Boolean).length + (termsAccepted ? 1 : 0)}/{MANDATORY_DECLARATIONS.length + 1} required
+              <p className="text-muted-foreground hidden text-xs sm:block">
+                {mandatoryChecked.filter(Boolean).length + (termsAccepted ? 1 : 0)}/
+                {MANDATORY_DECLARATIONS.length + 1} required
               </p>
-              <div className="flex gap-3 w-full sm:w-auto sm:ml-auto">
+              <div className="flex w-full gap-3 sm:ml-auto sm:w-auto">
                 <Button
                   variant="outline"
                   size="sm"
@@ -426,8 +393,7 @@ export default function RegisterPage() {
                   disabled={!allMandatoryChecked}
                   className="flex-1 sm:flex-none"
                 >
-                  <ShieldCheck className="h-4 w-4 mr-2" />
-                  I Agree & Register
+                  <ShieldCheck className="mr-2 h-4 w-4" />I Agree & Register
                 </Button>
               </div>
             </div>

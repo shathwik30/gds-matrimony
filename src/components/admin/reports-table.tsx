@@ -4,15 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import {
-  AlertTriangle,
-  Check,
-  X,
-  User,
-  Eye,
-  UserX,
-  Loader2,
-} from "lucide-react";
+import { AlertTriangle, Check, X, User, Eye, UserX, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -105,10 +97,10 @@ export function ReportsTable({ reports }: ReportsTableProps) {
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200">
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
         {reports.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-slate-500">
-            <AlertTriangle className="h-12 w-12 mb-4 text-slate-300" />
+            <AlertTriangle className="mb-4 h-12 w-12 text-slate-300" />
             <p className="text-lg font-medium">No reports found</p>
             <p className="text-sm">No reports match the selected filter</p>
           </div>
@@ -131,7 +123,7 @@ export function ReportsTable({ reports }: ReportsTableProps) {
                   <TableRow key={report.id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100">
                           <User className="h-4 w-4 text-slate-500" />
                         </div>
                         <div>
@@ -144,7 +136,7 @@ export function ReportsTable({ reports }: ReportsTableProps) {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-full bg-red-50 flex items-center justify-center">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-50">
                           <User className="h-4 w-4 text-red-500" />
                         </div>
                         <div>
@@ -156,12 +148,12 @@ export function ReportsTable({ reports }: ReportsTableProps) {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="text-orange-600 border-orange-200">
+                      <Badge variant="outline" className="border-orange-200 text-orange-600">
                         {reasonLabels[report.reason] || report.reason}
                       </Badge>
                     </TableCell>
                     <TableCell className="max-w-[200px]">
-                      <p className="text-sm text-slate-600 truncate">
+                      <p className="truncate text-sm text-slate-600">
                         {report.description || "No description provided"}
                       </p>
                     </TableCell>
@@ -175,10 +167,10 @@ export function ReportsTable({ reports }: ReportsTableProps) {
                         variant="outline"
                         className={
                           report.status === "pending"
-                            ? "bg-yellow-50 text-yellow-700 border-yellow-200"
+                            ? "border-yellow-200 bg-yellow-50 text-yellow-700"
                             : report.status === "resolved"
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                            : "bg-slate-50 text-slate-500 border-slate-200"
+                              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                              : "border-slate-200 bg-slate-50 text-slate-500"
                         }
                       >
                         {report.status}
@@ -187,13 +179,9 @@ export function ReportsTable({ reports }: ReportsTableProps) {
                     <TableCell className="text-right">
                       {report.status === "pending" ? (
                         <div className="flex items-center justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            asChild
-                          >
+                          <Button size="sm" variant="outline" asChild>
                             <Link href={`/admin/users/${report.reportedUserId}`}>
-                              <Eye className="h-4 w-4 mr-1" />
+                              <Eye className="mr-1 h-4 w-4" />
                               View
                             </Link>
                           </Button>
@@ -209,7 +197,7 @@ export function ReportsTable({ reports }: ReportsTableProps) {
                               <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
                               <>
-                                <Check className="h-4 w-4 mr-1" />
+                                <Check className="mr-1 h-4 w-4" />
                                 Resolve
                               </>
                             )}
@@ -217,17 +205,19 @@ export function ReportsTable({ reports }: ReportsTableProps) {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleAction(report.id, "dismissed", report.reportedUserId)}
+                            onClick={() =>
+                              handleAction(report.id, "dismissed", report.reportedUserId)
+                            }
                             disabled={loadingId === report.id || isPending}
                           >
-                            <X className="h-4 w-4 mr-1" />
+                            <X className="mr-1 h-4 w-4" />
                             Dismiss
                           </Button>
                         </div>
                       ) : (
                         <Button size="sm" variant="outline" asChild>
                           <Link href={`/admin/users/${report.reportedUserId}`}>
-                            <Eye className="h-4 w-4 mr-1" />
+                            <Eye className="mr-1 h-4 w-4" />
                             View User
                           </Link>
                         </Button>
@@ -241,12 +231,16 @@ export function ReportsTable({ reports }: ReportsTableProps) {
         )}
       </div>
 
-      {/* Action Confirmation Dialog */}
       <Dialog
         open={actionDialog.open}
         onOpenChange={(open) => {
           if (!open) {
-            setActionDialog({ open: false, reportId: null, action: "resolved", reportedUserId: null });
+            setActionDialog({
+              open: false,
+              reportId: null,
+              action: "resolved",
+              reportedUserId: null,
+            });
             setSuspendUser(false);
           }
         }}
@@ -268,7 +262,7 @@ export function ReportsTable({ reports }: ReportsTableProps) {
             />
             <label
               htmlFor="suspend"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               <div className="flex items-center gap-2">
                 <UserX className="h-4 w-4 text-red-500" />
@@ -281,7 +275,12 @@ export function ReportsTable({ reports }: ReportsTableProps) {
             <Button
               variant="outline"
               onClick={() =>
-                setActionDialog({ open: false, reportId: null, action: "resolved", reportedUserId: null })
+                setActionDialog({
+                  open: false,
+                  reportId: null,
+                  action: "resolved",
+                  reportedUserId: null,
+                })
               }
             >
               Cancel
@@ -291,9 +290,7 @@ export function ReportsTable({ reports }: ReportsTableProps) {
               onClick={confirmAction}
               disabled={loadingId !== null}
             >
-              {loadingId !== null ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : null}
+              {loadingId !== null ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Confirm Resolution
             </Button>
           </DialogFooter>

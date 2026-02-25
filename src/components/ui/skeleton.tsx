@@ -1,13 +1,9 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div
-      data-slot="skeleton"
-      className={cn("skeleton-pulse rounded-md", className)}
-      {...props}
-    />
-  )
+    <div data-slot="skeleton" className={cn("skeleton-pulse rounded-md", className)} {...props} />
+  );
 }
 
 function SkeletonText({
@@ -20,14 +16,11 @@ function SkeletonText({
       {Array.from({ length: lines }).map((_, i) => (
         <Skeleton
           key={i}
-          className={cn(
-            "h-4",
-            i === lines - 1 && lines > 1 ? "w-4/5" : "w-full"
-          )}
+          className={cn("h-4", i === lines - 1 && lines > 1 ? "w-4/5" : "w-full")}
         />
       ))}
     </div>
-  )
+  );
 }
 
 function SkeletonAvatar({
@@ -39,15 +32,10 @@ function SkeletonAvatar({
     sm: "h-8 w-8",
     md: "h-10 w-10",
     lg: "h-16 w-16",
-    xl: "h-24 w-24"
-  }
+    xl: "h-24 w-24",
+  };
 
-  return (
-    <Skeleton
-      className={cn("rounded-full", sizeClasses[size], className)}
-      {...props}
-    />
-  )
+  return <Skeleton className={cn("rounded-full", sizeClasses[size], className)} {...props} />;
 }
 
 function SkeletonButton({
@@ -58,25 +46,16 @@ function SkeletonButton({
   const variantClasses = {
     sm: "h-9 w-24",
     default: "h-11 w-32",
-    lg: "h-14 w-40"
-  }
+    lg: "h-14 w-40",
+  };
 
-  return (
-    <Skeleton
-      className={cn("rounded-lg", variantClasses[variant], className)}
-      {...props}
-    />
-  )
+  return <Skeleton className={cn("rounded-lg", variantClasses[variant], className)} {...props} />;
 }
 
 function SkeletonCard({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn(
-        "rounded-xl border bg-card p-6 space-y-4",
-        "shadow-premium-sm",
-        className
-      )}
+      className={cn("bg-card space-y-4 rounded-xl border p-6", "shadow-premium-sm", className)}
       {...props}
     >
       {/* Header with avatar and text */}
@@ -100,7 +79,7 @@ function SkeletonCard({ className, ...props }: React.ComponentProps<"div">) {
         <SkeletonButton variant="default" className="w-20" />
       </div>
     </div>
-  )
+  );
 }
 
 function SkeletonProfileCard({
@@ -111,11 +90,7 @@ function SkeletonProfileCard({
   if (variant === "compact") {
     return (
       <div
-        className={cn(
-          "rounded-xl border bg-card overflow-hidden",
-          "shadow-premium-sm",
-          className
-        )}
+        className={cn("bg-card overflow-hidden rounded-xl border", "shadow-premium-sm", className)}
         {...props}
       >
         <div className="flex gap-4 p-4">
@@ -127,13 +102,13 @@ function SkeletonProfileCard({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div
       className={cn(
-        "rounded-xl border bg-card overflow-hidden",
+        "bg-card overflow-hidden rounded-xl border",
         "shadow-premium-sm hover:shadow-premium-md transition-smooth",
         className
       )}
@@ -143,10 +118,10 @@ function SkeletonProfileCard({
       <Skeleton className="aspect-[3/4] w-full" />
 
       {/* Content */}
-      <div className="p-4 space-y-3">
+      <div className="space-y-3 p-4">
         {/* Name and age */}
         <div>
-          <Skeleton className="h-6 w-3/4 mb-2" />
+          <Skeleton className="mb-2 h-6 w-3/4" />
           <Skeleton className="h-4 w-1/2" />
         </div>
 
@@ -165,7 +140,7 @@ function SkeletonProfileCard({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function SkeletonGrid({
@@ -174,15 +149,12 @@ function SkeletonGrid({
   className,
   ...props
 }: React.ComponentProps<"div"> & {
-  count?: number
-  cardVariant?: "default" | "compact"
+  count?: number;
+  cardVariant?: "default" | "compact";
 }) {
   return (
     <div
-      className={cn(
-        "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
-        className
-      )}
+      className={cn("grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3", className)}
       {...props}
     >
       {Array.from({ length: count }).map((_, i) => (
@@ -193,7 +165,7 @@ function SkeletonGrid({
         />
       ))}
     </div>
-  )
+  );
 }
 
 function SkeletonTable({
@@ -202,13 +174,16 @@ function SkeletonTable({
   className,
   ...props
 }: React.ComponentProps<"div"> & {
-  rows?: number
-  columns?: number
+  rows?: number;
+  columns?: number;
 }) {
   return (
     <div className={cn("space-y-3", className)} {...props}>
       {/* Header */}
-      <div className="grid gap-4 pb-3 border-b" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+      <div
+        className="grid gap-4 border-b pb-3"
+        style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+      >
         {Array.from({ length: columns }).map((_, i) => (
           <Skeleton key={i} className="h-5 w-full" />
         ))}
@@ -216,14 +191,18 @@ function SkeletonTable({
 
       {/* Rows */}
       {Array.from({ length: rows }).map((_, rowIndex) => (
-        <div key={rowIndex} className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+        <div
+          key={rowIndex}
+          className="grid gap-4"
+          style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+        >
           {Array.from({ length: columns }).map((_, colIndex) => (
             <Skeleton key={colIndex} className="h-10 w-full rounded" />
           ))}
         </div>
       ))}
     </div>
-  )
+  );
 }
 
 function SkeletonForm({ className, ...props }: React.ComponentProps<"div">) {
@@ -242,7 +221,7 @@ function SkeletonForm({ className, ...props }: React.ComponentProps<"div">) {
         <SkeletonButton variant="lg" className="w-full" />
       </div>
     </div>
-  )
+  );
 }
 
 export {
@@ -254,5 +233,5 @@ export {
   SkeletonProfileCard,
   SkeletonGrid,
   SkeletonTable,
-  SkeletonForm
-}
+  SkeletonForm,
+};

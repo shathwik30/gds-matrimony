@@ -4,7 +4,11 @@ import { db, payments } from "@/lib/db";
 import { eq, and } from "drizzle-orm";
 import { SUBSCRIPTION_PLANS, CONTACT_PACKS } from "@/constants";
 import { parseUserId } from "@/lib/utils";
-import { verifyRazorpaySignature, activateSubscription, activateContactPack } from "@/lib/payment-helpers";
+import {
+  verifyRazorpaySignature,
+  activateSubscription,
+  activateContactPack,
+} from "@/lib/payment-helpers";
 
 export async function POST(request: Request) {
   try {
@@ -13,7 +17,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Parse and validate request body
     let requestBody: unknown;
     try {
       requestBody = await request.json();
@@ -25,17 +28,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-    } = requestBody as {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = requestBody as {
       razorpay_order_id?: unknown;
       razorpay_payment_id?: unknown;
       razorpay_signature?: unknown;
     };
 
-    // Validate required fields
     if (typeof razorpay_order_id !== "string" || !razorpay_order_id.trim()) {
       return NextResponse.json({ error: "razorpay_order_id is required" }, { status: 400 });
     }
@@ -46,7 +44,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "razorpay_signature is required" }, { status: 400 });
     }
 
-    // Verify signature
     const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
     if (!razorpaySecret) {
       console.error("RAZORPAY_KEY_SECRET not configured");
@@ -55,10 +52,7 @@ export async function POST(request: Request) {
 
     const payload = razorpay_order_id + "|" + razorpay_payment_id;
     if (!verifyRazorpaySignature(payload, razorpay_signature, razorpaySecret)) {
-      return NextResponse.json(
-        { error: "Invalid signature" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }
 
     const userId = parseUserId(session.user.id);
@@ -66,25 +60,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid user" }, { status: 400 });
     }
 
-    // Get payment record
     const paymentRecord = await db.query.payments.findFirst({
-      where: and(
-        eq(payments.razorpayOrderId, razorpay_order_id),
-        eq(payments.userId, userId)
-      ),
+      where: and(eq(payments.razorpayOrderId, razorpay_order_id), eq(payments.userId, userId)),
     });
 
     if (!paymentRecord) {
-      return NextResponse.json(
-        { error: "Payment record not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Payment record not found" }, { status: 404 });
     }
 
-    // Idempotency check - prevent duplicate processing
     if (paymentRecord.status === "completed") {
       if (paymentRecord.purchaseType?.startsWith("contact_pack_")) {
-        const pack = CONTACT_PACKS.find(p => p.id === paymentRecord.purchaseType);
+        const pack = CONTACT_PACKS.find((p) => p.id === paymentRecord.purchaseType);
         return NextResponse.json({
           success: true,
           message: "Payment already verified",
@@ -100,7 +86,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // Only process payments in "created" state
     if (paymentRecord.status !== "created") {
       return NextResponse.json(
         { error: "Payment is not in a valid state for verification" },
@@ -108,7 +93,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Handle contact pack purchases
     if (paymentRecord.purchaseType?.startsWith("contact_pack_")) {
       const packSize = paymentRecord.contactPackSize;
       if (!packSize) {
@@ -116,7 +100,6 @@ export async function POST(request: Request) {
       }
 
       const packResult = await db.transaction(async (tx) => {
-        // Use optimistic locking: only update if status is still "created"
         const [updated] = await tx
           .update(payments)
           .set({
@@ -138,7 +121,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Payment already processed" }, { status: 409 });
       }
 
-      const pack = CONTACT_PACKS.find(p => p.id === paymentRecord.purchaseType);
+      const pack = CONTACT_PACKS.find((p) => p.id === paymentRecord.purchaseType);
       return NextResponse.json({
         success: true,
         message: "Payment verified and contact pack activated",
@@ -147,15 +130,12 @@ export async function POST(request: Request) {
       });
     }
 
-    // Handle subscription purchases
     const plan = SUBSCRIPTION_PLANS.find((p) => p.id === paymentRecord.plan);
     if (!plan) {
       return NextResponse.json({ error: "Plan not found" }, { status: 404 });
     }
 
-    // Use a transaction for atomicity: payment update + subscription activation
     const result = await db.transaction(async (tx) => {
-      // Use optimistic locking: only update if status is still "created"
       const [updated] = await tx
         .update(payments)
         .set({
@@ -183,9 +163,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Verify payment error:", error);
-    return NextResponse.json(
-      { error: "Payment verification failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Payment verification failed" }, { status: 500 });
   }
 }

@@ -27,32 +27,32 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import type { ActionResult } from "@/types";
 import { OTP_CONFIG } from "@/constants";
+import { parseAdminEmails } from "./helpers";
 
 import { env as serverEnv, clientEnv as clientEnvConfig } from "@/lib/env";
 
 const AUTH_SECRET = serverEnv.AUTH_SECRET;
 const APP_URL = clientEnvConfig.APP_URL;
 
-// Register new user
 export async function registerUser(data: RegisterInput): Promise<ActionResult> {
   try {
     // Validate input
     const validated = registerSchema.parse(data);
 
-    // Check if email already exists
     const existingUser = await db.query.users.findFirst({
       where: eq(users.email, validated.email.toLowerCase()),
     });
 
     if (existingUser) {
-      // Generic message to prevent email enumeration
-      return { success: false, error: "Registration failed. Please try a different email or login to your existing account." };
+      return {
+        success: false,
+        error:
+          "Registration failed. Please try a different email or login to your existing account.",
+      };
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(validated.password, 12);
 
-    // Create user, profile, and free subscription in a transaction
     await db.transaction(async (tx) => {
       const [user] = await tx
         .insert(users)
@@ -80,7 +80,6 @@ export async function registerUser(data: RegisterInput): Promise<ActionResult> {
       return [user];
     });
 
-    // Generate OTP and send verification email
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + OTP_CONFIG.EXPIRY_MINUTES * 60 * 1000);
 
@@ -91,7 +90,6 @@ export async function registerUser(data: RegisterInput): Promise<ActionResult> {
       expiresAt,
     });
 
-    // Send verification email
     await sendEmail({
       to: validated.email,
       subject: "Verify your email - GDS Marriage Links",
@@ -112,12 +110,10 @@ export async function registerUser(data: RegisterInput): Promise<ActionResult> {
   }
 }
 
-// Verify email OTP
 export async function verifyEmailOTP(data: VerifyOtpInput): Promise<ActionResult> {
   try {
     const validated = verifyOtpSchema.parse(data);
 
-    // Find the latest unused, non-expired OTP for this email
     const otpRecord = await db.query.otps.findFirst({
       where: and(
         eq(otps.email, validated.email.toLowerCase()),
@@ -132,18 +128,15 @@ export async function verifyEmailOTP(data: VerifyOtpInput): Promise<ActionResult
       return { success: false, error: "Invalid or expired OTP. Please request a new one." };
     }
 
-    // Check brute force attempts
-    if (otpRecord.attempts !== null && otpRecord.attempts >= 5) {
-      // Mark OTP as used (invalidate it)
+    if (otpRecord.attempts !== null && otpRecord.attempts >= OTP_CONFIG.MAX_ATTEMPTS) {
       await db.update(otps).set({ isUsed: true }).where(eq(otps.id, otpRecord.id));
       return { success: false, error: "Too many attempts. Please request a new OTP." };
     }
 
-    // Verify OTP value (timing-safe comparison)
-    const otpMatch = otpRecord.otp.length === validated.otp.length &&
+    const otpMatch =
+      otpRecord.otp.length === validated.otp.length &&
       crypto.timingSafeEqual(Buffer.from(otpRecord.otp), Buffer.from(validated.otp));
     if (!otpMatch) {
-      // Increment attempt count
       await db
         .update(otps)
         .set({ attempts: (otpRecord.attempts || 0) + 1 })
@@ -151,7 +144,6 @@ export async function verifyEmailOTP(data: VerifyOtpInput): Promise<ActionResult
       return { success: false, error: "Invalid OTP. Please try again." };
     }
 
-    // Atomically mark OTP as used and verify email in a single transaction
     const txResult = await db.transaction(async (tx) => {
       const [markedUsed] = await tx
         .update(otps)
@@ -173,13 +165,11 @@ export async function verifyEmailOTP(data: VerifyOtpInput): Promise<ActionResult
       return { success: false, error: "OTP already used. Please request a new one." };
     }
 
-    // Get user for welcome email
     const user = await db.query.users.findFirst({
       where: eq(users.email, validated.email.toLowerCase()),
       with: { profile: true },
     });
 
-    // Send welcome email
     if (user) {
       await sendEmail({
         to: validated.email,
@@ -198,7 +188,6 @@ export async function verifyEmailOTP(data: VerifyOtpInput): Promise<ActionResult
   }
 }
 
-// Resend OTP (with rate limiting)
 export async function resendOTP(email: string): Promise<ActionResult> {
   try {
     const user = await db.query.users.findFirst({
@@ -211,11 +200,9 @@ export async function resendOTP(email: string): Promise<ActionResult> {
     }
 
     if (user.emailVerified) {
-      // Return generic message to prevent email enumeration
       return { success: true, message: "If the email exists, a new OTP has been sent." };
     }
 
-    // Rate limit: check if an OTP was sent within the cooldown period
     const cooldownTime = new Date(Date.now() - OTP_CONFIG.RESEND_COOLDOWN_SECONDS * 1000);
     const recentOtp = await db.query.otps.findFirst({
       where: and(
@@ -227,25 +214,28 @@ export async function resendOTP(email: string): Promise<ActionResult> {
     });
 
     if (recentOtp) {
-      return { success: false, error: `Please wait ${OTP_CONFIG.RESEND_COOLDOWN_SECONDS} seconds before requesting a new OTP.` };
+      return {
+        success: false,
+        error: `Please wait ${OTP_CONFIG.RESEND_COOLDOWN_SECONDS} seconds before requesting a new OTP.`,
+      };
     }
 
-    // Stricter rate limit: max 3 OTP requests per 30 minutes per email
     const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000);
     const recentOtpCount = await db
       .select({ count: sql`count(*)` })
       .from(otps)
-      .where(and(
-        eq(otps.email, email.toLowerCase()),
-        eq(otps.type, "email_verification"),
-        gt(otps.createdAt, thirtyMinAgo)
-      ));
+      .where(
+        and(
+          eq(otps.email, email.toLowerCase()),
+          eq(otps.type, "email_verification"),
+          gt(otps.createdAt, thirtyMinAgo)
+        )
+      );
 
     if (Number(recentOtpCount[0]?.count || 0) >= 3) {
       return { success: false, error: "Too many OTP requests. Please try again after 30 minutes." };
     }
 
-    // Generate new OTP
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + OTP_CONFIG.EXPIRY_MINUTES * 60 * 1000);
 
@@ -269,7 +259,6 @@ export async function resendOTP(email: string): Promise<ActionResult> {
   }
 }
 
-// Login user
 export async function loginUser(data: LoginInput): Promise<ActionResult<{ isAdmin?: boolean }>> {
   try {
     const validated = loginSchema.parse(data);
@@ -285,19 +274,13 @@ export async function loginUser(data: LoginInput): Promise<ActionResult<{ isAdmi
       return { success: false, error: result.error };
     }
 
-    // Check if user is admin so the client can redirect appropriately
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const adminEmails = (process.env.ADMIN_EMAILS || "admin@gdsmarriagelinks.com")
-      .split(",")
-      .map(e => e.trim().toLowerCase())
-      .filter(e => emailRegex.test(e));
+    const adminEmails = parseAdminEmails(process.env.ADMIN_EMAILS);
     const isAdmin = adminEmails.includes(email);
 
     return { success: true, message: "Login successful!", data: { isAdmin } };
   } catch (error) {
     console.error("Login error:", error);
     if (error instanceof Error) {
-      // NextAuth throws errors with cause property
       const cause = (error as Error & { cause?: { err?: { message?: string } } }).cause;
       if (cause?.err?.message) {
         return { success: false, error: cause.err.message };
@@ -308,12 +291,10 @@ export async function loginUser(data: LoginInput): Promise<ActionResult<{ isAdmi
   }
 }
 
-// Logout user
 export async function logoutUser(): Promise<void> {
   await signOut({ redirectTo: "/" });
 }
 
-// Forgot password
 export async function forgotPassword(data: ForgotPasswordInput): Promise<ActionResult> {
   try {
     const validated = forgotPasswordSchema.parse(data);
@@ -324,17 +305,14 @@ export async function forgotPassword(data: ForgotPasswordInput): Promise<ActionR
     });
 
     if (!user) {
-      // Return success to prevent email enumeration
       return {
         success: true,
         message: "If an account exists with this email, you will receive a password reset link.",
       };
     }
 
-    // Generate reset token with a random nonce for single-use invalidation
     const resetNonce = crypto.randomBytes(16).toString("hex");
 
-    // Store nonce in OTP table for tracking (type: password_reset)
     await db.insert(otps).values({
       email: user.email.toLowerCase(),
       otp: resetNonce,
@@ -342,11 +320,9 @@ export async function forgotPassword(data: ForgotPasswordInput): Promise<ActionR
       expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
     });
 
-    const token = jwt.sign(
-      { userId: user.id, email: user.email, nonce: resetNonce },
-      AUTH_SECRET,
-      { expiresIn: "1h" }
-    );
+    const token = jwt.sign({ userId: user.id, email: user.email, nonce: resetNonce }, AUTH_SECRET, {
+      expiresIn: "1h",
+    });
 
     const resetLink = `${APP_URL}/reset-password?token=${token}`;
 
@@ -366,7 +342,6 @@ export async function forgotPassword(data: ForgotPasswordInput): Promise<ActionR
   }
 }
 
-// Reset password
 export async function resetPassword(
   data: ResetPasswordInput & { token: string }
 ): Promise<ActionResult> {
@@ -374,15 +349,18 @@ export async function resetPassword(
     const { token, ...passwordData } = data;
     const validated = resetPasswordSchema.parse(passwordData);
 
-    // Verify token
     let decoded: { userId: number; email: string; nonce?: string; pwh?: string };
     try {
-      decoded = jwt.verify(token, AUTH_SECRET) as { userId: number; email: string; nonce?: string; pwh?: string };
+      decoded = jwt.verify(token, AUTH_SECRET) as {
+        userId: number;
+        email: string;
+        nonce?: string;
+        pwh?: string;
+      };
     } catch {
       return { success: false, error: "Invalid or expired reset link" };
     }
 
-    // Verify user exists and is active
     const user = await db.query.users.findFirst({
       where: eq(users.id, decoded.userId),
     });
@@ -391,31 +369,35 @@ export async function resetPassword(
       return { success: false, error: "Account not found or has been deactivated" };
     }
 
-    // Verify reset nonce hasn't been used (single-use token)
     if (decoded.nonce) {
       const [usedNonce] = await db
         .update(otps)
         .set({ isUsed: true })
-        .where(and(
-          eq(otps.email, user.email.toLowerCase()),
-          eq(otps.type, "password_reset"),
-          eq(otps.otp, decoded.nonce),
-          eq(otps.isUsed, false),
-        ))
+        .where(
+          and(
+            eq(otps.email, user.email.toLowerCase()),
+            eq(otps.type, "password_reset"),
+            eq(otps.otp, decoded.nonce),
+            eq(otps.isUsed, false)
+          )
+        )
         .returning({ id: otps.id });
 
       if (!usedNonce) {
-        return { success: false, error: "This reset link has already been used. Please request a new one." };
+        return {
+          success: false,
+          error: "This reset link has already been used. Please request a new one.",
+        };
       }
     } else if (decoded.pwh && user.password.slice(-8) !== decoded.pwh) {
-      // Backward compatibility for tokens issued before nonce migration
-      return { success: false, error: "This reset link has already been used. Please request a new one." };
+      return {
+        success: false,
+        error: "This reset link has already been used. Please request a new one.",
+      };
     }
 
-    // Hash new password
     const hashedPassword = await bcrypt.hash(validated.password, 12);
 
-    // Update password
     await db
       .update(users)
       .set({ password: hashedPassword, updatedAt: new Date() })

@@ -23,11 +23,11 @@ export default function DashboardError({ error, reset }: ErrorProps) {
 
   return (
     <div className="container-wide py-8">
-      <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex min-h-[60vh] items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center">
-              <AlertTriangle className="h-6 w-6 text-destructive" />
+            <div className="bg-destructive/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+              <AlertTriangle className="text-destructive h-6 w-6" />
             </div>
             <CardTitle>Something went wrong</CardTitle>
             <CardDescription>
@@ -36,10 +36,8 @@ export default function DashboardError({ error, reset }: ErrorProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             {process.env.NODE_ENV === "development" && error.message && (
-              <div className="p-3 bg-muted rounded-md">
-                <p className="text-sm font-mono text-muted-foreground break-all">
-                  {error.message}
-                </p>
+              <div className="bg-muted rounded-md p-3">
+                <p className="text-muted-foreground font-mono text-sm break-all">{error.message}</p>
               </div>
             )}
             <div className="flex flex-col gap-2">

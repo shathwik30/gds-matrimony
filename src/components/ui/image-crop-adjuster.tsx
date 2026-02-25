@@ -60,10 +60,7 @@ export function ImageCropAdjuster({
     img.onload = () => {
       imgRef.current = img;
       // Minimum scale = image must fully cover the canvas
-      const min = Math.max(
-        previewW / img.naturalWidth,
-        previewH / img.naturalHeight
-      );
+      const min = Math.max(previewW / img.naturalWidth, previewH / img.naturalHeight);
       setMinScale(min);
       setScale(min);
       setOffset({ x: 0, y: 0 });
@@ -136,7 +133,9 @@ export function ImageCropAdjuster({
     const dy = clientY - drag.current.y;
     setOffset(clamp(drag.current.ox + dx, drag.current.oy + dy, scale));
   };
-  const endDrag = () => { drag.current.active = false; };
+  const endDrag = () => {
+    drag.current.active = false;
+  };
 
   // ── Reset ─────────────────────────────────────────────────────────────────
   const handleReset = () => {
@@ -147,9 +146,7 @@ export function ImageCropAdjuster({
   // ── Slider ────────────────────────────────────────────────────────────────
   const maxScale = minScale * 4;
   const sliderValue =
-    maxScale > minScale
-      ? Math.round(((scale - minScale) / (maxScale - minScale)) * 100)
-      : 0;
+    maxScale > minScale ? Math.round(((scale - minScale) / (maxScale - minScale)) * 100) : 0;
 
   const handleSlider = (v: number) => {
     applyZoom(minScale + ((maxScale - minScale) * v) / 100);
@@ -194,24 +191,24 @@ export function ImageCropAdjuster({
           <DialogTitle>Adjust Photo Position</DialogTitle>
         </DialogHeader>
 
-        <p className="text-sm text-muted-foreground -mt-2">
+        <p className="text-muted-foreground -mt-2 text-sm">
           Drag to reposition · Scroll or use the slider to zoom
         </p>
 
         {/* Canvas preview area */}
         <div className="flex justify-center">
           <div
-            className="rounded-xl border-2 border-brand/30 overflow-hidden shadow-inner bg-muted"
+            className="border-brand/30 bg-muted overflow-hidden rounded-xl border-2 shadow-inner"
             style={{ width: previewW, height: previewH }}
           >
             {!isLoaded ? (
-              <div className="w-full h-full animate-pulse bg-muted-foreground/10" />
+              <div className="bg-muted-foreground/10 h-full w-full animate-pulse" />
             ) : (
               <canvas
                 ref={canvasRef}
                 width={previewW}
                 height={previewH}
-                className="block touch-none cursor-grab active:cursor-grabbing"
+                className="block cursor-grab touch-none active:cursor-grabbing"
                 onWheel={handleWheel}
                 onMouseDown={(e) => startDrag(e.clientX, e.clientY)}
                 onMouseMove={(e) => moveDrag(e.clientX, e.clientY)}
@@ -233,7 +230,7 @@ export function ImageCropAdjuster({
 
         {/* Zoom slider */}
         <div className="flex items-center gap-3">
-          <ZoomOut className="h-4 w-4 text-muted-foreground shrink-0" />
+          <ZoomOut className="text-muted-foreground h-4 w-4 shrink-0" />
           <Slider
             min={0}
             max={100}
@@ -243,7 +240,7 @@ export function ImageCropAdjuster({
             className="flex-1"
             disabled={!isLoaded}
           />
-          <ZoomIn className="h-4 w-4 text-muted-foreground shrink-0" />
+          <ZoomIn className="text-muted-foreground h-4 w-4 shrink-0" />
           <Button
             type="button"
             variant="ghost"

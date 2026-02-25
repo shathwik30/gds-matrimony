@@ -19,27 +19,23 @@ export default function TermsPage() {
           { name: "Terms of Service", href: "/terms" },
         ]}
       />
-      {/* Hero Section */}
       <section className="bg-brand-light py-12 md:py-16">
         <div className="container">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Terms of Service</h1>
-            <p className="text-muted-foreground">
-              Last updated: January 2025
-            </p>
+          <div className="mx-auto max-w-3xl text-center">
+            <h1 className="mb-4 text-4xl font-bold md:text-5xl">Terms of Service</h1>
+            <p className="text-muted-foreground">Last updated: January 2025</p>
           </div>
         </div>
       </section>
 
-      {/* Content */}
       <section className="py-12 md:py-16">
         <div className="container">
-          <div className="max-w-3xl mx-auto prose prose-slate">
+          <div className="prose prose-slate mx-auto max-w-3xl">
             <h2>1. Acceptance of Terms</h2>
             <p>
-              By accessing or using GDS Marriage Links (&quot;the Service&quot;), you agree
-              to be bound by these Terms of Service. If you do not agree to these
-              terms, please do not use our services.
+              By accessing or using GDS Marriage Links (&quot;the Service&quot;), you agree to be
+              bound by these Terms of Service. If you do not agree to these terms, please do not use
+              our services.
             </p>
 
             <h2>2. Eligibility</h2>
@@ -55,17 +51,16 @@ export default function TermsPage() {
             <h2>3. Account Registration</h2>
             <h3>3.1 Account Creation</h3>
             <p>
-              You must register for an account to access our matchmaking services.
-              You are responsible for maintaining the confidentiality of your
-              account credentials and for all activities under your account.
+              You must register for an account to access our matchmaking services. You are
+              responsible for maintaining the confidentiality of your account credentials and for
+              all activities under your account.
             </p>
 
             <h3>3.2 Profile Information</h3>
             <p>
-              You agree to provide accurate, current, and complete information
-              during registration and to update such information to keep it
-              accurate. Misrepresentation of identity or information may result
-              in account termination.
+              You agree to provide accurate, current, and complete information during registration
+              and to update such information to keep it accurate. Misrepresentation of identity or
+              information may result in account termination.
             </p>
 
             <h2>4. User Conduct</h2>
@@ -85,9 +80,9 @@ export default function TermsPage() {
             <h2>5. Content Guidelines</h2>
             <h3>5.1 Your Content</h3>
             <p>
-              You retain ownership of content you upload. By posting content, you
-              grant us a non-exclusive, worldwide license to use, display, and
-              distribute your content for operating the service.
+              You retain ownership of content you upload. By posting content, you grant us a
+              non-exclusive, worldwide license to use, display, and distribute your content for
+              operating the service.
             </p>
 
             <h3>5.2 Prohibited Content</h3>
@@ -103,43 +98,41 @@ export default function TermsPage() {
             <h2>6. Subscription and Payments</h2>
             <h3>6.1 Premium Services</h3>
             <p>
-              We offer premium subscription plans with enhanced features. Payment
-              is required upfront for the subscription period chosen.
+              We offer premium subscription plans with enhanced features. Payment is required
+              upfront for the subscription period chosen.
             </p>
 
             <h3>6.2 Refund Policy</h3>
             <p>
-              Refunds are provided only in cases of technical issues preventing
-              service access. Refund requests must be made within 7 days of
-              purchase. No refunds are provided for change of mind or unused
-              features.
+              Refunds are provided only in cases of technical issues preventing service access.
+              Refund requests must be made within 7 days of purchase. No refunds are provided for
+              change of mind or unused features.
             </p>
 
             <h3>6.3 Auto-Renewal</h3>
             <p>
-              Subscriptions do not auto-renew unless explicitly enabled. You will
-              receive a reminder before your subscription expires.
+              Subscriptions do not auto-renew unless explicitly enabled. You will receive a reminder
+              before your subscription expires.
             </p>
 
             <h2>7. Privacy and Data Protection</h2>
             <p>
-              Your use of the service is also governed by our Privacy Policy. By
-              using our services, you consent to the collection and use of your
-              information as described in our Privacy Policy.
+              Your use of the service is also governed by our Privacy Policy. By using our services,
+              you consent to the collection and use of your information as described in our Privacy
+              Policy.
             </p>
 
             <h2>8. Intellectual Property</h2>
             <p>
-              The service and its original content (excluding user content),
-              features, and functionality are owned by GDS Marriage Links and are
-              protected by copyright, trademark, and other intellectual property
-              laws.
+              The service and its original content (excluding user content), features, and
+              functionality are owned by GDS Marriage Links and are protected by copyright,
+              trademark, and other intellectual property laws.
             </p>
 
             <h2>9. Disclaimer of Warranties</h2>
             <p>
-              THE SERVICE IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTIES OF ANY KIND.
-              We do not guarantee:
+              THE SERVICE IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTIES OF ANY KIND. We do not
+              guarantee:
             </p>
             <ul>
               <li>That you will find a suitable match</li>
@@ -150,37 +143,35 @@ export default function TermsPage() {
 
             <h2>10. Limitation of Liability</h2>
             <p>
-              To the maximum extent permitted by law, GDS Marriage Links shall not
-              be liable for any indirect, incidental, special, or consequential
-              damages arising from your use of the service.
+              To the maximum extent permitted by law, GDS Marriage Links shall not be liable for any
+              indirect, incidental, special, or consequential damages arising from your use of the
+              service.
             </p>
 
             <h2>11. User Verification</h2>
             <p>
-              While we encourage profile verification, we cannot guarantee the
-              identity or background of all users. You are responsible for your
-              own safety when interacting with other users.
+              While we encourage profile verification, we cannot guarantee the identity or
+              background of all users. You are responsible for your own safety when interacting with
+              other users.
             </p>
 
             <h2>12. Termination</h2>
             <p>
-              We may terminate or suspend your account at our discretion for
-              violations of these terms. You may also delete your account at any
-              time through the settings page.
+              We may terminate or suspend your account at our discretion for violations of these
+              terms. You may also delete your account at any time through the settings page.
             </p>
 
             <h2>13. Changes to Terms</h2>
             <p>
-              We reserve the right to modify these terms at any time. Material
-              changes will be notified via email or prominent notice on the
-              platform. Continued use after changes constitutes acceptance.
+              We reserve the right to modify these terms at any time. Material changes will be
+              notified via email or prominent notice on the platform. Continued use after changes
+              constitutes acceptance.
             </p>
 
             <h2>14. Governing Law</h2>
             <p>
-              These terms shall be governed by the laws of India. Any disputes
-              shall be subject to the exclusive jurisdiction of the courts in
-              Mumbai, Maharashtra.
+              These terms shall be governed by the laws of India. Any disputes shall be subject to
+              the exclusive jurisdiction of the courts in Mumbai, Maharashtra.
             </p>
 
             <h2>15. Contact Information</h2>

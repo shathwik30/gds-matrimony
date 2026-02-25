@@ -6,21 +6,15 @@ import { requireAuth } from "@/lib/actions/helpers";
 import { isUnlimited } from "@/lib/utils/subscription";
 import type { ActionResult } from "@/types";
 
-// Shared helper: get active subscription, auto-deactivating if expired
 export async function getActiveSubscription(userId: number) {
   const subscription = await db.query.subscriptions.findFirst({
-    where: and(
-      eq(subscriptions.userId, userId),
-      eq(subscriptions.isActive, true)
-    ),
+    where: and(eq(subscriptions.userId, userId), eq(subscriptions.isActive, true)),
     orderBy: [desc(subscriptions.createdAt)],
   });
 
   if (!subscription) return null;
 
-  // Check if subscription has expired
   if (subscription.endDate && new Date(subscription.endDate) < new Date()) {
-    // Deactivate expired subscription
     await db
       .update(subscriptions)
       .set({ isActive: false })
@@ -42,7 +36,6 @@ interface SubscriptionData {
   profileBoosts: number | null;
 }
 
-// Get current user's subscription
 export async function getMySubscription(): Promise<ActionResult<SubscriptionData | null>> {
   try {
     const authResult = await requireAuth();
@@ -74,7 +67,6 @@ export async function getMySubscription(): Promise<ActionResult<SubscriptionData
   }
 }
 
-// Check if user can perform action based on subscription
 export async function checkSubscriptionLimit(
   action: "interest" | "contact_view" | "boost"
 ): Promise<ActionResult<{ allowed: boolean; remaining?: number }>> {
@@ -85,7 +77,6 @@ export async function checkSubscriptionLimit(
 
     const subscription = await getActiveSubscription(userId);
 
-    // Free plan defaults
     let limit = action === "interest" ? 5 : action === "contact_view" ? 0 : 0;
 
     if (subscription) {
@@ -109,7 +100,6 @@ export async function checkSubscriptionLimit(
   }
 }
 
-// Use a subscription feature (decrement counter)
 export async function useSubscriptionFeature(
   feature: "contact_view" | "boost"
 ): Promise<ActionResult> {
@@ -130,11 +120,15 @@ export async function useSubscriptionFeature(
       }
 
       if (!isUnlimited(subscription.contactViews)) {
-        // Optimistic locking to prevent double-spending
         const [updated] = await db
           .update(subscriptions)
           .set({ contactViews: subscription.contactViews - 1 })
-          .where(and(eq(subscriptions.id, subscription.id), eq(subscriptions.contactViews, subscription.contactViews)))
+          .where(
+            and(
+              eq(subscriptions.id, subscription.id),
+              eq(subscriptions.contactViews, subscription.contactViews)
+            )
+          )
           .returning({ id: subscriptions.id });
 
         if (!updated) {
@@ -150,7 +144,12 @@ export async function useSubscriptionFeature(
         const [updated] = await db
           .update(subscriptions)
           .set({ profileBoosts: subscription.profileBoosts - 1 })
-          .where(and(eq(subscriptions.id, subscription.id), eq(subscriptions.profileBoosts, subscription.profileBoosts)))
+          .where(
+            and(
+              eq(subscriptions.id, subscription.id),
+              eq(subscriptions.profileBoosts, subscription.profileBoosts)
+            )
+          )
           .returning({ id: subscriptions.id });
 
         if (!updated) {
@@ -166,7 +165,6 @@ export async function useSubscriptionFeature(
   }
 }
 
-// Activate profile boost
 export async function activateProfileBoost(): Promise<ActionResult<{ expiresAt: Date }>> {
   try {
     const authResult = await requireAuth();
@@ -195,11 +193,15 @@ export async function activateProfileBoost(): Promise<ActionResult<{ expiresAt: 
       updates.profileBoosts = subscription.profileBoosts - 1;
     }
 
-    // Optimistic lock to prevent double-boost
     const [updated] = await db
       .update(subscriptions)
       .set(updates)
-      .where(and(eq(subscriptions.id, subscription.id), eq(subscriptions.profileBoosts, subscription.profileBoosts!)))
+      .where(
+        and(
+          eq(subscriptions.id, subscription.id),
+          eq(subscriptions.profileBoosts, subscription.profileBoosts!)
+        )
+      )
       .returning({ id: subscriptions.id });
 
     if (!updated) {
@@ -213,8 +215,9 @@ export async function activateProfileBoost(): Promise<ActionResult<{ expiresAt: 
   }
 }
 
-// Get boost status
-export async function getBoostStatus(): Promise<ActionResult<{ isActive: boolean; expiresAt?: Date; remaining: number }>> {
+export async function getBoostStatus(): Promise<
+  ActionResult<{ isActive: boolean; expiresAt?: Date; remaining: number }>
+> {
   try {
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
@@ -226,13 +229,15 @@ export async function getBoostStatus(): Promise<ActionResult<{ isActive: boolean
       return { success: true, data: { isActive: false, remaining: 0 } };
     }
 
-    const isActive = subscription.boostExpiresAt && new Date(subscription.boostExpiresAt) > new Date();
+    const isActive =
+      subscription.boostExpiresAt && new Date(subscription.boostExpiresAt) > new Date();
 
     return {
       success: true,
       data: {
         isActive: !!isActive,
-        expiresAt: isActive && subscription.boostExpiresAt ? subscription.boostExpiresAt : undefined,
+        expiresAt:
+          isActive && subscription.boostExpiresAt ? subscription.boostExpiresAt : undefined,
         remaining: subscription.profileBoosts || 0,
       },
     };

@@ -7,18 +7,23 @@ import { cn } from "@/lib/utils";
 interface StaggerContainerProps {
   children: ReactNode;
   className?: string;
-  staggerDelay?: number; // seconds between each child
+  staggerDelay?: number;
   animation?: "fade-in" | "fade-in-up" | "slide-in-right" | "slide-in-left" | "scale-in";
 }
 
 const animationVariants = {
   hidden: (animation: string) => {
     switch (animation) {
-      case "fade-in-up": return { opacity: 0, y: 20 };
-      case "slide-in-right": return { opacity: 0, x: 20 };
-      case "slide-in-left": return { opacity: 0, x: -20 };
-      case "scale-in": return { opacity: 0, scale: 0.95 };
-      default: return { opacity: 0 };
+      case "fade-in-up":
+        return { opacity: 0, y: 20 };
+      case "slide-in-right":
+        return { opacity: 0, x: 20 };
+      case "slide-in-left":
+        return { opacity: 0, x: -20 };
+      case "scale-in":
+        return { opacity: 0, scale: 0.95 };
+      default:
+        return { opacity: 0 };
     }
   },
   visible: { opacity: 1, y: 0, x: 0, scale: 1 },
@@ -33,15 +38,6 @@ const containerVariants = (staggerDelay: number) => ({
   },
 });
 
-/**
- * Container that applies stagger animation to its children using framer-motion.
- *
- * @example
- * <StaggerContainer animation="fade-in-up" staggerDelay={0.05}>
- *   <Card>Item 1</Card>
- *   <Card>Item 2</Card>
- * </StaggerContainer>
- */
 export function StaggerContainer({
   children,
   className,

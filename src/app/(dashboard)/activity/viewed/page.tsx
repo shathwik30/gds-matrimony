@@ -44,8 +44,8 @@ export default function ViewedProfilesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -55,26 +55,24 @@ export default function ViewedProfilesPage() {
       <div className="mb-8">
         <Button variant="ghost" className="mb-4" asChild>
           <Link href="/dashboard">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Link>
         </Button>
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-          Profiles You Viewed
-        </h1>
+        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Profiles You Viewed</h1>
         <p className="text-muted-foreground mt-2">
           {profiles.length} profile{profiles.length !== 1 ? "s" : ""} viewed recently
         </p>
       </div>
 
       {profiles.length === 0 ? (
-        <Card variant="elevated" className="text-center py-16">
+        <Card variant="elevated" className="py-16 text-center">
           <CardContent className="space-y-4">
-            <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mx-auto">
-              <Eye className="h-8 w-8 text-muted-foreground" />
+            <div className="bg-muted mx-auto flex h-16 w-16 items-center justify-center rounded-full">
+              <Eye className="text-muted-foreground h-8 w-8" />
             </div>
             <h3 className="text-xl font-semibold">No profiles viewed yet</h3>
-            <p className="text-muted-foreground max-w-md mx-auto">
+            <p className="text-muted-foreground mx-auto max-w-md">
               Browse matches and click on profiles to view them. They will appear here.
             </p>
             <Button asChild>
@@ -85,17 +83,20 @@ export default function ViewedProfilesPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {profiles.map((item) => {
-            const fullName = [item.viewer.firstName, item.viewer.lastName]
-              .filter(Boolean)
-              .join(" ") || "Anonymous";
+            const fullName =
+              [item.viewer.firstName, item.viewer.lastName].filter(Boolean).join(" ") ||
+              "Anonymous";
             const initials = getInitials(item.viewer.firstName, item.viewer.lastName);
 
             return (
               <Link key={item.id} href={`/profile/${item.viewerId}`}>
-                <Card variant="elevated" className="overflow-hidden group hover:shadow-lg transition-shadow">
+                <Card
+                  variant="elevated"
+                  className="group overflow-hidden transition-shadow hover:shadow-lg"
+                >
                   <CardContent className="p-0">
                     <div className="flex items-center gap-4 p-4">
-                      <div className="relative h-16 w-16 rounded-full overflow-hidden shrink-0 bg-primary/10">
+                      <div className="bg-primary/10 relative h-16 w-16 shrink-0 overflow-hidden rounded-full">
                         {item.viewer.profileImage ? (
                           <Image
                             src={item.viewer.profileImage}
@@ -104,22 +105,22 @@ export default function ViewedProfilesPage() {
                             className="object-cover"
                           />
                         ) : (
-                          <div className="h-full w-full flex items-center justify-center text-primary font-semibold text-lg">
+                          <div className="text-primary flex h-full w-full items-center justify-center text-lg font-semibold">
                             {initials}
                           </div>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-base truncate group-hover:text-primary transition-colors">
+                      <div className="min-w-0 flex-1">
+                        <p className="group-hover:text-primary truncate text-base font-semibold transition-colors">
                           {fullName}
                         </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           {item.viewer.age ? `${item.viewer.age} yrs` : ""}
                           {item.viewer.age && item.viewer.residingCity ? " · " : ""}
                           {item.viewer.residingCity || ""}
                         </p>
                         {item.viewedAt && (
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <p className="text-muted-foreground mt-1 text-xs">
                             Viewed {new Date(item.viewedAt).toLocaleDateString()}
                           </p>
                         )}

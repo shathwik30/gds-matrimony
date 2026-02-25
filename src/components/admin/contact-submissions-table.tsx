@@ -127,7 +127,6 @@ export function ContactSubmissionsTable({
   const openViewDialog = (submission: AdminContactSubmission) => {
     setViewDialog({ open: true, submission });
     setAdminNotes(submission.adminNotes || "");
-    // Auto-mark as read if unread
     if (submission.status === "unread") {
       handleStatusChange(submission.id, "read");
     }
@@ -135,10 +134,10 @@ export function ContactSubmissionsTable({
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200">
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
         {submissions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-slate-500">
-            <Mail className="h-12 w-12 mb-4 text-slate-300" />
+            <Mail className="mb-4 h-12 w-12 text-slate-300" />
             <p className="text-lg font-medium">No submissions found</p>
             <p className="text-sm">No contact submissions match the selected filter</p>
           </div>
@@ -160,11 +159,7 @@ export function ContactSubmissionsTable({
                   {submissions.map((submission) => (
                     <TableRow
                       key={submission.id}
-                      className={
-                        submission.status === "unread"
-                          ? "bg-blue-50/30 font-medium"
-                          : ""
-                      }
+                      className={submission.status === "unread" ? "bg-blue-50/30 font-medium" : ""}
                     >
                       <TableCell>
                         <p className="text-sm text-slate-900">{submission.name}</p>
@@ -172,13 +167,9 @@ export function ContactSubmissionsTable({
                           <p className="text-xs text-slate-500">{submission.phone}</p>
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-slate-600">
-                        {submission.email}
-                      </TableCell>
+                      <TableCell className="text-sm text-slate-600">{submission.email}</TableCell>
                       <TableCell className="max-w-[200px]">
-                        <p className="text-sm text-slate-600 truncate">
-                          {submission.subject}
-                        </p>
+                        <p className="truncate text-sm text-slate-600">{submission.subject}</p>
                       </TableCell>
                       <TableCell>
                         <Badge
@@ -208,9 +199,7 @@ export function ContactSubmissionsTable({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() =>
-                                handleStatusChange(submission.id, "replied")
-                              }
+                              onClick={() => handleStatusChange(submission.id, "replied")}
                               disabled={loadingId === submission.id || isPending}
                               title="Mark as Replied"
                             >
@@ -221,9 +210,7 @@ export function ContactSubmissionsTable({
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() =>
-                                handleStatusChange(submission.id, "archived")
-                              }
+                              onClick={() => handleStatusChange(submission.id, "archived")}
                               disabled={loadingId === submission.id || isPending}
                               title="Archive"
                             >
@@ -233,10 +220,8 @@ export function ContactSubmissionsTable({
                           <Button
                             size="sm"
                             variant="outline"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={() =>
-                              setDeleteDialog({ open: true, id: submission.id })
-                            }
+                            className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                            onClick={() => setDeleteDialog({ open: true, id: submission.id })}
                             disabled={loadingId === submission.id || isPending}
                             title="Delete"
                           >
@@ -250,12 +235,10 @@ export function ContactSubmissionsTable({
               </Table>
             </div>
 
-            {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200">
+              <div className="flex items-center justify-between border-t border-slate-200 px-4 py-3">
                 <p className="text-sm text-slate-500">
-                  Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of{" "}
-                  {total}
+                  Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
                 </p>
                 <div className="flex items-center gap-2">
                   <Button
@@ -284,7 +267,6 @@ export function ContactSubmissionsTable({
         )}
       </div>
 
-      {/* View Submission Dialog */}
       <Dialog
         open={viewDialog.open}
         onOpenChange={(open) => {
@@ -301,16 +283,14 @@ export function ContactSubmissionsTable({
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="p-4 bg-slate-50 rounded-lg">
-              <p className="text-sm text-slate-700 whitespace-pre-wrap">
+            <div className="rounded-lg bg-slate-50 p-4">
+              <p className="text-sm whitespace-pre-wrap text-slate-700">
                 {viewDialog.submission?.message}
               </p>
             </div>
 
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-1.5 block">
-                Admin Notes
-              </label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Admin Notes</label>
               <Textarea
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
@@ -320,7 +300,7 @@ export function ContactSubmissionsTable({
             </div>
           </div>
 
-          <DialogFooter className="flex-col sm:flex-row gap-2">
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
             <Button
               variant="outline"
               onClick={() => setViewDialog({ open: false, submission: null })}
@@ -343,7 +323,7 @@ export function ContactSubmissionsTable({
                   }}
                   disabled={loadingId !== null}
                 >
-                  <MessageSquareReply className="h-4 w-4 mr-2" />
+                  <MessageSquareReply className="mr-2 h-4 w-4" />
                   Mark Replied
                 </Button>
                 <Button
@@ -367,7 +347,6 @@ export function ContactSubmissionsTable({
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteDialog.open}
         onOpenChange={(open) => {
@@ -378,15 +357,11 @@ export function ContactSubmissionsTable({
           <DialogHeader>
             <DialogTitle>Delete Submission</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this contact submission? This action cannot
-              be undone.
+              Are you sure you want to delete this contact submission? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialog({ open: false, id: null })}
-            >
+            <Button variant="outline" onClick={() => setDeleteDialog({ open: false, id: null })}>
               Cancel
             </Button>
             <Button
@@ -395,9 +370,9 @@ export function ContactSubmissionsTable({
               disabled={loadingId !== null}
             >
               {loadingId !== null ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className="mr-2 h-4 w-4" />
               )}
               Delete
             </Button>

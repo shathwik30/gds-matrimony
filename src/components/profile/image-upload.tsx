@@ -49,24 +49,19 @@ export function ProfileImageUpload({
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="relative">
-        <div className="relative w-32 h-32 rounded-full overflow-hidden bg-brand-light border-4 border-white shadow-lg">
+        <div className="bg-brand-light relative h-32 w-32 overflow-hidden rounded-full border-4 border-white shadow-lg">
           {imageUrl ? (
-            <Image
-              src={imageUrl}
-              alt="Profile"
-              fill
-              className="object-cover"
-            />
+            <Image src={imageUrl} alt="Profile" fill className="object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-brand text-3xl font-semibold">
+            <div className="text-brand flex h-full w-full items-center justify-center text-3xl font-semibold">
               {getInitials(firstName, lastName)}
             </div>
           )}
         </div>
 
         {isUploading && (
-          <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
-            <Loader2 className="h-8 w-8 text-white animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+            <Loader2 className="h-8 w-8 animate-spin text-white" />
           </div>
         )}
       </div>
@@ -83,7 +78,12 @@ export function ProfileImageUpload({
         }}
         content={{
           button({ ready }) {
-            if (ready) return <><Camera className="h-4 w-4 mr-2" /> Change Photo</>;
+            if (ready)
+              return (
+                <>
+                  <Camera className="mr-2 h-4 w-4" /> Change Photo
+                </>
+              );
             return <Loader2 className="h-4 w-4 animate-spin" />;
           },
         }}
@@ -141,20 +141,20 @@ export function GalleryUpload({ images, onImagesUpdate }: GalleryUploadProps) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
         {images.map((image, index) => (
-          <div key={image.id} className="relative aspect-square group">
+          <div key={image.id} className="group relative aspect-square">
             <Image
               src={image.imageUrl}
               alt={`Gallery photo ${index + 1}`}
               fill
-              className="object-cover rounded-lg"
+              className="rounded-lg object-cover"
             />
             <button
               onClick={() => handleDelete(image.id)}
               disabled={isDeleting === image.id}
               aria-label={`Delete photo ${index + 1}`}
-              className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+              className="absolute top-2 right-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
             >
               {isDeleting === image.id ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -173,7 +173,8 @@ export function GalleryUpload({ images, onImagesUpdate }: GalleryUploadProps) {
               toast.error(`Upload failed: ${error.message}`);
             }}
             appearance={{
-              container: "aspect-square border-2 border-dashed rounded-lg cursor-pointer hover:border-brand transition-colors",
+              container:
+                "aspect-square border-2 border-dashed rounded-lg cursor-pointer hover:border-brand transition-colors",
               uploadIcon: "text-muted-foreground",
               label: "text-sm text-muted-foreground",
               allowedContent: "hidden",
@@ -182,8 +183,8 @@ export function GalleryUpload({ images, onImagesUpdate }: GalleryUploadProps) {
               label() {
                 return (
                   <div className="flex flex-col items-center gap-2">
-                    <Upload className="h-8 w-8 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Add Photos</span>
+                    <Upload className="text-muted-foreground h-8 w-8" />
+                    <span className="text-muted-foreground text-sm">Add Photos</span>
                   </div>
                 );
               },
@@ -192,7 +193,7 @@ export function GalleryUpload({ images, onImagesUpdate }: GalleryUploadProps) {
         )}
       </div>
 
-      <p className="text-sm text-muted-foreground text-center">
+      <p className="text-muted-foreground text-center text-sm">
         You can upload up to 5 photos. Max 4MB each.
       </p>
     </div>

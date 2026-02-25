@@ -4,10 +4,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://gdsmarriagelinks.co
 
 function JsonLdScript({ data }: { data: Record<string, unknown> }) {
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -130,11 +127,7 @@ export function MatrimonialServiceJsonLd() {
   );
 }
 
-export function BreadcrumbJsonLd({
-  items,
-}: {
-  items: { name: string; href: string }[];
-}) {
+export function BreadcrumbJsonLd({ items }: { items: { name: string; href: string }[] }) {
   return (
     <JsonLdScript
       data={{
@@ -151,11 +144,7 @@ export function BreadcrumbJsonLd({
   );
 }
 
-export function FAQJsonLd({
-  questions,
-}: {
-  questions: { question: string; answer: string }[];
-}) {
+export function FAQJsonLd({ questions }: { questions: { question: string; answer: string }[] }) {
   return (
     <JsonLdScript
       data={{

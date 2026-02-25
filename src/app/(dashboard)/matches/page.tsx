@@ -24,10 +24,22 @@ export const metadata: Metadata = {
 function parseSearchFilters(params: Record<string, string | undefined>): SearchFilters {
   const filters: SearchFilters = {};
 
-  if (params.ageMin) { const v = parseInt(params.ageMin); if (!isNaN(v)) filters.ageMin = v; }
-  if (params.ageMax) { const v = parseInt(params.ageMax); if (!isNaN(v)) filters.ageMax = v; }
-  if (params.heightMin) { const v = parseInt(params.heightMin); if (!isNaN(v)) filters.heightMin = v; }
-  if (params.heightMax) { const v = parseInt(params.heightMax); if (!isNaN(v)) filters.heightMax = v; }
+  if (params.ageMin) {
+    const v = parseInt(params.ageMin);
+    if (!isNaN(v)) filters.ageMin = v;
+  }
+  if (params.ageMax) {
+    const v = parseInt(params.ageMax);
+    if (!isNaN(v)) filters.ageMax = v;
+  }
+  if (params.heightMin) {
+    const v = parseInt(params.heightMin);
+    if (!isNaN(v)) filters.heightMin = v;
+  }
+  if (params.heightMax) {
+    const v = parseInt(params.heightMax);
+    if (!isNaN(v)) filters.heightMax = v;
+  }
   if (params.religion) filters.religion = params.religion.split(",");
   if (params.caste) filters.caste = params.caste.split(",");
   if (params.motherTongue) filters.motherTongue = params.motherTongue.split(",");
@@ -43,11 +55,7 @@ function parseSearchFilters(params: Record<string, string | undefined>): SearchF
   return filters;
 }
 
-async function MatchesList({
-  filters,
-}: {
-  filters: SearchFilters;
-}) {
+async function MatchesList({ filters }: { filters: SearchFilters }) {
   const session = await auth();
 
   const hasFilters = Object.values(filters).some(
@@ -63,14 +71,16 @@ async function MatchesList({
 
   if (!result.success) {
     return (
-      <Card variant="elevated" className="text-center py-8 sm:py-12 md:py-16">
-        <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
-          <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-full bg-red-100 flex items-center justify-center mx-auto">
-            <Users className="h-7 w-7 sm:h-10 sm:w-10 text-red-600" />
+      <Card variant="elevated" className="py-8 text-center sm:py-12 md:py-16">
+        <CardContent className="space-y-4 px-4 sm:space-y-6 sm:px-6">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100 sm:h-20 sm:w-20">
+            <Users className="h-7 w-7 text-red-600 sm:h-10 sm:w-10" />
           </div>
           <div className="space-y-2 sm:space-y-3">
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-red-600">Error Loading Matches</h3>
-            <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-md mx-auto leading-relaxed">
+            <h3 className="text-lg font-bold text-red-600 sm:text-xl md:text-2xl">
+              Error Loading Matches
+            </h3>
+            <p className="text-muted-foreground mx-auto max-w-md text-sm leading-relaxed sm:text-base md:text-lg">
               {result.error || "An error occurred while loading profiles"}
             </p>
           </div>
@@ -81,21 +91,23 @@ async function MatchesList({
 
   if (!result.data?.profiles.length) {
     return (
-      <Card variant="elevated" className="text-center py-8 sm:py-12 md:py-16">
-        <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
-          <div className="h-14 w-14 sm:h-20 sm:w-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mx-auto shadow-premium-md">
-            <Users className="h-7 w-7 sm:h-10 sm:w-10 text-primary" />
+      <Card variant="elevated" className="py-8 text-center sm:py-12 md:py-16">
+        <CardContent className="space-y-4 px-4 sm:space-y-6 sm:px-6">
+          <div className="from-primary/20 to-primary/10 shadow-premium-md mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br sm:h-20 sm:w-20">
+            <Users className="text-primary h-7 w-7 sm:h-10 sm:w-10" />
           </div>
           <div className="space-y-2 sm:space-y-3">
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold">No Profiles Available</h3>
-            <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-md mx-auto leading-relaxed">
-              There are currently no profiles in the system. This could be because:<br/>
-              • The platform is new and growing<br/>
-              • All profiles are blocked or hidden<br/>
-              • Try adjusting your filters
+            <h3 className="text-lg font-bold sm:text-xl md:text-2xl">No Profiles Available</h3>
+            <p className="text-muted-foreground mx-auto max-w-md text-sm leading-relaxed sm:text-base md:text-lg">
+              There are currently no profiles in the system. This could be because:
+              <br />
+              • The platform is new and growing
+              <br />
+              • All profiles are blocked or hidden
+              <br />• Try adjusting your filters
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row justify-center gap-3 pt-4">
+          <div className="flex flex-col justify-center gap-3 pt-4 sm:flex-row">
             <Button variant="outline" asChild size="default">
               <Link href="/profile/preferences">Update Preferences</Link>
             </Button>
@@ -111,9 +123,10 @@ async function MatchesList({
   const shortlistedIds = shortlistResult.data || [];
   const sentInterestIds = (sentResult.data || []).map((i) => i.profile.userId);
   const subscriptionPlan = session?.user?.subscriptionPlan || "free";
-  const dailyInterestStatus: DailyInterestStatus = interestStatusResult.success && interestStatusResult.data
-    ? interestStatusResult.data
-    : { sentToday: 0, limit: 5, isUnlimited: false };
+  const dailyInterestStatus: DailyInterestStatus =
+    interestStatusResult.success && interestStatusResult.data
+      ? interestStatusResult.data
+      : { sentToday: 0, limit: 5, isUnlimited: false };
 
   return (
     <MatchesListClient
@@ -135,20 +148,20 @@ function MatchesLoading() {
       {[1, 2, 3].map((i) => (
         <Card key={i}>
           <div className="flex flex-col sm:flex-row">
-            <Skeleton className="w-full sm:w-44 md:w-48 aspect-[4/3] sm:aspect-auto sm:h-[200px]" />
+            <Skeleton className="aspect-[4/3] w-full sm:aspect-auto sm:h-[200px] sm:w-44 md:w-48" />
             <CardContent className="flex-1 p-4 sm:p-6">
-              <div className="flex justify-between mb-3">
+              <div className="mb-3 flex justify-between">
                 <div>
-                  <Skeleton className="h-6 w-32 mb-2" />
+                  <Skeleton className="mb-2 h-6 w-32" />
                   <Skeleton className="h-4 w-20" />
                 </div>
                 <Skeleton className="h-6 w-20" />
               </div>
-              <div className="space-y-2 mb-4">
+              <div className="mb-4 space-y-2">
                 <Skeleton className="h-4 w-40" />
                 <Skeleton className="h-4 w-36" />
               </div>
-              <div className="flex gap-2 mb-4">
+              <div className="mb-4 flex gap-2">
                 <Skeleton className="h-6 w-16" />
                 <Skeleton className="h-6 w-16" />
               </div>
@@ -170,55 +183,48 @@ export default async function MatchesPage({
   const filters = parseSearchFilters(params);
 
   return (
-    <div className="py-4 sm:py-6 md:py-8 px-3 sm:px-4 md:px-6 lg:px-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 md:mb-8">
+    <div className="px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:px-8">
+      <div className="mb-4 flex flex-col justify-between gap-3 sm:mb-6 sm:flex-row sm:items-center sm:gap-4 md:mb-8">
         <div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">Matches</h1>
-          <p className="text-muted-foreground mt-1">
-            Profiles intelligently ranked for you
-          </p>
+          <h1 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">Matches</h1>
+          <p className="text-muted-foreground mt-1">Profiles intelligently ranked for you</p>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" size="default" asChild>
             <Link href="/matches">
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <RefreshCw className="mr-2 h-4 w-4" />
               Refresh
             </Link>
           </Button>
-          {/* Filter toggle - visible when filter sidebar is hidden */}
           <MobileFilterWrapper />
         </div>
       </div>
 
-      {/* Two-column layout: filters + matches */}
       <div className="flex gap-4 sm:gap-6">
-        {/* Filter sidebar - show when there's enough room (xl+ since dashboard sidebar takes space at lg+) */}
-        <aside className="hidden xl:block w-64 xl:w-72 shrink-0 overflow-hidden">
+        <aside className="hidden w-64 shrink-0 overflow-hidden xl:block xl:w-72">
           <div className="sticky top-24">
             <FilterPanel />
           </div>
         </aside>
 
-        {/* Matches content */}
-        <div className="flex-1 min-w-0">
-          {/* Quick Action Bar */}
+        <div className="min-w-0 flex-1">
           <Card variant="bordered" className="mb-4 sm:mb-6">
-            <CardContent className="py-3 sm:py-4 px-3 sm:px-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <p className="text-sm text-muted-foreground">
+            <CardContent className="px-3 py-3 sm:px-6 sm:py-4">
+              <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                <p className="text-muted-foreground text-sm">
                   Showing all profiles ranked by compatibility, activity, and trust
                 </p>
-                <Button variant="ghost" asChild className="text-primary hover:text-primary hover:bg-primary/5">
-                  <Link href="/profile/preferences">
-                    Edit Partner Preferences
-                  </Link>
+                <Button
+                  variant="ghost"
+                  asChild
+                  className="text-primary hover:text-primary hover:bg-primary/5"
+                >
+                  <Link href="/profile/preferences">Edit Partner Preferences</Link>
                 </Button>
               </div>
             </CardContent>
           </Card>
 
-          {/* Matches List */}
           <MatchesErrorBoundary>
             <Suspense fallback={<MatchesLoading />}>
               <MatchesList filters={filters} />

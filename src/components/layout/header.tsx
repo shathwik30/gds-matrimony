@@ -4,7 +4,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { Menu, X, User, LogOut, Settings, Heart, MessageSquare, Users, LayoutDashboard } from "lucide-react";
+import {
+  Menu,
+  X,
+  User,
+  LogOut,
+  Settings,
+  Heart,
+  MessageSquare,
+  Users,
+  LayoutDashboard,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -53,37 +63,35 @@ export function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b transition-smooth ${
+      className={`transition-smooth sticky top-0 z-50 w-full border-b ${
         scrolled
-          ? "bg-background/90 backdrop-blur-xl shadow-premium-md"
-          : "bg-background/95 backdrop-blur-lg shadow-premium-sm"
+          ? "bg-background/90 shadow-premium-md backdrop-blur-xl"
+          : "bg-background/95 shadow-premium-sm backdrop-blur-lg"
       }`}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <div className="container-wide flex h-16 md:h-20 items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 md:gap-3 group shrink-0">
+      <div className="container-wide flex h-16 items-center justify-between md:h-20">
+        <Link href="/" className="group flex shrink-0 items-center gap-2 md:gap-3">
           <Image
             src="/images/logo.svg"
             alt="GDS Marriage Links"
             width={120}
             height={77}
             unoptimized
-            className="h-10 md:h-14 w-auto transition-transform group-hover:scale-110"
+            className="h-10 w-auto transition-transform group-hover:scale-110 md:h-14"
           />
-          <span className="hidden sm:inline-block font-semibold text-lg md:text-xl transition-colors group-hover:text-primary">
+          <span className="group-hover:text-primary hidden text-lg font-semibold transition-colors sm:inline-block md:text-xl">
             GDS Marriage Links
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
         {status === "authenticated" && session?.user ? (
-          <nav className="hidden md:flex items-center gap-1 lg:gap-4">
+          <nav className="hidden items-center gap-1 md:flex lg:gap-4">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="group relative flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2 px-2.5 lg:px-3 rounded-lg hover:bg-muted/50"
+                className="group text-muted-foreground hover:text-foreground hover:bg-muted/50 relative flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors lg:px-3"
               >
                 <item.icon className="h-4 w-4" />
                 <span>{item.label}</span>
@@ -91,12 +99,12 @@ export function Header() {
             ))}
           </nav>
         ) : (
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden items-center gap-6 md:flex">
             {publicNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
               >
                 {item.label}
               </Link>
@@ -104,37 +112,42 @@ export function Header() {
           </nav>
         )}
 
-        {/* Right Section */}
         <div className="flex items-center gap-2 md:gap-4">
           {status === "loading" ? (
-            <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+            <div className="bg-muted h-8 w-8 animate-pulse rounded-full" />
           ) : status === "authenticated" && session?.user ? (
             <>
-              {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 md:h-12 md:w-12 rounded-full ring-2 ring-transparent hover:ring-primary/20 transition-all">
+                  <Button
+                    variant="ghost"
+                    className="hover:ring-primary/20 relative h-9 w-9 rounded-full ring-2 ring-transparent transition-all md:h-12 md:w-12"
+                  >
                     <Avatar className="h-9 w-9 md:h-12 md:w-12">
                       <AvatarImage src={session.user.image || undefined} />
-                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-xs md:text-sm">
-                        {getInitials(session.user.name?.split(" ")[0], session.user.name?.split(" ")[1])}
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold md:text-sm">
+                        {getInitials(
+                          session.user.name?.split(" ")[0],
+                          session.user.name?.split(" ")[1]
+                        )}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64 shadow-premium-lg" align="end">
+                <DropdownMenuContent className="shadow-premium-lg w-64" align="end">
                   <div className="flex items-center justify-start gap-3 p-3">
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={session.user.image || undefined} />
                       <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
-                        {getInitials(session.user.name?.split(" ")[0], session.user.name?.split(" ")[1])}
+                        {getInitials(
+                          session.user.name?.split(" ")[0],
+                          session.user.name?.split(" ")[1]
+                        )}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col space-y-1 leading-none">
-                      {session.user.name && (
-                        <p className="font-semibold">{session.user.name}</p>
-                      )}
-                      <p className="w-[180px] truncate text-xs text-muted-foreground">
+                      {session.user.name && <p className="font-semibold">{session.user.name}</p>}
+                      <p className="text-muted-foreground w-[180px] truncate text-xs">
                         {session.user.email}
                       </p>
                     </div>
@@ -160,7 +173,7 @@ export function Header() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    className="cursor-pointer text-destructive focus:text-destructive"
+                    className="text-destructive focus:text-destructive cursor-pointer"
                     onClick={handleLogout}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
@@ -168,11 +181,9 @@ export function Header() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-
             </>
           ) : (
             <div className="flex items-center gap-2 md:gap-3">
-              {/* Mobile Menu for public nav */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -180,16 +191,16 @@ export function Header() {
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
               >
-                {mobileMenuOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
               <Button variant="ghost" size="sm" asChild className="text-sm">
                 <Link href="/login">Login</Link>
               </Button>
-              <Button size="sm" asChild className="shadow-premium-sm hover:shadow-premium-md text-sm">
+              <Button
+                size="sm"
+                asChild
+                className="shadow-premium-sm hover:shadow-premium-md text-sm"
+              >
                 <Link href="/register">Register</Link>
               </Button>
             </div>
@@ -197,15 +208,14 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Navigation (public/unauthenticated only) */}
       {mobileMenuOpen && status !== "authenticated" && (
-        <div className="md:hidden border-t bg-background/95 backdrop-blur-xl animate-fade-in">
-          <nav className="flex flex-col p-4 space-y-1">
+        <div className="bg-background/95 animate-fade-in border-t backdrop-blur-xl md:hidden">
+          <nav className="flex flex-col space-y-1 p-4">
             {publicNavItems.map((item, index) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 text-base font-medium rounded-lg hover:bg-muted transition-smooth stagger-${index + 1} animate-slide-in-right`}
+                className={`hover:bg-muted transition-smooth flex items-center gap-3 rounded-lg px-4 py-3 text-base font-medium stagger-${index + 1} animate-slide-in-right`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {item.label}

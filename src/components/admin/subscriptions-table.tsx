@@ -35,8 +35,8 @@ interface SubscriptionsTableProps {
 
 export function SubscriptionsTable({ subscriptions }: SubscriptionsTableProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200">
-      <div className="px-6 py-4 border-b border-slate-200">
+    <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-200 px-6 py-4">
         <h3 className="text-lg font-semibold text-slate-900">Recent Subscriptions</h3>
       </div>
 
@@ -64,8 +64,8 @@ export function SubscriptionsTable({ subscriptions }: SubscriptionsTableProps) {
                 <TableRow key={sub.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-brand/10 flex items-center justify-center">
-                        <User className="h-4 w-4 text-brand" />
+                      <div className="bg-brand/10 flex h-8 w-8 items-center justify-center rounded-full">
+                        <User className="text-brand h-4 w-4" />
                       </div>
                       <div>
                         <p className="text-sm font-medium text-slate-900">
@@ -83,12 +83,12 @@ export function SubscriptionsTable({ subscriptions }: SubscriptionsTableProps) {
                       variant="outline"
                       className={
                         sub.plan === "platinum"
-                          ? "border-purple-500 text-purple-600 bg-purple-50"
+                          ? "border-purple-500 bg-purple-50 text-purple-600"
                           : sub.plan === "gold"
-                          ? "border-amber-500 text-amber-600 bg-amber-50"
-                          : sub.plan === "silver"
-                          ? "border-slate-400 text-slate-600 bg-slate-50"
-                          : "border-slate-300 text-slate-500"
+                            ? "border-amber-500 bg-amber-50 text-amber-600"
+                            : sub.plan === "silver"
+                              ? "border-slate-400 bg-slate-50 text-slate-600"
+                              : "border-slate-300 text-slate-500"
                       }
                     >
                       {sub.plan ? sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) : "Free"}
@@ -116,7 +116,7 @@ export function SubscriptionsTable({ subscriptions }: SubscriptionsTableProps) {
                   <TableCell className="text-right">
                     <Button size="sm" variant="outline" asChild>
                       <Link href={`/admin/users/${sub.userId}`}>
-                        <Eye className="h-4 w-4 mr-1" />
+                        <Eye className="mr-1 h-4 w-4" />
                         View User
                       </Link>
                     </Button>

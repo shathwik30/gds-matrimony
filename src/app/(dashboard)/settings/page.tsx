@@ -22,7 +22,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { getMyProfile, updateProfile, getNotificationPrefs, saveNotificationPrefs } from "@/lib/actions/profile";
+import {
+  getMyProfile,
+  updateProfile,
+  getNotificationPrefs,
+  saveNotificationPrefs,
+} from "@/lib/actions/profile";
 
 export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -216,62 +221,58 @@ export default function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-brand" />
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="text-brand h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-6 sm:py-8">
+    <div className="mx-auto max-w-4xl px-3 py-6 sm:px-4 sm:py-8 md:px-6">
       <div className="mb-6 sm:mb-8 md:mb-10">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">Settings</h1>
-        <p className="text-sm sm:text-base md:text-lg text-muted-foreground mt-1 sm:mt-2">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">
+          Settings
+        </h1>
+        <p className="text-muted-foreground mt-1 text-sm sm:mt-2 sm:text-base md:text-lg">
           Manage your account settings and preferences
         </p>
       </div>
 
       <Tabs defaultValue="privacy" className="space-y-4 sm:space-y-6">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-1">
+        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 sm:grid-cols-4">
           <TabsTrigger value="privacy">
-            <Eye className="h-4 w-4 mr-2 hidden sm:inline" />
+            <Eye className="mr-2 hidden h-4 w-4 sm:inline" />
             Privacy
           </TabsTrigger>
           <TabsTrigger value="notifications">
-            <Bell className="h-4 w-4 mr-2 hidden sm:inline" />
+            <Bell className="mr-2 hidden h-4 w-4 sm:inline" />
             Notifications
           </TabsTrigger>
           <TabsTrigger value="security">
-            <Lock className="h-4 w-4 mr-2 hidden sm:inline" />
+            <Lock className="mr-2 hidden h-4 w-4 sm:inline" />
             Security
           </TabsTrigger>
           <TabsTrigger value="account">
-            <User className="h-4 w-4 mr-2 hidden sm:inline" />
+            <User className="mr-2 hidden h-4 w-4 sm:inline" />
             Account
           </TabsTrigger>
         </TabsList>
 
-        {/* Privacy Settings */}
         <TabsContent value="privacy">
           <Card variant="elevated">
             <CardHeader>
               <CardTitle>Privacy Settings</CardTitle>
-              <CardDescription>
-                Control who can see your profile and information
-              </CardDescription>
+              <CardDescription>Control who can see your profile and information</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6">
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>Hide Profile</Label>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-xs sm:text-sm">
                     Temporarily hide your profile from search results
                   </p>
                 </div>
-                <Switch
-                  checked={hideProfile}
-                  onCheckedChange={setHideProfile}
-                />
+                <Switch checked={hideProfile} onCheckedChange={setHideProfile} />
               </div>
 
               <Separator />
@@ -279,14 +280,11 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>Show Online Status</Label>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-xs sm:text-sm">
                     Let others see when you are currently online
                   </p>
                 </div>
-                <Switch
-                  checked={showOnlineStatus}
-                  onCheckedChange={setShowOnlineStatus}
-                />
+                <Switch checked={showOnlineStatus} onCheckedChange={setShowOnlineStatus} />
               </div>
 
               <Separator />
@@ -294,7 +292,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>Show Last Active</Label>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-xs sm:text-sm">
                     Let others see when you were last active on the platform
                   </p>
                 </div>
@@ -302,34 +300,28 @@ export default function SettingsPage() {
               </div>
 
               <Button onClick={handleSavePrivacySettings} disabled={isSavingPrivacy}>
-                {isSavingPrivacy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {isSavingPrivacy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Privacy Settings
               </Button>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Notification Settings */}
         <TabsContent value="notifications">
           <Card variant="elevated">
             <CardHeader>
               <CardTitle>Notification Settings</CardTitle>
-              <CardDescription>
-                Choose what notifications you want to receive
-              </CardDescription>
+              <CardDescription>Choose what notifications you want to receive</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6">
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>Email Notifications</Label>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-xs sm:text-sm">
                     Receive important updates via email
                   </p>
                 </div>
-                <Switch
-                  checked={emailNotifications}
-                  onCheckedChange={setEmailNotifications}
-                />
+                <Switch checked={emailNotifications} onCheckedChange={setEmailNotifications} />
               </div>
 
               <Separator />
@@ -337,7 +329,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>Interest Notifications</Label>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-xs sm:text-sm">
                     Get notified when someone sends you an interest
                   </p>
                 </div>
@@ -352,14 +344,11 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>Message Notifications</Label>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-xs sm:text-sm">
                     Get notified when you receive new messages
                   </p>
                 </div>
-                <Switch
-                  checked={messageNotifications}
-                  onCheckedChange={setMessageNotifications}
-                />
+                <Switch checked={messageNotifications} onCheckedChange={setMessageNotifications} />
               </div>
 
               <Separator />
@@ -367,32 +356,26 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
                   <Label>New Match Notifications</Label>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-xs sm:text-sm">
                     Get notified about new matching profiles
                   </p>
                 </div>
-                <Switch
-                  checked={matchNotifications}
-                  onCheckedChange={setMatchNotifications}
-                />
+                <Switch checked={matchNotifications} onCheckedChange={setMatchNotifications} />
               </div>
 
               <Button onClick={handleSaveNotificationSettings} disabled={isSavingNotifications}>
-                {isSavingNotifications && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {isSavingNotifications && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Notification Settings
               </Button>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Security Settings */}
         <TabsContent value="security">
           <Card variant="elevated">
             <CardHeader>
               <CardTitle>Change Password</CardTitle>
-              <CardDescription>
-                Update your password to keep your account secure
-              </CardDescription>
+              <CardDescription>Update your password to keep your account secure</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -426,34 +409,31 @@ export default function SettingsPage() {
               </div>
 
               <Button onClick={handleChangePassword} disabled={isChangingPassword}>
-                {isChangingPassword && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {isChangingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Change Password
               </Button>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Account Settings */}
         <TabsContent value="account">
           <Card variant="elevated">
             <CardHeader>
               <CardTitle className="text-destructive">Danger Zone</CardTitle>
-              <CardDescription>
-                Irreversible and destructive actions
-              </CardDescription>
+              <CardDescription>Irreversible and destructive actions</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 p-4 border border-destructive/20 rounded-lg">
+              <div className="border-destructive/20 flex flex-col items-start justify-between gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:gap-4">
                 <div className="space-y-0.5">
                   <p className="font-medium">Delete Account</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     Permanently delete your account and all associated data
                   </p>
                 </div>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive">
-                      <Trash2 className="h-4 w-4 mr-2" />
+                      <Trash2 className="mr-2 h-4 w-4" />
                       Delete Account
                     </Button>
                   </AlertDialogTrigger>
@@ -461,8 +441,8 @@ export default function SettingsPage() {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. This will permanently deactivate
-                        your account and hide all your data. Enter your password to confirm.
+                        This action cannot be undone. This will permanently deactivate your account
+                        and hide all your data. Enter your password to confirm.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <div className="py-4">
@@ -476,13 +456,15 @@ export default function SettingsPage() {
                       />
                     </div>
                     <AlertDialogFooter>
-                      <AlertDialogCancel onClick={() => setDeletePassword("")}>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel onClick={() => setDeletePassword("")}>
+                        Cancel
+                      </AlertDialogCancel>
                       <AlertDialogAction
                         onClick={handleDeleteAccount}
                         disabled={!deletePassword || isDeleting}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       >
-                        {isDeleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                        {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Yes, delete my account
                       </AlertDialogAction>
                     </AlertDialogFooter>

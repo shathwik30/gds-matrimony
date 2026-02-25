@@ -21,12 +21,8 @@ export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
 
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    nextUrl.pathname.startsWith(route)
-  );
-  const isAuthRoute = authRoutes.some((route) =>
-    nextUrl.pathname.startsWith(route)
-  );
+  const isProtectedRoute = protectedRoutes.some((route) => nextUrl.pathname.startsWith(route));
+  const isAuthRoute = authRoutes.some((route) => nextUrl.pathname.startsWith(route));
 
   // Redirect logged-in users away from auth pages
   if (isAuthRoute && isLoggedIn) {
@@ -42,10 +38,10 @@ export default auth((req) => {
   if (isProtectedRoute && !isLoggedIn) {
     // Only allow relative paths as callback URLs to prevent open redirect
     const rawPath = nextUrl.pathname + nextUrl.search;
-    const callbackUrl = rawPath.startsWith("/") ? encodeURIComponent(rawPath) : encodeURIComponent("/dashboard");
-    return NextResponse.redirect(
-      new URL(`/login?callbackUrl=${callbackUrl}`, nextUrl)
-    );
+    const callbackUrl = rawPath.startsWith("/")
+      ? encodeURIComponent(rawPath)
+      : encodeURIComponent("/dashboard");
+    return NextResponse.redirect(new URL(`/login?callbackUrl=${callbackUrl}`, nextUrl));
   }
 
   return NextResponse.next();

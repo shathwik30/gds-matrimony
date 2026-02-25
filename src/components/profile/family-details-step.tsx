@@ -19,7 +19,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { familyDetailsSchema, type FamilyDetailsInput } from "@/lib/validations/profile";
-import { FAMILY_STATUS_OPTIONS, FAMILY_TYPE_OPTIONS, FAMILY_VALUE_OPTIONS, PARENT_OCCUPATION_OPTIONS } from "@/constants";
+import {
+  FAMILY_STATUS_OPTIONS,
+  FAMILY_TYPE_OPTIONS,
+  FAMILY_VALUE_OPTIONS,
+  PARENT_OCCUPATION_OPTIONS,
+} from "@/constants";
 import { useProfileStep, type ProfileStepProps } from "@/hooks/use-profile-step";
 
 function getDefaults(data: Record<string, unknown>): FamilyDetailsInput {
@@ -191,7 +196,9 @@ export function FamilyDetailsStep({ data, onUpdate }: ProfileStepProps) {
                       max="10"
                       placeholder="0"
                       {...field}
-                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      onChange={(e) =>
+                        field.onChange(e.target.value ? parseInt(e.target.value) : undefined)
+                      }
                       value={field.value ?? ""}
                     />
                   </FormControl>
@@ -213,7 +220,9 @@ export function FamilyDetailsStep({ data, onUpdate }: ProfileStepProps) {
                       max="10"
                       placeholder="0"
                       {...field}
-                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      onChange={(e) =>
+                        field.onChange(e.target.value ? parseInt(e.target.value) : undefined)
+                      }
                       value={field.value ?? ""}
                     />
                   </FormControl>
@@ -237,7 +246,9 @@ export function FamilyDetailsStep({ data, onUpdate }: ProfileStepProps) {
                       max="10"
                       placeholder="0"
                       {...field}
-                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      onChange={(e) =>
+                        field.onChange(e.target.value ? parseInt(e.target.value) : undefined)
+                      }
                       value={field.value ?? ""}
                     />
                   </FormControl>
@@ -259,7 +270,9 @@ export function FamilyDetailsStep({ data, onUpdate }: ProfileStepProps) {
                       max="10"
                       placeholder="0"
                       {...field}
-                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      onChange={(e) =>
+                        field.onChange(e.target.value ? parseInt(e.target.value) : undefined)
+                      }
                       value={field.value ?? ""}
                     />
                   </FormControl>

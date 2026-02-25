@@ -49,20 +49,20 @@ export default async function MyProfilePage() {
 
   if (!profile) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center px-4">
-        <div className="text-center max-w-md space-y-6">
-          <div className="w-24 h-24 rounded-full bg-brand-light flex items-center justify-center mx-auto">
-            <Camera className="h-12 w-12 text-brand/40" />
+      <div className="flex min-h-[70vh] items-center justify-center px-4">
+        <div className="max-w-md space-y-6 text-center">
+          <div className="bg-brand-light mx-auto flex h-24 w-24 items-center justify-center rounded-full">
+            <Camera className="text-brand/40 h-12 w-12" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold mb-2">No Profile Yet</h1>
+            <h1 className="mb-2 text-2xl font-bold">No Profile Yet</h1>
             <p className="text-muted-foreground">
               Complete your profile to start finding your perfect match.
             </p>
           </div>
           <Button asChild size="lg" className="shadow-lg">
             <Link href="/profile/edit">
-              <Edit className="h-4 w-4 mr-2" />
+              <Edit className="mr-2 h-4 w-4" />
               Complete Profile
             </Link>
           </Button>
@@ -72,27 +72,24 @@ export default async function MyProfilePage() {
   }
 
   const age = profile.dateOfBirth ? calculateAge(profile.dateOfBirth) : null;
-  const fullName =
-    [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "Your Name";
+  const fullName = [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "Your Name";
   const initials = getInitials(profile.firstName, profile.lastName);
   const completion = profile.profileCompletion || 0;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const galleryImages: { id: number; imageUrl: string }[] = (profile as any).images ?? [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-muted/30 to-background">
-      <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 space-y-4 sm:space-y-6">
-
-        {/* ── Completion Banner ──────────────────────────────────────── */}
+    <div className="from-muted/30 to-background min-h-screen bg-gradient-to-b">
+      <div className="mx-auto max-w-5xl space-y-4 px-3 py-4 sm:space-y-6 sm:px-4 sm:py-6 md:py-8">
         {completion < 100 && (
           <div className="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-5">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="flex-1 space-y-2">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold text-amber-800">
                     Profile {completion}% complete
                   </p>
-                  <span className="text-xs text-amber-600 font-medium">
+                  <span className="text-xs font-medium text-amber-600">
                     {100 - completion}% remaining
                   </span>
                 </div>
@@ -104,21 +101,19 @@ export default async function MyProfilePage() {
               <Button
                 size="sm"
                 asChild
-                className="shrink-0 bg-amber-600 hover:bg-amber-700 text-white shadow-sm"
+                className="shrink-0 bg-amber-600 text-white shadow-sm hover:bg-amber-700"
               >
                 <Link href="/profile/edit">
                   Complete Now
-                  <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                  <ChevronRight className="ml-1 h-3.5 w-3.5" />
                 </Link>
               </Button>
             </div>
           </div>
         )}
 
-        {/* ── Hero Card ─────────────────────────────────────────────── */}
-        <div className="rounded-3xl overflow-hidden shadow-xl border border-border/40 bg-card">
-          {/* Cover photo */}
-          <div className="relative h-56 sm:h-72 md:h-96 bg-gradient-to-br from-brand/20 via-brand-light to-orange-100">
+        <div className="border-border/40 bg-card overflow-hidden rounded-3xl border shadow-xl">
+          <div className="from-brand/20 via-brand-light relative h-56 bg-gradient-to-br to-orange-100 sm:h-72 md:h-96">
             {profile.profileImage ? (
               <Image
                 src={profile.profileImage}
@@ -130,27 +125,25 @@ export default async function MyProfilePage() {
                 priority
               />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center gap-3">
-                <div className="w-24 h-24 rounded-full bg-white/60 flex items-center justify-center text-brand text-4xl font-bold shadow-inner">
+              <div className="flex h-full w-full flex-col items-center justify-center gap-3">
+                <div className="text-brand flex h-24 w-24 items-center justify-center rounded-full bg-white/60 text-4xl font-bold shadow-inner">
                   {initials}
                 </div>
                 <p className="text-brand/60 text-sm font-medium">No photo yet</p>
               </div>
             )}
 
-            {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
 
-            {/* Edit button — top right */}
             <div className="absolute top-4 right-4 flex gap-2">
               <Button
                 size="sm"
                 variant="secondary"
                 asChild
-                className="bg-white/90 hover:bg-white text-foreground shadow-md backdrop-blur-sm"
+                className="text-foreground bg-white/90 shadow-md backdrop-blur-sm hover:bg-white"
               >
                 <Link href="/profile/edit">
-                  <Edit className="h-3.5 w-3.5 mr-1.5" />
+                  <Edit className="mr-1.5 h-3.5 w-3.5" />
                   Edit
                 </Link>
               </Button>
@@ -158,7 +151,7 @@ export default async function MyProfilePage() {
                 size="sm"
                 variant="secondary"
                 asChild
-                className="bg-white/90 hover:bg-white text-foreground shadow-md backdrop-blur-sm"
+                className="text-foreground bg-white/90 shadow-md backdrop-blur-sm hover:bg-white"
               >
                 <Link href="/settings">
                   <Settings className="h-3.5 w-3.5" />
@@ -166,45 +159,43 @@ export default async function MyProfilePage() {
               </Button>
             </div>
 
-            {/* Profile completion badge — top left */}
             {completion >= 100 && (
               <div className="absolute top-4 left-4">
-                <div className="flex items-center gap-1.5 bg-green-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-md">
+                <div className="flex items-center gap-1.5 rounded-full bg-green-500 px-3 py-1.5 text-xs font-semibold text-white shadow-md">
                   <Star className="h-3 w-3 fill-white" />
                   Profile Complete
                 </div>
               </div>
             )}
 
-            {/* Name & info overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
+            <div className="absolute right-0 bottom-0 left-0 p-4 sm:p-6 md:p-8">
               <div className="flex items-end justify-between gap-4">
-                <div className="text-white space-y-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-none">
+                <div className="space-y-1 text-white">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="text-2xl leading-none font-bold tracking-tight sm:text-3xl md:text-4xl">
                       {fullName}
                     </h1>
                     {profile.trustLevel === "verified_user" && (
-                      <div className="flex items-center gap-1 bg-blue-500/90 text-white text-xs px-2.5 py-1 rounded-full font-medium">
+                      <div className="flex items-center gap-1 rounded-full bg-blue-500/90 px-2.5 py-1 text-xs font-medium text-white">
                         <BadgeCheck className="h-3.5 w-3.5" />
                         Verified
                       </div>
                     )}
                     {profile.trustLevel === "highly_trusted" && (
-                      <div className="flex items-center gap-1 bg-green-500/90 text-white text-xs px-2.5 py-1 rounded-full font-medium">
+                      <div className="flex items-center gap-1 rounded-full bg-green-500/90 px-2.5 py-1 text-xs font-medium text-white">
                         <Shield className="h-3.5 w-3.5" />
                         Highly Trusted
                       </div>
                     )}
                   </div>
-                  <p className="text-white/80 text-lg font-medium">
+                  <p className="text-lg font-medium text-white/80">
                     {age ? `${age} years` : ""}
                     {profile.height
                       ? `${age ? " · " : ""}${heightToFeetInches(profile.height)}`
                       : ""}
                   </p>
                   {profile.residingCity && (
-                    <p className="flex items-center gap-1.5 text-white/70 text-sm">
+                    <p className="flex items-center gap-1.5 text-sm text-white/70">
                       <MapPin className="h-4 w-4" />
                       {profile.residingCity}
                       {profile.residingState ? `, ${profile.residingState}` : ""}
@@ -215,8 +206,7 @@ export default async function MyProfilePage() {
             </div>
           </div>
 
-          {/* Quick highlights strip */}
-          <div className="px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap gap-1.5 sm:gap-2 border-b bg-muted/20">
+          <div className="bg-muted/20 flex flex-wrap gap-1.5 border-b px-4 py-3 sm:gap-2 sm:px-6 sm:py-4">
             {profile.religion && (
               <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
                 {cap(profile.religion)}
@@ -234,13 +224,13 @@ export default async function MyProfilePage() {
             )}
             {profile.highestEducation && (
               <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
-                <GraduationCap className="h-3 w-3 mr-1" />
+                <GraduationCap className="mr-1 h-3 w-3" />
                 {cap(profile.highestEducation)}
               </Badge>
             )}
             {profile.occupation && (
               <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
-                <Briefcase className="h-3 w-3 mr-1" />
+                <Briefcase className="mr-1 h-3 w-3" />
                 {cap(profile.occupation)}
               </Badge>
             )}
@@ -256,47 +246,45 @@ export default async function MyProfilePage() {
             )}
           </div>
 
-          {/* Action buttons */}
-          <div className="px-4 sm:px-6 py-3 sm:py-4 flex gap-2 sm:gap-3 flex-wrap">
+          <div className="flex flex-wrap gap-2 px-4 py-3 sm:gap-3 sm:px-6 sm:py-4">
             <Button asChild className="shadow-sm">
               <Link href="/profile/edit">
-                <Edit className="h-4 w-4 mr-2" />
+                <Edit className="mr-2 h-4 w-4" />
                 Edit Profile
               </Link>
             </Button>
             <Button variant="outline" asChild>
               <Link href="/profile/preferences">
-                <Heart className="h-4 w-4 mr-2" />
+                <Heart className="mr-2 h-4 w-4" />
                 Partner Preferences
               </Link>
             </Button>
             <Button variant="outline" asChild>
               <Link href="/settings">
-                <Settings className="h-4 w-4 mr-2" />
+                <Settings className="mr-2 h-4 w-4" />
                 Settings
               </Link>
             </Button>
           </div>
         </div>
 
-        {/* ── Photo Gallery ─────────────────────────────────────────── */}
         {galleryImages.length > 0 && (
-          <section className="rounded-3xl border border-border/40 bg-card shadow-sm overflow-hidden">
-            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex items-center justify-between">
+          <section className="border-border/40 bg-card overflow-hidden rounded-3xl border shadow-sm">
+            <div className="flex items-center justify-between border-b px-4 py-3 sm:px-6 sm:py-4">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Camera className="h-4 w-4 text-primary" />
+                <div className="bg-primary/10 flex h-9 w-9 items-center justify-center rounded-xl">
+                  <Camera className="text-primary h-4 w-4" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-base">Photo Gallery</h2>
-                  <p className="text-xs text-muted-foreground">
+                  <h2 className="text-base font-semibold">Photo Gallery</h2>
+                  <p className="text-muted-foreground text-xs">
                     {galleryImages.length} photo{galleryImages.length !== 1 ? "s" : ""}
                   </p>
                 </div>
               </div>
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/profile/edit?step=8">
-                  <Edit className="h-3.5 w-3.5 mr-1.5" />
+                  <Edit className="mr-1.5 h-3.5 w-3.5" />
                   Manage
                 </Link>
               </Button>
@@ -304,7 +292,7 @@ export default async function MyProfilePage() {
 
             <div className="p-3 sm:p-4">
               {galleryImages.length === 1 ? (
-                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden max-w-sm">
+                <div className="relative aspect-[4/3] max-w-sm overflow-hidden rounded-2xl">
                   <Image
                     src={galleryImages[0].imageUrl}
                     alt="Gallery photo 1"
@@ -317,7 +305,7 @@ export default async function MyProfilePage() {
               ) : galleryImages.length === 2 ? (
                 <div className="grid grid-cols-2 gap-3">
                   {galleryImages.map((img, i) => (
-                    <div key={img.id} className="relative aspect-[3/4] rounded-2xl overflow-hidden">
+                    <div key={img.id} className="relative aspect-[3/4] overflow-hidden rounded-2xl">
                       <Image
                         src={img.imageUrl}
                         alt={`Gallery photo ${i + 1}`}
@@ -330,9 +318,9 @@ export default async function MyProfilePage() {
                   ))}
                 </div>
               ) : galleryImages.length === 3 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
                   {galleryImages.map((img, i) => (
-                    <div key={img.id} className="relative aspect-[3/4] rounded-2xl overflow-hidden">
+                    <div key={img.id} className="relative aspect-[3/4] overflow-hidden rounded-2xl">
                       <Image
                         src={img.imageUrl}
                         alt={`Gallery photo ${i + 1}`}
@@ -345,9 +333,11 @@ export default async function MyProfilePage() {
                   ))}
                 </div>
               ) : (
-                /* 4-5 photos: first photo large left, rest in grid right */
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  <div className="relative rounded-2xl overflow-hidden" style={{ aspectRatio: "3/4" }}>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
+                  <div
+                    className="relative overflow-hidden rounded-2xl"
+                    style={{ aspectRatio: "3/4" }}
+                  >
                     <Image
                       src={galleryImages[0].imageUrl}
                       alt="Gallery photo 1"
@@ -361,7 +351,7 @@ export default async function MyProfilePage() {
                     {galleryImages.slice(1, 5).map((img, i) => (
                       <div
                         key={img.id}
-                        className="relative rounded-xl overflow-hidden"
+                        className="relative overflow-hidden rounded-xl"
                         style={{ aspectRatio: "1" }}
                       >
                         <Image
@@ -381,14 +371,13 @@ export default async function MyProfilePage() {
           </section>
         )}
 
-        {/* ── About Me ──────────────────────────────────────────────── */}
         {profile.aboutMe && (
-          <section className="rounded-3xl border border-border/40 bg-card shadow-sm p-4 sm:p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Heart className="h-4 w-4 text-primary" />
+          <section className="border-border/40 bg-card rounded-3xl border p-4 shadow-sm sm:p-6">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="bg-primary/10 flex h-9 w-9 items-center justify-center rounded-xl">
+                <Heart className="text-primary h-4 w-4" />
               </div>
-              <h2 className="font-semibold text-base">About Me</h2>
+              <h2 className="text-base font-semibold">About Me</h2>
             </div>
             <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
               {profile.aboutMe}
@@ -396,14 +385,8 @@ export default async function MyProfilePage() {
           </section>
         )}
 
-        {/* ── Detail Cards Grid ─────────────────────────────────────── */}
-        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-
-          {/* Basic Details */}
-          <DetailCard
-            icon={<Calendar className="h-4 w-4 text-primary" />}
-            title="Basic Details"
-          >
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+          <DetailCard icon={<Calendar className="text-primary h-4 w-4" />} title="Basic Details">
             {age && <Row label="Age" value={`${age} years`} />}
             {profile.dateOfBirth && (
               <Row
@@ -415,9 +398,7 @@ export default async function MyProfilePage() {
                 })}
               />
             )}
-            {profile.height && (
-              <Row label="Height" value={heightToFeetInches(profile.height)} />
-            )}
+            {profile.height && <Row label="Height" value={heightToFeetInches(profile.height)} />}
             {profile.weight && <Row label="Weight" value={`${profile.weight} kg`} />}
             {profile.gender && <Row label="Gender" value={cap(profile.gender)} />}
             {profile.maritalStatus && (
@@ -430,9 +411,8 @@ export default async function MyProfilePage() {
             )}
           </DetailCard>
 
-          {/* Religion & Location */}
           <DetailCard
-            icon={<MapPin className="h-4 w-4 text-primary" />}
+            icon={<MapPin className="text-primary h-4 w-4" />}
             title="Religion & Location"
           >
             {profile.religion && <Row label="Religion" value={cap(profile.religion)} />}
@@ -448,15 +428,12 @@ export default async function MyProfilePage() {
                 value={`${profile.residingCity}${profile.residingState ? `, ${profile.residingState}` : ""}`}
               />
             )}
-            {profile.countryLivingIn && (
-              <Row label="Country" value={profile.countryLivingIn} />
-            )}
+            {profile.countryLivingIn && <Row label="Country" value={profile.countryLivingIn} />}
             {profile.citizenship && <Row label="Citizenship" value={profile.citizenship} />}
           </DetailCard>
 
-          {/* Education & Career */}
           <DetailCard
-            icon={<GraduationCap className="h-4 w-4 text-primary" />}
+            icon={<GraduationCap className="text-primary h-4 w-4" />}
             title="Education & Career"
           >
             {profile.highestEducation && (
@@ -465,9 +442,7 @@ export default async function MyProfilePage() {
             {profile.educationDetail && (
               <Row label="College / Field" value={profile.educationDetail} />
             )}
-            {profile.employedIn && (
-              <Row label="Employed In" value={cap(profile.employedIn)} />
-            )}
+            {profile.employedIn && <Row label="Employed In" value={cap(profile.employedIn)} />}
             {profile.occupation && <Row label="Occupation" value={cap(profile.occupation)} />}
             {profile.jobTitle && <Row label="Job Title" value={profile.jobTitle} />}
             {profile.annualIncome && (
@@ -475,31 +450,19 @@ export default async function MyProfilePage() {
             )}
           </DetailCard>
 
-          {/* Lifestyle */}
-          <DetailCard
-            icon={<Utensils className="h-4 w-4 text-primary" />}
-            title="Lifestyle"
-          >
+          <DetailCard icon={<Utensils className="text-primary h-4 w-4" />} title="Lifestyle">
             {profile.diet && <Row label="Diet" value={cap(profile.diet)} />}
             {profile.smoking && <Row label="Smoking" value={cap(profile.smoking)} />}
             {profile.drinking && <Row label="Drinking" value={cap(profile.drinking)} />}
             {profile.hobbies && <Row label="Hobbies" value={profile.hobbies} />}
           </DetailCard>
 
-          {/* Family Details */}
-          <DetailCard
-            icon={<Users className="h-4 w-4 text-primary" />}
-            title="Family Details"
-          >
+          <DetailCard icon={<Users className="text-primary h-4 w-4" />} title="Family Details">
             {profile.familyStatus && (
               <Row label="Family Status" value={cap(profile.familyStatus)} />
             )}
-            {profile.familyType && (
-              <Row label="Family Type" value={cap(profile.familyType)} />
-            )}
-            {profile.familyValue && (
-              <Row label="Family Values" value={cap(profile.familyValue)} />
-            )}
+            {profile.familyType && <Row label="Family Type" value={cap(profile.familyType)} />}
+            {profile.familyValue && <Row label="Family Values" value={cap(profile.familyValue)} />}
             {profile.fatherOccupation && (
               <Row label="Father's Occupation" value={cap(profile.fatherOccupation)} />
             )}
@@ -520,22 +483,18 @@ export default async function MyProfilePage() {
             )}
           </DetailCard>
 
-          {/* Profile Status */}
-          <DetailCard
-            icon={<Briefcase className="h-4 w-4 text-primary" />}
-            title="Profile Status"
-          >
+          <DetailCard icon={<Briefcase className="text-primary h-4 w-4" />} title="Profile Status">
             <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Completion</span>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground text-sm">Completion</span>
                 <div className="flex items-center gap-2">
-                  <Progress value={completion} className="w-20 h-1.5" />
+                  <Progress value={completion} className="h-1.5 w-20" />
                   <span className="text-sm font-semibold">{completion}%</span>
                 </div>
               </div>
               {profile.trustLevel && (
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Trust Level</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-sm">Trust Level</span>
                   <Badge
                     variant={
                       profile.trustLevel === "highly_trusted"
@@ -554,13 +513,10 @@ export default async function MyProfilePage() {
             </div>
           </DetailCard>
         </div>
-
       </div>
     </div>
   );
 }
-
-// ── Shared sub-components ───────────────────────────────────────────────────
 
 function DetailCard({
   icon,
@@ -572,23 +528,23 @@ function DetailCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-3xl border border-border/40 bg-card shadow-sm overflow-hidden">
-      <div className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-4 border-b bg-muted/20">
-        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+    <div className="border-border/40 bg-card overflow-hidden rounded-3xl border shadow-sm">
+      <div className="bg-muted/20 flex items-center gap-3 border-b px-4 py-3 sm:px-5 sm:py-4">
+        <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
           {icon}
         </div>
-        <h2 className="font-semibold text-sm">{title}</h2>
+        <h2 className="text-sm font-semibold">{title}</h2>
       </div>
-      <div className="px-4 sm:px-5 py-3 sm:py-4 space-y-3">{children}</div>
+      <div className="space-y-3 px-4 py-3 sm:px-5 sm:py-4">{children}</div>
     </div>
   );
 }
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between items-center gap-3">
-      <span className="text-sm text-muted-foreground shrink-0">{label}</span>
-      <span className="text-sm font-medium text-right">{value}</span>
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-muted-foreground shrink-0 text-sm">{label}</span>
+      <span className="text-right text-sm font-medium">{value}</span>
     </div>
   );
 }

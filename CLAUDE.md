@@ -29,6 +29,7 @@ npm run db:seed:fresh  # Drop and re-seed
 ### Routing & Middleware
 
 Next.js App Router with route groups:
+
 - `(public)/` — Landing, about, contact pages
 - `(auth)/` — Login, register, forgot/reset password (redirects to `/dashboard` if logged in)
 - `(dashboard)/` — User dashboard, matches, interests, messages, profile, settings, membership

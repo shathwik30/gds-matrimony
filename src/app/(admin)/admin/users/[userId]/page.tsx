@@ -43,7 +43,6 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/admin/users">
@@ -56,9 +55,8 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Info Card */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
           <div className="flex items-start gap-6">
             <Avatar className="h-24 w-24">
               <AvatarImage src={user.profile?.profileImage || undefined} />
@@ -91,8 +89,8 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                     user.profile?.trustLevel === "verified_user"
                       ? "border-blue-500 text-blue-600"
                       : user.profile?.trustLevel === "highly_trusted"
-                      ? "border-purple-500 text-purple-600"
-                      : "border-slate-300 text-slate-500"
+                        ? "border-purple-500 text-purple-600"
+                        : "border-slate-300 text-slate-500"
                   }
                 >
                   {user.profile?.trustLevel || "new_member"}
@@ -104,7 +102,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-2">
                 <div className="flex items-center gap-2 text-sm text-slate-600">
                   <Mail className="h-4 w-4 text-slate-400" />
                   {user.email}
@@ -130,13 +128,14 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
             </div>
           </div>
 
-          {/* Profile Completion */}
-          <div className="mt-6 pt-6 border-t border-slate-200">
-            <div className="flex items-center justify-between mb-2">
+          <div className="mt-6 border-t border-slate-200 pt-6">
+            <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-medium text-slate-700">Profile Completion</span>
-              <span className="text-sm text-slate-500">{user.profile?.profileCompletion || 0}%</span>
+              <span className="text-sm text-slate-500">
+                {user.profile?.profileCompletion || 0}%
+              </span>
             </div>
-            <div className="w-full bg-slate-200 rounded-full h-2">
+            <div className="h-2 w-full rounded-full bg-slate-200">
               <div
                 className="bg-brand h-2 rounded-full transition-all"
                 style={{ width: `${user.profile?.profileCompletion || 0}%` }}
@@ -145,15 +144,13 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
           </div>
         </div>
 
-        {/* Actions Card */}
         <UserActionsCard user={user} />
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
               <Eye className="h-5 w-5 text-blue-600" />
             </div>
             <div>
@@ -163,9 +160,9 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-pink-100 flex items-center justify-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-100">
               <Heart className="h-5 w-5 text-pink-600" />
             </div>
             <div>
@@ -175,9 +172,9 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100">
               <Heart className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
@@ -187,9 +184,9 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
               <MessageSquare className="h-5 w-5 text-purple-600" />
             </div>
             <div>
@@ -200,15 +197,14 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         </div>
       </div>
 
-      {/* Subscription Info */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <div className="flex items-center gap-3 mb-4">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mb-4 flex items-center gap-3">
           <CreditCard className="h-5 w-5 text-slate-500" />
           <h3 className="text-lg font-semibold text-slate-900">Subscription</h3>
         </div>
 
         {user.subscription ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
               <p className="text-sm text-slate-500">Plan</p>
               <p className="font-medium text-slate-900 capitalize">{user.subscription.plan}</p>

@@ -42,33 +42,27 @@ export function DashboardSidebar() {
   };
 
   return (
-    <aside className="hidden lg:block w-[260px] shrink-0">
-      <div className="sticky top-20 h-[calc(100vh-5rem)] border-r bg-background flex flex-col">
-        {/* User Info */}
-        <div className="p-6 border-b">
+    <aside className="hidden w-[260px] shrink-0 lg:block">
+      <div className="bg-background sticky top-20 flex h-[calc(100vh-5rem)] flex-col border-r">
+        <div className="border-b p-6">
           <div className="flex items-center gap-3">
-            <Avatar className="h-11 w-11 ring-2 ring-primary/10">
+            <Avatar className="ring-primary/10 h-11 w-11 ring-2">
               <AvatarImage src={session?.user?.image || undefined} />
-              <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm">
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
                 {getInitials(
                   session?.user?.name?.split(" ")[0],
                   session?.user?.name?.split(" ")[1]
                 )}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm truncate">
-                {session?.user?.name || "User"}
-              </p>
-              <p className="text-xs text-muted-foreground truncate">
-                {session?.user?.email}
-              </p>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold">{session?.user?.name || "User"}</p>
+              <p className="text-muted-foreground truncate text-xs">{session?.user?.email}</p>
             </div>
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        <nav className="flex-1 space-y-1 overflow-y-auto p-3">
           {sidebarLinks.map((link) => {
             const isActive =
               pathname === link.href ||
@@ -79,7 +73,7 @@ export function DashboardSidebar() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -92,11 +86,10 @@ export function DashboardSidebar() {
           })}
         </nav>
 
-        {/* Logout */}
-        <div className="p-3 border-t">
+        <div className="border-t p-3">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors w-full"
+            className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
           >
             <LogOut className="h-5 w-5" />
             Log out

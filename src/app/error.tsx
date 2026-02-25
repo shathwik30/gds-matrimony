@@ -20,14 +20,13 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="text-center max-w-md">
-        <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="max-w-md text-center">
+        <h2 className="mb-4 text-2xl font-bold">Something went wrong</h2>
         <p className="text-muted-foreground mb-6">
-          An unexpected error occurred. Please try again or contact support if
-          the problem persists.
+          An unexpected error occurred. Please try again or contact support if the problem persists.
         </p>
-        <div className="flex gap-4 justify-center">
+        <div className="flex justify-center gap-4">
           <Button onClick={reset}>Try Again</Button>
           <Button variant="outline" asChild>
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}

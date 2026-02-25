@@ -45,10 +45,9 @@ function InterestCard({
     <Card variant="elevated" className="overflow-hidden">
       <CardContent className="p-0">
         <div className="flex flex-col sm:flex-row">
-          {/* Profile Image */}
           <Link
             href={`/profile/${profile.userId}`}
-            className="relative w-full sm:w-40 md:w-48 aspect-[4/3] sm:aspect-auto shrink-0 overflow-hidden bg-muted block"
+            className="bg-muted relative block aspect-[4/3] w-full shrink-0 overflow-hidden sm:aspect-auto sm:w-40 md:w-48"
           >
             {profile.profileImage ? (
               <Image
@@ -58,7 +57,7 @@ function InterestCard({
                 className="object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-brand-light text-brand text-3xl font-semibold min-h-[180px]">
+              <div className="bg-brand-light text-brand flex h-full min-h-[180px] w-full items-center justify-center text-3xl font-semibold">
                 {getInitials(profile.firstName, profile.lastName)}
               </div>
             )}
@@ -69,17 +68,16 @@ function InterestCard({
             )}
           </Link>
 
-          {/* Profile Details */}
-          <div className="flex-1 p-4 sm:p-5 md:p-6 flex flex-col">
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <div className="flex-1 min-w-0">
+          <div className="flex flex-1 flex-col p-4 sm:p-5 md:p-6">
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
                 <Link
                   href={`/profile/${profile.userId}`}
-                  className="text-lg font-semibold hover:text-primary transition-colors"
+                  className="hover:text-primary text-lg font-semibold transition-colors"
                 >
                   {profile.firstName} {profile.lastName}
                 </Link>
-                <p className="text-sm text-muted-foreground mt-0.5">
+                <p className="text-muted-foreground mt-0.5 text-sm">
                   {profile.age} yrs{profile.height && `, ${heightToFeetInches(profile.height)}`}
                 </p>
               </div>
@@ -90,31 +88,35 @@ function InterestCard({
                       interest.status === "accepted"
                         ? "default"
                         : interest.status === "rejected"
-                        ? "destructive"
-                        : "secondary"
+                          ? "destructive"
+                          : "secondary"
                     }
                   >
                     {interest.status === "accepted"
                       ? "Accepted"
                       : interest.status === "rejected"
-                      ? "Declined"
-                      : "Pending"}
+                        ? "Declined"
+                        : "Pending"}
                   </Badge>
                 )}
               </div>
             </div>
 
-            <div className="space-y-1 text-sm text-muted-foreground mb-4">
+            <div className="text-muted-foreground mb-4 space-y-1 text-sm">
               {(profile.residingCity || profile.residingState) && (
                 <p>{[profile.residingCity, profile.residingState].filter(Boolean).join(", ")}</p>
               )}
-              {profile.religion && <p>{profile.religion}{profile.caste && `, ${profile.caste}`}</p>}
+              {profile.religion && (
+                <p>
+                  {profile.religion}
+                  {profile.caste && `, ${profile.caste}`}
+                </p>
+              )}
               {profile.highestEducation && <p>{profile.highestEducation}</p>}
               {profile.occupation && <p>{profile.occupation}</p>}
             </div>
 
-            {/* Action Buttons - pushed to bottom */}
-            <div className="mt-auto flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <div className="mt-auto flex flex-wrap items-center gap-1.5 sm:gap-2">
               {type === "received" && interest.status === "pending" && (
                 <>
                   <Button
@@ -126,7 +128,7 @@ function InterestCard({
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <>
-                        <Check className="h-4 w-4 mr-1.5" />
+                        <Check className="mr-1.5 h-4 w-4" />
                         Accept
                       </>
                     )}
@@ -137,7 +139,7 @@ function InterestCard({
                     onClick={() => handleRespond("rejected")}
                     disabled={isResponding}
                   >
-                    <X className="h-4 w-4 mr-1.5" />
+                    <X className="mr-1.5 h-4 w-4" />
                     Decline
                   </Button>
                 </>
@@ -146,7 +148,7 @@ function InterestCard({
               {type === "accepted" && (
                 <Button size="sm" asChild>
                   <Link href={`/messages?userId=${profile.userId}`}>
-                    <MessageCircle className="h-4 w-4 mr-1.5" />
+                    <MessageCircle className="mr-1.5 h-4 w-4" />
                     Message
                   </Link>
                 </Button>
@@ -156,9 +158,8 @@ function InterestCard({
                 <Link href={`/profile/${profile.userId}`}>View Profile</Link>
               </Button>
 
-              {/* Timestamp */}
               {interest.createdAt && (
-                <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
+                <span className="text-muted-foreground ml-auto flex items-center gap-1 text-xs">
                   <Clock className="h-3 w-3" />
                   {new Date(interest.createdAt).toLocaleDateString()}
                 </span>
@@ -175,7 +176,8 @@ function EmptyState({ type }: { type: "received" | "sent" | "accepted" }) {
   const messages = {
     received: {
       title: "No interests received yet",
-      description: "Complete your profile and stay active to receive interests from potential matches.",
+      description:
+        "Complete your profile and stay active to receive interests from potential matches.",
     },
     sent: {
       title: "No interests sent yet",
@@ -188,10 +190,10 @@ function EmptyState({ type }: { type: "received" | "sent" | "accepted" }) {
   };
 
   return (
-    <div className="text-center py-12">
-      <Heart className="h-12 w-12 mx-auto text-muted-foreground/50" />
+    <div className="py-12 text-center">
+      <Heart className="text-muted-foreground/50 mx-auto h-12 w-12" />
       <h3 className="mt-4 text-lg font-semibold">{messages[type].title}</h3>
-      <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
+      <p className="text-muted-foreground mx-auto mt-2 max-w-md text-sm">
         {messages[type].description}
       </p>
       {type !== "accepted" && (
@@ -242,9 +244,7 @@ export default function InterestsPage() {
 
   const handleRespond = async (interestId: number, status: "accepted" | "rejected") => {
     // Optimistic update - immediately update the UI
-    setReceived((prev) =>
-      prev.map((i) => (i.id === interestId ? { ...i, status } : i))
-    );
+    setReceived((prev) => prev.map((i) => (i.id === interestId ? { ...i, status } : i)));
     if (status === "accepted") {
       const acceptedItem = received.find((i) => i.id === interestId);
       if (acceptedItem) {
@@ -255,7 +255,9 @@ export default function InterestsPage() {
     try {
       const result = await respondToInterest(interestId, status);
       if (result.success) {
-        toast.success(result.message || (status === "accepted" ? "Interest accepted" : "Interest declined"));
+        toast.success(
+          result.message || (status === "accepted" ? "Interest accepted" : "Interest declined")
+        );
       } else {
         // Revert optimistic update on failure
         toast.error(result.error || "Failed to respond");
@@ -271,27 +273,27 @@ export default function InterestsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-brand" />
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="text-brand h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
+    <div className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Interests</h1>
-        <p className="text-sm sm:text-base text-muted-foreground mt-1">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Interests</h1>
+        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
           Manage your sent and received interests
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full max-w-md grid-cols-3 mb-4 sm:mb-6">
+        <TabsList className="mb-4 grid w-full max-w-md grid-cols-3 sm:mb-6">
           <TabsTrigger value="received" className="relative">
             Received
             {pendingCount > 0 && (
-              <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+              <Badge className="ml-2 flex h-5 w-5 items-center justify-center p-0 text-xs">
                 {pendingCount}
               </Badge>
             )}
@@ -304,14 +306,13 @@ export default function InterestsPage() {
           {received.length === 0 ? (
             <EmptyState type="received" />
           ) : (
-            <div className="space-y-4 max-w-4xl">
+            <div className="max-w-4xl space-y-4">
               {received.map((interest, index) => (
-                <div key={interest.id} className={`animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}>
-                  <InterestCard
-                    interest={interest}
-                    type="received"
-                    onRespond={handleRespond}
-                  />
+                <div
+                  key={interest.id}
+                  className={`animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
+                >
+                  <InterestCard interest={interest} type="received" onRespond={handleRespond} />
                 </div>
               ))}
             </div>
@@ -322,9 +323,12 @@ export default function InterestsPage() {
           {sent.length === 0 ? (
             <EmptyState type="sent" />
           ) : (
-            <div className="space-y-4 max-w-4xl">
+            <div className="max-w-4xl space-y-4">
               {sent.map((interest, index) => (
-                <div key={interest.id} className={`animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}>
+                <div
+                  key={interest.id}
+                  className={`animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
+                >
                   <InterestCard interest={interest} type="sent" />
                 </div>
               ))}
@@ -336,13 +340,13 @@ export default function InterestsPage() {
           {accepted.length === 0 ? (
             <EmptyState type="accepted" />
           ) : (
-            <div className="space-y-4 max-w-4xl">
+            <div className="max-w-4xl space-y-4">
               {accepted.map((interest, index) => (
-                <div key={interest.id} className={`animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}>
-                  <InterestCard
-                    interest={interest}
-                    type="accepted"
-                  />
+                <div
+                  key={interest.id}
+                  className={`animate-fade-in-up stagger-${Math.min(index + 1, 6)}`}
+                >
+                  <InterestCard interest={interest} type="accepted" />
                 </div>
               ))}
             </div>

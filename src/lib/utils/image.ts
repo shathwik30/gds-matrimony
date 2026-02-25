@@ -1,17 +1,3 @@
-/**
- * Client-side image utilities.
- * Do NOT import from server-side code — these rely on browser Canvas APIs.
- */
-
-/**
- * Ensures a File is in WebP format.
- * - If the file is already `image/webp` it is returned unchanged (no re-encode).
- * - Otherwise the image is drawn onto a canvas and exported as WebP at the
- *   given quality (0–1, default 0.92).
- *
- * The returned file uses a standardised name:
- *   `<original-name-without-extension>.webp`
- */
 export async function convertToWebP(file: File, quality = 0.92): Promise<File> {
   if (file.type === "image/webp") return file;
 

@@ -20,7 +20,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const email = (credentials.email as string).trim().toLowerCase();
         const password = credentials.password as string;
 
-        // Find user by email
         const user = await db.query.users.findFirst({
           where: eq(users.email, email),
           with: {
@@ -44,19 +43,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("Your account has been deactivated");
         }
 
-        // Check if account is locked due to brute force
         if (user.lockedUntil && new Date(user.lockedUntil) > new Date()) {
-          const minutesLeft = Math.ceil((new Date(user.lockedUntil).getTime() - Date.now()) / 60000);
+          const minutesLeft = Math.ceil(
+            (new Date(user.lockedUntil).getTime() - Date.now()) / 60000
+          );
           throw new Error(`Account locked. Try again in ${minutesLeft} minute(s).`);
         }
 
-        // Verify password
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
           const MAX_ATTEMPTS = 5;
           const LOCKOUT_MINUTES = 15;
 
-          // Atomically increment failed attempts to prevent race conditions
+          // Atomic increment to prevent race conditions
           const [updatedUser] = await db
             .update(users)
             .set({
@@ -68,20 +67,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const attempts = updatedUser?.failedLoginAttempts || 1;
 
           if (attempts >= MAX_ATTEMPTS) {
-            // Lock account
             await db
               .update(users)
               .set({
                 lockedUntil: new Date(Date.now() + LOCKOUT_MINUTES * 60 * 1000),
               })
               .where(eq(users.id, user.id));
-            throw new Error(`Too many failed attempts. Account locked for ${LOCKOUT_MINUTES} minutes.`);
+            throw new Error(
+              `Too many failed attempts. Account locked for ${LOCKOUT_MINUTES} minutes.`
+            );
           }
 
           throw new Error("Invalid email or password");
         }
 
-        // Reset failed attempts on successful login
         await db
           .update(users)
           .set({ lastActive: new Date(), failedLoginAttempts: 0, lockedUntil: null })
@@ -111,7 +110,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.lastActiveCheck = Date.now();
       }
 
-      // Periodically re-validate user status and subscription (every 5 minutes)
       const lastCheck = (token.lastActiveCheck as number) || 0;
       if (token.id && Date.now() - lastCheck > 5 * 60 * 1000) {
         try {
@@ -119,7 +117,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             where: eq(users.id, parseInt(token.id as string, 10)),
             columns: { isActive: true },
             with: {
-              profile: { columns: { profileCompletion: true, firstName: true, lastName: true, profileImage: true } },
+              profile: {
+                columns: {
+                  profileCompletion: true,
+                  firstName: true,
+                  lastName: true,
+                  profileImage: true,
+                },
+              },
               subscriptions: {
                 where: eq(subscriptions.isActive, true),
                 limit: 1,
@@ -130,7 +135,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           if (!dbUser || !dbUser.isActive) {
             return { ...token, id: undefined };
           }
-          // Refresh subscription plan from DB
           token.subscriptionPlan = dbUser.subscriptions?.[0]?.plan || "free";
           token.profileCompleted = (dbUser.profile?.profileCompletion || 0) >= 70;
           if (dbUser.profile?.firstName) {
@@ -145,15 +149,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
       }
 
-      // Handle session updates - only allow safe fields to be updated
       if (trigger === "update" && session) {
         if (session.name !== undefined) token.name = session.name;
         if (session.image !== undefined) {
-          // token.picture is what NextAuth maps to session.user.image
           token.picture = session.image;
           token.image = session.image;
         }
-        if (typeof session.profileCompleted === "boolean") token.profileCompleted = session.profileCompleted;
+        if (typeof session.profileCompleted === "boolean")
+          token.profileCompleted = session.profileCompleted;
         // subscriptionPlan cannot be updated from client - must go through server-side payment flow
       }
 
@@ -176,12 +179,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   session: {
     strategy: "jwt",
-    maxAge: 14 * 24 * 60 * 60, // 14 days
+    maxAge: 14 * 24 * 60 * 60,
   },
   trustHost: true,
 });
 
-// Extend next-auth types
 declare module "next-auth" {
   interface User {
     profileCompleted?: boolean;

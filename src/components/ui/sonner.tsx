@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   CircleCheckIcon,
@@ -6,12 +6,12 @@ import {
   Loader2Icon,
   OctagonXIcon,
   TriangleAlertIcon,
-} from "lucide-react"
-import { useTheme } from "next-themes"
-import { Toaster as Sonner, type ToasterProps } from "sonner"
+} from "lucide-react";
+import { useTheme } from "next-themes";
+import { Toaster as Sonner, type ToasterProps } from "sonner";
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+  const { theme = "system" } = useTheme();
 
   return (
     <Sonner
@@ -22,8 +22,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           toast:
             "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-xl group-[.toaster]:rounded-xl group-[.toaster]:px-4 group-[.toaster]:py-3",
           title: "group-[.toast]:font-semibold group-[.toast]:text-sm",
-          description:
-            "group-[.toast]:text-muted-foreground group-[.toast]:text-xs",
+          description: "group-[.toast]:text-muted-foreground group-[.toast]:text-xs",
           actionButton:
             "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground group-[.toast]:rounded-lg group-[.toast]:text-xs group-[.toast]:font-medium",
           cancelButton:
@@ -44,7 +43,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         info: <InfoIcon className="size-5 text-blue-600 dark:text-blue-400" />,
         warning: <TriangleAlertIcon className="size-5 text-amber-600 dark:text-amber-400" />,
         error: <OctagonXIcon className="size-5 text-red-600 dark:text-red-400" />,
-        loading: <Loader2Icon className="size-5 animate-spin text-primary" />,
+        loading: <Loader2Icon className="text-primary size-5 animate-spin" />,
       }}
       style={
         {
@@ -56,7 +55,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Toaster }
+export { Toaster };

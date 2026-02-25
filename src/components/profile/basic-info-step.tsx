@@ -22,11 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { basicInfoSchema, type BasicInfoInput } from "@/lib/validations/profile";
 import { Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -115,12 +111,8 @@ export function BasicInfoStep({ data, onUpdate, registerValidate }: ProfileStepP
                 <FormLabel>Mobile Number *</FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="+91 98765 43210"
-                      className="pl-9"
-                      {...field}
-                    />
+                    <Phone className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                    <Input placeholder="+91 98765 43210" className="pl-9" {...field} />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -133,15 +125,14 @@ export function BasicInfoStep({ data, onUpdate, registerValidate }: ProfileStepP
             name="secondaryPhoneNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Secondary Mobile <span className="text-muted-foreground font-normal">(optional)</span></FormLabel>
+                <FormLabel>
+                  Secondary Mobile{" "}
+                  <span className="text-muted-foreground font-normal">(optional)</span>
+                </FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="+91 98765 43210"
-                      className="pl-9"
-                      {...field}
-                    />
+                    <Phone className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                    <Input placeholder="+91 98765 43210" className="pl-9" {...field} />
                   </div>
                 </FormControl>
                 <FormMessage />

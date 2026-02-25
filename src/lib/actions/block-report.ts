@@ -5,7 +5,6 @@ import { eq, and } from "drizzle-orm";
 import { requireAuth } from "@/lib/actions/helpers";
 import type { ActionResult } from "@/types";
 
-// Block a user
 export async function blockUser(blockedUserId: number, reason?: string): Promise<ActionResult> {
   try {
     const authResult = await requireAuth();
@@ -16,12 +15,8 @@ export async function blockUser(blockedUserId: number, reason?: string): Promise
       return { success: false, error: "Cannot block yourself" };
     }
 
-    // Check if already blocked
     const existing = await db.query.blocks.findFirst({
-      where: and(
-        eq(blocks.blockerId, blockerId),
-        eq(blocks.blockedUserId, blockedUserId)
-      ),
+      where: and(eq(blocks.blockerId, blockerId), eq(blocks.blockedUserId, blockedUserId)),
     });
 
     if (existing) {
@@ -41,7 +36,6 @@ export async function blockUser(blockedUserId: number, reason?: string): Promise
   }
 }
 
-// Unblock a user
 export async function unblockUser(blockedUserId: number): Promise<ActionResult> {
   try {
     const authResult = await requireAuth();
@@ -50,12 +44,7 @@ export async function unblockUser(blockedUserId: number): Promise<ActionResult> 
 
     await db
       .delete(blocks)
-      .where(
-        and(
-          eq(blocks.blockerId, blockerId),
-          eq(blocks.blockedUserId, blockedUserId)
-        )
-      );
+      .where(and(eq(blocks.blockerId, blockerId), eq(blocks.blockedUserId, blockedUserId)));
 
     return { success: true, message: "User unblocked" };
   } catch (error) {
@@ -64,7 +53,6 @@ export async function unblockUser(blockedUserId: number): Promise<ActionResult> 
   }
 }
 
-// Report a user
 export async function reportUser(
   reportedUserId: number,
   reason: string,
@@ -87,7 +75,6 @@ export async function reportUser(
       return { success: false, error: "Description is too long (max 2000 characters)" };
     }
 
-    // Check for existing pending report from this user
     const [existingReport] = await db
       .select({ id: reports.id })
       .from(reports)
@@ -101,7 +88,10 @@ export async function reportUser(
       .limit(1);
 
     if (existingReport) {
-      return { success: false, error: "You have already reported this user. Our team is reviewing it." };
+      return {
+        success: false,
+        error: "You have already reported this user. Our team is reviewing it.",
+      };
     }
 
     await db.insert(reports).values({
@@ -118,7 +108,6 @@ export async function reportUser(
   }
 }
 
-// Check if a user is blocked by current user
 export async function isUserBlocked(otherUserId: number): Promise<ActionResult<boolean>> {
   try {
     const authResult = await requireAuth();
@@ -126,10 +115,7 @@ export async function isUserBlocked(otherUserId: number): Promise<ActionResult<b
     const { userId } = authResult;
 
     const blockExists = await db.query.blocks.findFirst({
-      where: and(
-        eq(blocks.blockerId, userId),
-        eq(blocks.blockedUserId, otherUserId)
-      ),
+      where: and(eq(blocks.blockerId, userId), eq(blocks.blockedUserId, otherUserId)),
     });
 
     return { success: true, data: !!blockExists };

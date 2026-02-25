@@ -20,7 +20,6 @@ export function UsersSearch() {
   const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
   const [debouncedSearch] = useDebounce(searchValue, 300);
 
-  // Navigate when debounced value settles
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
     const currentSearch = params.get("search") || "";
@@ -58,9 +57,9 @@ export function UsersSearch() {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4">
+    <div className="flex flex-col gap-4 sm:flex-row">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <Input
           placeholder="Search by name or email..."
           className="pl-10"
@@ -69,10 +68,7 @@ export function UsersSearch() {
         />
       </div>
 
-      <Select
-        defaultValue={searchParams.get("filter") || "all"}
-        onValueChange={handleFilterChange}
-      >
+      <Select defaultValue={searchParams.get("filter") || "all"} onValueChange={handleFilterChange}>
         <SelectTrigger className="w-full sm:w-[180px]">
           <SelectValue placeholder="Filter by status" />
         </SelectTrigger>
@@ -85,11 +81,7 @@ export function UsersSearch() {
         </SelectContent>
       </Select>
 
-      {isPending && (
-        <div className="flex items-center text-sm text-slate-500">
-          Loading...
-        </div>
-      )}
+      {isPending && <div className="flex items-center text-sm text-slate-500">Loading...</div>}
     </div>
   );
 }

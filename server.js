@@ -27,7 +27,7 @@ const socketUserMap = new Map();
 // Rate limiting for socket events
 const eventRateLimits = new Map(); // key: `${userId}:${event}`, value: { count, resetAt }
 const RATE_LIMITS = {
-  typing: { max: 10, windowMs: 10000 },     // 10 typing events per 10s
+  typing: { max: 10, windowMs: 10000 }, // 10 typing events per 10s
   new_message: { max: 20, windowMs: 60000 }, // 20 messages per minute
   messages_read: { max: 20, windowMs: 60000 },
   conversation_updated: { max: 10, windowMs: 60000 },
@@ -52,12 +52,15 @@ function checkRateLimit(userId, event) {
 }
 
 // Clean up stale rate limit entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of eventRateLimits) {
-    if (now > entry.resetAt) eventRateLimits.delete(key);
-  }
-}, 5 * 60 * 1000);
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [key, entry] of eventRateLimits) {
+      if (now > entry.resetAt) eventRateLimits.delete(key);
+    }
+  },
+  5 * 60 * 1000
+);
 
 /**
  * Verify NextAuth JWT token and extract user ID.
@@ -90,7 +93,8 @@ app.prepare().then(() => {
   });
 
   // Determine allowed origins for Socket.IO CORS
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || `http://localhost:${port}`;
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || `http://localhost:${port}`;
   const allowedOrigins = dev
     ? [appUrl, `http://localhost:${port}`, "http://localhost:3000"]
     : [appUrl];
@@ -131,10 +135,9 @@ app.prepare().then(() => {
     // Verify user is still active in the database
     if (socketDb) {
       try {
-        const result = await socketDb.execute(
-          `SELECT is_active FROM users WHERE id = $1 LIMIT 1`,
-          [parseInt(userId, 10)]
-        );
+        const result = await socketDb.execute(`SELECT is_active FROM users WHERE id = $1 LIMIT 1`, [
+          parseInt(userId, 10),
+        ]);
         const user = result.rows?.[0];
         if (!user || !user.is_active) {
           return next(new Error("Account is deactivated"));

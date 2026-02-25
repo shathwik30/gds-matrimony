@@ -8,13 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getSiteSettings, updateSiteSettings } from "@/lib/actions/admin";
 
 const DEFAULT_SETTINGS: Record<string, string> = {
@@ -93,23 +87,21 @@ export default function AdminSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[40vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-brand" />
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <Loader2 className="text-brand h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Admin Settings</h1>
         <p className="text-slate-500">Configure platform settings and preferences</p>
       </div>
 
-      {/* Settings Tabs */}
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="bg-white border">
+        <TabsList className="border bg-white">
           <TabsTrigger value="general" className="gap-2">
             <Settings className="h-4 w-4" />
             General
@@ -128,14 +120,11 @@ export default function AdminSettingsPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* General Settings */}
         <TabsContent value="general">
           <Card>
             <CardHeader>
               <CardTitle>General Settings</CardTitle>
-              <CardDescription>
-                Configure general platform settings
-              </CardDescription>
+              <CardDescription>Configure general platform settings</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4">
@@ -173,7 +162,7 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+              <div className="flex items-center justify-between rounded-lg bg-slate-50 p-4">
                 <div>
                   <p className="font-medium text-slate-900">Maintenance Mode</p>
                   <p className="text-sm text-slate-500">
@@ -186,7 +175,7 @@ export default function AdminSettingsPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+              <div className="flex items-center justify-between rounded-lg bg-slate-50 p-4">
                 <div>
                   <p className="font-medium text-slate-900">New Registrations</p>
                   <p className="text-sm text-slate-500">
@@ -202,14 +191,11 @@ export default function AdminSettingsPage() {
           </Card>
         </TabsContent>
 
-        {/* Email Settings */}
         <TabsContent value="email">
           <Card>
             <CardHeader>
               <CardTitle>Email Settings</CardTitle>
-              <CardDescription>
-                Configure email templates and settings
-              </CardDescription>
+              <CardDescription>Configure email templates and settings</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4">
@@ -234,28 +220,28 @@ export default function AdminSettingsPage() {
               <div className="space-y-4">
                 <h4 className="font-medium text-slate-900">Email Notifications</h4>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                     <span className="text-sm text-slate-600">Welcome Email</span>
                     <Switch
                       checked={settings.welcomeEmail === "true"}
                       onCheckedChange={() => toggleSwitch("welcomeEmail")}
                     />
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                     <span className="text-sm text-slate-600">Interest Notifications</span>
                     <Switch
                       checked={settings.interestNotifications === "true"}
                       onCheckedChange={() => toggleSwitch("interestNotifications")}
                     />
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                     <span className="text-sm text-slate-600">Message Notifications</span>
                     <Switch
                       checked={settings.messageNotifications === "true"}
                       onCheckedChange={() => toggleSwitch("messageNotifications")}
                     />
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                     <span className="text-sm text-slate-600">Subscription Reminders</span>
                     <Switch
                       checked={settings.subscriptionReminders === "true"}
@@ -268,30 +254,29 @@ export default function AdminSettingsPage() {
           </Card>
         </TabsContent>
 
-        {/* Notification Settings */}
         <TabsContent value="notifications">
           <Card>
             <CardHeader>
               <CardTitle>Notification Settings</CardTitle>
-              <CardDescription>
-                Configure admin notification preferences
-              </CardDescription>
+              <CardDescription>Configure admin notification preferences</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <h4 className="font-medium text-slate-900">Admin Alerts</h4>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                     <div>
                       <p className="text-sm font-medium text-slate-900">New User Registration</p>
-                      <p className="text-xs text-slate-500">Get notified when a new user registers</p>
+                      <p className="text-xs text-slate-500">
+                        Get notified when a new user registers
+                      </p>
                     </div>
                     <Switch
                       checked={settings.adminNewRegistration === "true"}
                       onCheckedChange={() => toggleSwitch("adminNewRegistration")}
                     />
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                     <div>
                       <p className="text-sm font-medium text-slate-900">New Report</p>
                       <p className="text-xs text-slate-500">Get notified when a user is reported</p>
@@ -301,20 +286,24 @@ export default function AdminSettingsPage() {
                       onCheckedChange={() => toggleSwitch("adminNewReport")}
                     />
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                     <div>
                       <p className="text-sm font-medium text-slate-900">New Payment</p>
-                      <p className="text-xs text-slate-500">Get notified on new subscription payments</p>
+                      <p className="text-xs text-slate-500">
+                        Get notified on new subscription payments
+                      </p>
                     </div>
                     <Switch
                       checked={settings.adminNewPayment === "true"}
                       onCheckedChange={() => toggleSwitch("adminNewPayment")}
                     />
                   </div>
-                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                     <div>
                       <p className="text-sm font-medium text-slate-900">Verification Request</p>
-                      <p className="text-xs text-slate-500">Get notified on new verification requests</p>
+                      <p className="text-xs text-slate-500">
+                        Get notified on new verification requests
+                      </p>
                     </div>
                     <Switch
                       checked={settings.adminVerificationRequest === "true"}
@@ -339,23 +328,18 @@ export default function AdminSettingsPage() {
           </Card>
         </TabsContent>
 
-        {/* Security Settings */}
         <TabsContent value="security">
           <Card>
             <CardHeader>
               <CardTitle>Security Settings</CardTitle>
-              <CardDescription>
-                Configure security and authentication settings
-              </CardDescription>
+              <CardDescription>Configure security and authentication settings</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                <div className="flex items-center justify-between rounded-lg bg-slate-50 p-4">
                   <div>
                     <p className="font-medium text-slate-900">Two-Factor Authentication</p>
-                    <p className="text-sm text-slate-500">
-                      Require 2FA for admin accounts
-                    </p>
+                    <p className="text-sm text-slate-500">Require 2FA for admin accounts</p>
                   </div>
                   <Switch
                     checked={settings.twoFactorAuth === "true"}
@@ -363,7 +347,7 @@ export default function AdminSettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                <div className="flex items-center justify-between rounded-lg bg-slate-50 p-4">
                   <div>
                     <p className="font-medium text-slate-900">Email Verification Required</p>
                     <p className="text-sm text-slate-500">
@@ -376,7 +360,7 @@ export default function AdminSettingsPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                <div className="flex items-center justify-between rounded-lg bg-slate-50 p-4">
                   <div>
                     <p className="font-medium text-slate-900">Profile Moderation</p>
                     <p className="text-sm text-slate-500">
@@ -420,7 +404,6 @@ export default function AdminSettingsPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Save Button */}
       <div className="flex justify-end">
         <Button onClick={handleSave} disabled={isSaving}>
           {isSaving ? (

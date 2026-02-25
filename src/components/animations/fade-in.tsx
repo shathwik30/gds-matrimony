@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 interface FadeInProps {
   children: ReactNode;
   className?: string;
-  delay?: number; // delay in seconds
-  duration?: number; // duration in seconds
+  delay?: number;
+  duration?: number;
   direction?: "up" | "down" | "left" | "right" | "none";
   triggerOnce?: boolean;
 }
@@ -21,15 +21,6 @@ const directionOffset = {
   none: { y: 0, x: 0 },
 };
 
-/**
- * Component that fades in its children with optional directional slide.
- * Uses framer-motion with IntersectionObserver (viewport trigger).
- *
- * @example
- * <FadeIn direction="up" delay={0.1}>
- *   <Card>Content</Card>
- * </FadeIn>
- */
 export function FadeIn({
   children,
   className,
@@ -53,14 +44,6 @@ export function FadeIn({
   );
 }
 
-/**
- * Simpler fade-in that triggers on mount (not scroll position).
- *
- * @example
- * <FadeInSimple delay={0.2}>
- *   <div>Content</div>
- * </FadeInSimple>
- */
 export function FadeInSimple({
   children,
   className,

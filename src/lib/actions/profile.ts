@@ -1,6 +1,15 @@
 "use server";
 
-import { db, profiles, profileImages, partnerPreferences, interests, blocks, users, subscriptions } from "@/lib/db";
+import {
+  db,
+  profiles,
+  profileImages,
+  partnerPreferences,
+  interests,
+  blocks,
+  users,
+  subscriptions,
+} from "@/lib/db";
 import { eq, and, ne, or, inArray, sql, gte, notInArray } from "drizzle-orm";
 import { UTApi } from "uploadthing/server";
 
@@ -21,7 +30,6 @@ import { requireAuth } from "@/lib/actions/helpers";
 import type { ProfileInput, PartnerPreferencesInput } from "@/lib/validations/profile";
 import type { ActionResult, MatchProfile, SearchFilters } from "@/types";
 
-// Get current user's profile
 export async function getMyProfile(): Promise<ActionResult<typeof profiles.$inferSelect>> {
   try {
     const authResult = await requireAuth();
@@ -44,7 +52,6 @@ export async function getMyProfile(): Promise<ActionResult<typeof profiles.$infe
       return { success: false, error: "Profile not found" };
     }
 
-    // Merge phone fields from users table into the profile data
     const profileWithPhone = {
       ...profile,
       phoneNumber: profile.user?.phoneNumber ?? null,
@@ -58,14 +65,12 @@ export async function getMyProfile(): Promise<ActionResult<typeof profiles.$infe
   }
 }
 
-// Update profile
 export async function updateProfile(data: Partial<ProfileInput>): Promise<ActionResult> {
   try {
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
-    // Get current profile
     const currentProfile = await db.query.profiles.findFirst({
       where: eq(profiles.userId, userId),
     });
@@ -76,29 +81,64 @@ export async function updateProfile(data: Partial<ProfileInput>): Promise<Action
 
     // Allowlist of permitted profile fields (excludes phone — stored in users table)
     const ALLOWED_PROFILE_FIELDS = new Set([
-      "firstName", "lastName", "gender", "dateOfBirth", "height", "weight",
-      "bodyType", "complexion", "physicalStatus", "religion", "caste", "subCaste",
-      "motherTongue", "gothra", "countryLivingIn", "residingState", "residingCity",
-      "citizenship", "highestEducation", "educationDetail", "employedIn",
-      "occupation", "jobTitle", "annualIncome", "maritalStatus", "diet",
-      "smoking", "drinking", "hobbies", "familyStatus", "familyType",
-      "familyValue", "fatherOccupation", "motherOccupation", "brothers",
-      "brothersMarried", "sisters", "sistersMarried", "aboutMe", "profileImage",
-      "hideProfile", "showOnlineStatus", "showLastActive",
+      "firstName",
+      "lastName",
+      "gender",
+      "dateOfBirth",
+      "height",
+      "weight",
+      "bodyType",
+      "complexion",
+      "physicalStatus",
+      "religion",
+      "caste",
+      "subCaste",
+      "motherTongue",
+      "gothra",
+      "countryLivingIn",
+      "residingState",
+      "residingCity",
+      "citizenship",
+      "highestEducation",
+      "educationDetail",
+      "employedIn",
+      "occupation",
+      "jobTitle",
+      "annualIncome",
+      "maritalStatus",
+      "diet",
+      "smoking",
+      "drinking",
+      "hobbies",
+      "familyStatus",
+      "familyType",
+      "familyValue",
+      "fatherOccupation",
+      "motherOccupation",
+      "brothers",
+      "brothersMarried",
+      "sisters",
+      "sistersMarried",
+      "aboutMe",
+      "profileImage",
+      "hideProfile",
+      "showOnlineStatus",
+      "showLastActive",
     ]);
 
-    // Phone fields go to the users table
-    const { dateOfBirth, phoneNumber, secondaryPhoneNumber, ...restData } = data as Record<string, unknown> & { dateOfBirth?: Date; phoneNumber?: string; secondaryPhoneNumber?: string };
+    const { dateOfBirth, phoneNumber, secondaryPhoneNumber, ...restData } = data as Record<
+      string,
+      unknown
+    > & { dateOfBirth?: Date; phoneNumber?: string; secondaryPhoneNumber?: string };
 
-    // Save phone numbers to users table if provided
     if (phoneNumber !== undefined || secondaryPhoneNumber !== undefined) {
       const userUpdate: Record<string, unknown> = { updatedAt: new Date() };
       if (phoneNumber !== undefined) userUpdate.phoneNumber = phoneNumber || null;
-      if (secondaryPhoneNumber !== undefined) userUpdate.secondaryPhoneNumber = secondaryPhoneNumber || null;
+      if (secondaryPhoneNumber !== undefined)
+        userUpdate.secondaryPhoneNumber = secondaryPhoneNumber || null;
       await db.update(users).set(userUpdate).where(eq(users.id, userId));
     }
 
-    // Filter input to only allowed profile fields
     const sanitizedData: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(restData)) {
       if (ALLOWED_PROFILE_FIELDS.has(key)) {
@@ -110,20 +150,15 @@ export async function updateProfile(data: Partial<ProfileInput>): Promise<Action
       updatedAt: new Date(),
     };
 
-    // Convert Date to string for dateOfBirth if provided
     if (dateOfBirth) {
       updateData.dateOfBirth = (dateOfBirth as Date).toISOString().split("T")[0];
     }
 
-    // Calculate profile completion (include phone in the merged check)
     const mergedProfile = { ...currentProfile, ...updateData, phoneNumber };
     const profileCompletion = calculateProfileCompletion(mergedProfile as Record<string, unknown>);
     updateData.profileCompletion = profileCompletion;
 
-    await db
-      .update(profiles)
-      .set(updateData)
-      .where(eq(profiles.userId, userId));
+    await db.update(profiles).set(updateData).where(eq(profiles.userId, userId));
 
     return { success: true, message: "Profile updated successfully" };
   } catch (error) {
@@ -132,14 +167,12 @@ export async function updateProfile(data: Partial<ProfileInput>): Promise<Action
   }
 }
 
-// Update profile image
 export async function updateProfileImage(imageUrl: string): Promise<ActionResult> {
   try {
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
-    // Fetch old image URL before overwriting
     const current = await db.query.profiles.findFirst({
       where: eq(profiles.userId, userId),
       columns: { profileImage: true },
@@ -150,7 +183,6 @@ export async function updateProfileImage(imageUrl: string): Promise<ActionResult
       .set({ profileImage: imageUrl, updatedAt: new Date() })
       .where(eq(profiles.userId, userId));
 
-    // Delete old image from UploadThing (non-blocking)
     if (current?.profileImage) {
       const key = extractFileKey(current.profileImage);
       if (key) utapi.deleteFiles([key]).catch(() => {});
@@ -163,7 +195,6 @@ export async function updateProfileImage(imageUrl: string): Promise<ActionResult
   }
 }
 
-// Add gallery image
 export async function addGalleryImage(imageUrl: string): Promise<ActionResult> {
   try {
     const authResult = await requireAuth();
@@ -188,11 +219,14 @@ export async function addGalleryImage(imageUrl: string): Promise<ActionResult> {
         return { limitReached: true as const };
       }
 
-      const [inserted] = await tx.insert(profileImages).values({
-        profileId: profile.id,
-        imageUrl,
-        sortOrder: existingImages.length,
-      }).returning({ id: profileImages.id });
+      const [inserted] = await tx
+        .insert(profileImages)
+        .values({
+          profileId: profile.id,
+          imageUrl,
+          sortOrder: existingImages.length,
+        })
+        .returning({ id: profileImages.id });
 
       return { limitReached: false as const, id: inserted.id };
     });
@@ -208,7 +242,6 @@ export async function addGalleryImage(imageUrl: string): Promise<ActionResult> {
   }
 }
 
-// Delete gallery image
 export async function deleteGalleryImage(imageId: number): Promise<ActionResult> {
   try {
     const authResult = await requireAuth();
@@ -223,25 +256,15 @@ export async function deleteGalleryImage(imageId: number): Promise<ActionResult>
       return { success: false, error: "Profile not found" };
     }
 
-    // Fetch the image URL before deleting so we can clean up UploadThing
     const image = await db.query.profileImages.findFirst({
-      where: and(
-        eq(profileImages.id, imageId),
-        eq(profileImages.profileId, profile.id)
-      ),
+      where: and(eq(profileImages.id, imageId), eq(profileImages.profileId, profile.id)),
       columns: { imageUrl: true },
     });
 
     await db
       .delete(profileImages)
-      .where(
-        and(
-          eq(profileImages.id, imageId),
-          eq(profileImages.profileId, profile.id)
-        )
-      );
+      .where(and(eq(profileImages.id, imageId), eq(profileImages.profileId, profile.id)));
 
-    // Delete from UploadThing (non-blocking)
     if (image?.imageUrl) {
       const key = extractFileKey(image.imageUrl);
       if (key) utapi.deleteFiles([key]).catch(() => {});
@@ -254,7 +277,6 @@ export async function deleteGalleryImage(imageId: number): Promise<ActionResult>
   }
 }
 
-// Reorder gallery images
 export async function reorderGalleryImages(
   orderedItems: { id: number; sortOrder: number }[]
 ): Promise<ActionResult> {
@@ -276,12 +298,7 @@ export async function reorderGalleryImages(
         db
           .update(profileImages)
           .set({ sortOrder })
-          .where(
-            and(
-              eq(profileImages.id, id),
-              eq(profileImages.profileId, profile.id)
-            )
-          )
+          .where(and(eq(profileImages.id, id), eq(profileImages.profileId, profile.id)))
       )
     );
 
@@ -292,8 +309,9 @@ export async function reorderGalleryImages(
   }
 }
 
-// Get partner preferences
-export async function getPartnerPreferences(): Promise<ActionResult<typeof partnerPreferences.$inferSelect>> {
+export async function getPartnerPreferences(): Promise<
+  ActionResult<typeof partnerPreferences.$inferSelect>
+> {
   try {
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
@@ -310,7 +328,6 @@ export async function getPartnerPreferences(): Promise<ActionResult<typeof partn
   }
 }
 
-// Update partner preferences
 export async function updatePartnerPreferences(
   data: PartnerPreferencesInput
 ): Promise<ActionResult> {
@@ -347,13 +364,14 @@ export async function updatePartnerPreferences(
   }
 }
 
-// Get notification preferences
-export async function getNotificationPrefs(): Promise<ActionResult<{
-  email: boolean;
-  interests: boolean;
-  messages: boolean;
-  matches: boolean;
-}>> {
+export async function getNotificationPrefs(): Promise<
+  ActionResult<{
+    email: boolean;
+    interests: boolean;
+    messages: boolean;
+    matches: boolean;
+  }>
+> {
   try {
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
@@ -375,7 +393,6 @@ export async function getNotificationPrefs(): Promise<ActionResult<{
   }
 }
 
-// Save notification preferences
 export async function saveNotificationPrefs(prefs: {
   email: boolean;
   interests: boolean;
@@ -399,7 +416,6 @@ export async function saveNotificationPrefs(prefs: {
   }
 }
 
-// Get matching profiles with SQL-level pagination and deterministic random ordering
 export async function getMatchingProfiles(
   filters?: SearchFilters,
   page: number = 1,
@@ -416,10 +432,8 @@ export async function getMatchingProfiles(
     const safePage = Math.max(1, page);
     const offset = (safePage - 1) * safeLimit;
 
-    // Use provided seed or generate one for consistent pagination across pages
     const orderSeed = seed || String(Date.now());
 
-    // Get current user's profile and partner preferences in parallel
     const [myProfile, myPreferences] = await Promise.all([
       db.query.profiles.findFirst({
         where: eq(profiles.userId, userId),
@@ -439,7 +453,6 @@ export async function getMatchingProfiles(
 
     const targetGender = myProfile.gender === "male" ? "female" : "male";
 
-    // Get blocked user IDs (both directions)
     const blockedRows = await db
       .select({ blockerId: blocks.blockerId, blockedUserId: blocks.blockedUserId })
       .from(blocks)
@@ -451,7 +464,6 @@ export async function getMatchingProfiles(
       else blockedUserIds.add(row.blockerId);
     }
 
-    // Build WHERE conditions
     const conditions: ReturnType<typeof eq>[] = [
       ne(profiles.userId, userId),
       eq(profiles.gender, targetGender),
@@ -467,14 +479,15 @@ export async function getMatchingProfiles(
       conditions.push(notInArray(profiles.userId, excludeUserIds.slice(0, 500)));
     }
 
-    // Apply user search filters
     if (filters?.ageMin) {
       const v = Math.max(18, Math.min(100, Math.floor(Number(filters.ageMin))));
       conditions.push(sql`${profiles.dateOfBirth} <= CURRENT_DATE - make_interval(years => ${v})`);
     }
     if (filters?.ageMax) {
       const v = Math.max(18, Math.min(100, Math.floor(Number(filters.ageMax)))) + 1;
-      conditions.push(sql`${profiles.dateOfBirth} >= CURRENT_DATE - make_interval(years => ${v}) + INTERVAL '1 day'`);
+      conditions.push(
+        sql`${profiles.dateOfBirth} >= CURRENT_DATE - make_interval(years => ${v}) + INTERVAL '1 day'`
+      );
     }
     if (filters?.heightMin) conditions.push(gte(profiles.height, filters.heightMin));
     if (filters?.heightMax) conditions.push(sql`${profiles.height} <= ${filters.heightMax}`);
@@ -482,26 +495,35 @@ export async function getMatchingProfiles(
     // Case-insensitive filter matching — DB has mixed casing (seed=TitleCase, form=lowercase)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ciIn = (col: any, values: string[]) =>
-      inArray(sql`lower(${col})`, values.map((v) => v.toLowerCase()));
+      inArray(
+        sql`lower(${col})`,
+        values.map((v) => v.toLowerCase())
+      );
 
     if (filters?.religion?.length) conditions.push(ciIn(profiles.religion, filters.religion));
     if (filters?.caste?.length) conditions.push(ciIn(profiles.caste, filters.caste));
-    if (filters?.motherTongue?.length) conditions.push(ciIn(profiles.motherTongue, filters.motherTongue));
-    if (filters?.education?.length) conditions.push(ciIn(profiles.highestEducation, filters.education));
+    if (filters?.motherTongue?.length)
+      conditions.push(ciIn(profiles.motherTongue, filters.motherTongue));
+    if (filters?.education?.length)
+      conditions.push(ciIn(profiles.highestEducation, filters.education));
     if (filters?.profession?.length) conditions.push(ciIn(profiles.occupation, filters.profession));
     if (filters?.diet?.length) conditions.push(ciIn(profiles.diet, filters.diet));
     if (filters?.state?.length) conditions.push(inArray(profiles.residingState, filters.state));
     if (filters?.city?.length) conditions.push(inArray(profiles.residingCity, filters.city));
     if (filters?.maritalStatus?.length) {
-      conditions.push(inArray(profiles.maritalStatus, filters.maritalStatus as ("never_married" | "divorced" | "widowed" | "awaiting_divorce")[]));
+      conditions.push(
+        inArray(
+          profiles.maritalStatus,
+          filters.maritalStatus as ("never_married" | "divorced" | "widowed" | "awaiting_divorce")[]
+        )
+      );
     }
-    if (filters?.physicalStatus) conditions.push(eq(profiles.physicalStatus, filters.physicalStatus));
+    if (filters?.physicalStatus)
+      conditions.push(eq(profiles.physicalStatus, filters.physicalStatus));
     if (filters?.income?.length) conditions.push(inArray(profiles.annualIncome, filters.income));
 
     const whereClause = and(...conditions);
 
-    // Subquery: check if a user has an active profile boost
-    // A boost is active when subscriptions.boostExpiresAt > NOW()
     const boostSubquery = sql`(
       SELECT 1 FROM "subscriptions"
       WHERE "subscriptions"."user_id" = ${profiles.userId}
@@ -510,7 +532,6 @@ export async function getMatchingProfiles(
       LIMIT 1
     )`;
 
-    // Run count and paginated data queries in parallel
     const [countResult, pageProfiles] = await Promise.all([
       db
         .select({ count: sql<number>`cast(count(*) as int)` })
@@ -523,7 +544,6 @@ export async function getMatchingProfiles(
             columns: { id: true, lastActive: true, isActive: true },
           },
         },
-        // Order: boosted profiles first, then deterministic pseudo-random via md5
         orderBy: [
           sql`(CASE WHEN ${boostSubquery} IS NOT NULL THEN 0 ELSE 1 END)`,
           sql`md5(cast(${profiles.userId} as text) || ${orderSeed})`,
@@ -535,8 +555,6 @@ export async function getMatchingProfiles(
 
     const total = countResult[0]?.count ?? 0;
 
-    // Fetch active boost status for the profiles on this page so we can
-    // apply the 15% match-score multiplier for boosted profiles.
     const pageUserIds = pageProfiles.map((p) => p.userId);
     const boostedUserIds = new Set<number>();
     if (pageUserIds.length > 0) {
@@ -555,7 +573,7 @@ export async function getMatchingProfiles(
       }
     }
 
-    // Format results — boosted profiles get a 15% match-score visibility increase
+    // Boosted profiles get a 15% match-score visibility increase
     const BOOST_MULTIPLIER = 1.15;
     const result: MatchProfile[] = pageProfiles.map((p) => {
       const age = calculateAge(p.dateOfBirth!);
@@ -600,10 +618,7 @@ export async function getMatchingProfiles(
   }
 }
 
-// Get profile by ID
-export async function getProfileById(
-  profileUserId: number
-): Promise<ActionResult<MatchProfile>> {
+export async function getProfileById(profileUserId: number): Promise<ActionResult<MatchProfile>> {
   try {
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
@@ -638,7 +653,6 @@ export async function getProfileById(
       return { success: false, error: "Profile not found" };
     }
 
-    // Check if either user has blocked the other
     if (userId !== profileUserId) {
       const blockExists = await db.query.blocks.findFirst({
         where: or(
@@ -653,9 +667,8 @@ export async function getProfileById(
 
     const age = profile.dateOfBirth ? calculateAge(profile.dateOfBirth) : 0;
 
-    // Check if current user has premium subscription and accepted interest
     let canViewContact = false;
-    let canViewPhoto = true; // own profile always unblurred
+    let canViewPhoto = true;
     if (userId !== profileUserId) {
       const [activeSub, acceptedInterest] = await Promise.all([
         getActiveSubscription(userId),
@@ -697,18 +710,20 @@ export async function getProfileById(
       aboutMe: profile.aboutMe,
       profileCompletion: profile.profileCompletion || 0,
       trustLevel: profile.trustLevel,
-      matchScore: userId !== profileUserId
-        ? calculateCompatibilityScore(viewerPreferences ?? null, profile)
-        : 0,
+      matchScore:
+        userId !== profileUserId
+          ? calculateCompatibilityScore(viewerPreferences ?? null, profile)
+          : 0,
       lastActive: profile.user?.lastActive || undefined,
       email: canViewContact ? profile.user?.email : undefined,
       phoneNumber: canViewContact ? profile.user?.phoneNumber || undefined : undefined,
       canViewPhoto,
-      images: profile.images?.map((img) => ({
-        id: img.id,
-        imageUrl: img.imageUrl,
-        sortOrder: img.sortOrder,
-      })) ?? [],
+      images:
+        profile.images?.map((img) => ({
+          id: img.id,
+          imageUrl: img.imageUrl,
+          sortOrder: img.sortOrder,
+        })) ?? [],
     };
 
     return { success: true, data: formattedProfile };
@@ -718,31 +733,26 @@ export async function getProfileById(
   }
 }
 
-// Get recommended matches for dashboard (excludes profiles with existing interactions)
-export async function getRecommendedMatches(limit: number = 5): Promise<ActionResult<MatchProfile[]>> {
+export async function getRecommendedMatches(
+  limit: number = 5
+): Promise<ActionResult<MatchProfile[]>> {
   try {
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
-    // Get all user IDs that the user has already interacted with
     const interactionRows = await db.query.interests.findMany({
-      where: or(
-        eq(interests.senderId, userId),
-        eq(interests.receiverId, userId)
-      ),
+      where: or(eq(interests.senderId, userId), eq(interests.receiverId, userId)),
       columns: { senderId: true, receiverId: true },
     });
 
-    // Create a set of user IDs to exclude
     const excludeIds = new Set<number>();
     for (const row of interactionRows) {
       if (row.senderId !== userId) excludeIds.add(row.senderId);
       if (row.receiverId !== userId) excludeIds.add(row.receiverId);
     }
-    excludeIds.add(userId); // Also exclude self
+    excludeIds.add(userId);
 
-    // Use getMatchingProfiles with exclusions at DB level
     const result = await getMatchingProfiles(
       undefined, // no filters
       1,

@@ -1,11 +1,23 @@
 "use server";
 
-import { db, users, profiles, subscriptions, payments, interests, messages, reports, verifications, profileViews, siteSettings, contactSubmissions } from "@/lib/db";
+import {
+  db,
+  users,
+  profiles,
+  subscriptions,
+  payments,
+  interests,
+  messages,
+  reports,
+  verifications,
+  profileViews,
+  siteSettings,
+  contactSubmissions,
+} from "@/lib/db";
 import { eq, and, desc, sql, gte, lte, count, ne, inArray, type SQL } from "drizzle-orm";
 import { requireAdmin } from "@/lib/actions/helpers";
 import type { ActionResult } from "@/types";
 
-// Dashboard Analytics
 export interface DashboardAnalytics {
   totalUsers: number;
   activeUsers: number;
@@ -37,7 +49,6 @@ export async function getAdminDashboard(): Promise<ActionResult<DashboardAnalyti
     const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    // Run all count queries in parallel
     const [
       [totalUsersResult],
       [activeUsersResult],
@@ -65,9 +76,18 @@ export async function getAdminDashboard(): Promise<ActionResult<DashboardAnalyti
       db.select({ count: count() }).from(profiles).where(eq(profiles.gender, "female")),
       db.select({ count: count() }).from(profiles).where(eq(profiles.trustLevel, "verified_user")),
       db.select({ count: count() }).from(subscriptions).where(ne(subscriptions.plan, "free")),
-      db.select({ count: count() }).from(subscriptions).where(and(eq(subscriptions.isActive, true), ne(subscriptions.plan, "free"))),
-      db.select({ sum: sql<number>`COALESCE(SUM(amount), 0)` }).from(payments).where(eq(payments.status, "completed")),
-      db.select({ sum: sql<number>`COALESCE(SUM(amount), 0)` }).from(payments).where(and(eq(payments.status, "completed"), gte(payments.createdAt, monthStart))),
+      db
+        .select({ count: count() })
+        .from(subscriptions)
+        .where(and(eq(subscriptions.isActive, true), ne(subscriptions.plan, "free"))),
+      db
+        .select({ sum: sql<number>`COALESCE(SUM(amount), 0)` })
+        .from(payments)
+        .where(eq(payments.status, "completed")),
+      db
+        .select({ sum: sql<number>`COALESCE(SUM(amount), 0)` })
+        .from(payments)
+        .where(and(eq(payments.status, "completed"), gte(payments.createdAt, monthStart))),
       db.select({ count: count() }).from(interests),
       db.select({ count: count() }).from(interests).where(eq(interests.status, "accepted")),
       db.select({ count: count() }).from(reports).where(eq(reports.status, "pending")),
@@ -101,7 +121,6 @@ export async function getAdminDashboard(): Promise<ActionResult<DashboardAnalyti
   }
 }
 
-// User Management
 export interface AdminUser {
   id: number;
   email: string;
@@ -135,17 +154,14 @@ export async function getAdminUsers(
     const adminResult = await requireAdmin();
     if (adminResult.error) return adminResult.error;
 
-    // Validate pagination params
     const validatedLimit = Math.min(Math.max(1, limit), 100);
     const validatedPage = Math.max(1, page);
     const offset = (validatedPage - 1) * validatedLimit;
 
-    // Build filter conditions
     const conditions = [];
     if (filter === "active") conditions.push(eq(users.isActive, true));
     else if (filter === "inactive") conditions.push(eq(users.isActive, false));
 
-    // Search by email (safe SQL pattern)
     if (search && search.trim()) {
       const searchTerm = `%${search.trim().toLowerCase()}%`;
       conditions.push(sql`LOWER(${users.email}) LIKE ${searchTerm}`);
@@ -153,7 +169,6 @@ export async function getAdminUsers(
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-    // Get users with profiles and subscriptions
     const usersList = await db.query.users.findMany({
       where: whereClause,
       with: {
@@ -210,13 +225,16 @@ export async function getAdminUsers(
   }
 }
 
-// Get single user details
-export async function getAdminUserDetails(userId: number): Promise<ActionResult<AdminUser & {
-  interestsSent: number;
-  interestsReceived: number;
-  profileViews: number;
-  messagesCount: number;
-}>> {
+export async function getAdminUserDetails(userId: number): Promise<
+  ActionResult<
+    AdminUser & {
+      interestsSent: number;
+      interestsReceived: number;
+      profileViews: number;
+      messagesCount: number;
+    }
+  >
+> {
   try {
     const adminResult = await requireAdmin();
     if (adminResult.error) return adminResult.error;
@@ -236,7 +254,6 @@ export async function getAdminUserDetails(userId: number): Promise<ActionResult<
       return { success: false, error: "User not found" };
     }
 
-    // Get additional stats in parallel
     const [
       [interestsSentResult],
       [interestsReceivedResult],
@@ -288,7 +305,6 @@ export async function getAdminUserDetails(userId: number): Promise<ActionResult<
   }
 }
 
-// Suspend/Activate user
 export async function toggleUserStatus(userId: number, isActive: boolean): Promise<ActionResult> {
   try {
     const adminResult = await requireAdmin();
@@ -306,8 +322,10 @@ export async function toggleUserStatus(userId: number, isActive: boolean): Promi
   }
 }
 
-// Verify user profile
-export async function verifyUserProfile(userId: number, trustLevel: "new_member" | "verified_user" | "highly_trusted"): Promise<ActionResult> {
+export async function verifyUserProfile(
+  userId: number,
+  trustLevel: "new_member" | "verified_user" | "highly_trusted"
+): Promise<ActionResult> {
   try {
     const adminResult = await requireAdmin();
     if (adminResult.error) return adminResult.error;
@@ -324,7 +342,6 @@ export async function verifyUserProfile(userId: number, trustLevel: "new_member"
   }
 }
 
-// Get pending verifications
 export interface PendingVerification {
   id: number;
   userId: number;
@@ -347,14 +364,13 @@ export async function getPendingVerifications(): Promise<ActionResult<PendingVer
     const pending = await db.query.verifications.findMany({
       where: eq(verifications.status, "pending"),
       orderBy: [desc(verifications.createdAt)],
-      limit: 100, // Add pagination limit
+      limit: 100,
     });
 
     if (pending.length === 0) {
       return { success: true, data: [] };
     }
 
-    // Batch fetch all users at once
     const userIds = pending.map((v) => v.userId);
     const usersList = await db.query.users.findMany({
       where: inArray(users.id, userIds),
@@ -389,7 +405,6 @@ export async function getPendingVerifications(): Promise<ActionResult<PendingVer
   }
 }
 
-// Process verification
 export async function processVerification(
   verificationId: number,
   status: "verified" | "rejected",
@@ -399,7 +414,6 @@ export async function processVerification(
     const adminResult = await requireAdmin();
     if (adminResult.error) return adminResult.error;
 
-    // Read verification first to get userId before updating
     const verification = await db.query.verifications.findFirst({
       where: eq(verifications.id, verificationId),
     });
@@ -422,7 +436,6 @@ export async function processVerification(
       })
       .where(and(eq(verifications.id, verificationId), eq(verifications.status, "pending")));
 
-    // Update profile trust level if verified
     if (status === "verified") {
       await db
         .update(profiles)
@@ -440,7 +453,6 @@ export async function processVerification(
   }
 }
 
-// Get reports
 export interface AdminReport {
   id: number;
   reporterId: number;
@@ -468,29 +480,27 @@ export async function getAdminReports(status?: string): Promise<ActionResult<Adm
     const adminResult = await requireAdmin();
     if (adminResult.error) return adminResult.error;
 
-    // Validate status against allowed values
-    const validatedStatus = status && VALID_REPORT_STATUSES.includes(status as typeof VALID_REPORT_STATUSES[number])
-      ? status
-      : undefined;
+    const validatedStatus =
+      status && VALID_REPORT_STATUSES.includes(status as (typeof VALID_REPORT_STATUSES)[number])
+        ? status
+        : undefined;
 
     const reportsList = await db.query.reports.findMany({
       where: validatedStatus ? eq(reports.status, validatedStatus) : undefined,
       orderBy: [desc(reports.createdAt)],
-      limit: 100, // Add pagination limit
+      limit: 100,
     });
 
     if (reportsList.length === 0) {
       return { success: true, data: [] };
     }
 
-    // Collect all unique user IDs
     const userIds = new Set<number>();
     reportsList.forEach((report) => {
       userIds.add(report.reporterId);
       userIds.add(report.reportedUserId);
     });
 
-    // Batch fetch all users at once
     const usersList = await db.query.users.findMany({
       where: inArray(users.id, Array.from(userIds)),
       with: { profile: true },
@@ -532,7 +542,6 @@ export async function getAdminReports(status?: string): Promise<ActionResult<Adm
   }
 }
 
-// Process report
 export async function processReport(
   reportId: number,
   action: "resolved" | "dismissed",
@@ -559,7 +568,6 @@ export async function processReport(
       })
       .where(eq(reports.id, reportId));
 
-    // Suspend reported user if requested
     if (suspendUser && action === "resolved") {
       await db.update(users).set({ isActive: false }).where(eq(users.id, report.reportedUserId));
     }
@@ -574,7 +582,6 @@ export async function processReport(
   }
 }
 
-// Get revenue analytics
 export interface RevenueData {
   month: string;
   revenue: number;
@@ -589,7 +596,6 @@ export async function getRevenueAnalytics(): Promise<ActionResult<RevenueData[]>
     const now = new Date();
     const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
-    // Run both analytics queries in parallel
     const [revenueByMonth, subsByMonth] = await Promise.all([
       db
         .select({
@@ -609,8 +615,8 @@ export async function getRevenueAnalytics(): Promise<ActionResult<RevenueData[]>
         .groupBy(sql`TO_CHAR(${subscriptions.createdAt}, 'YYYY-MM')`),
     ]);
 
-    const revenueMap = new Map(revenueByMonth.map(r => [r.month, Number(r.sum)]));
-    const subsMap = new Map(subsByMonth.map(s => [s.month, s.count]));
+    const revenueMap = new Map(revenueByMonth.map((r) => [r.month, Number(r.sum)]));
+    const subsMap = new Map(subsByMonth.map((s) => [s.month, s.count]));
 
     const data: RevenueData[] = [];
     for (let i = 11; i >= 0; i--) {
@@ -630,7 +636,6 @@ export async function getRevenueAnalytics(): Promise<ActionResult<RevenueData[]>
   }
 }
 
-// Get user growth analytics
 export interface UserGrowthData {
   month: string;
   newUsers: number;
@@ -645,12 +650,8 @@ export async function getUserGrowthAnalytics(): Promise<ActionResult<UserGrowthD
     const now = new Date();
     const startDate = new Date(now.getFullYear(), now.getMonth() - 11, 1);
 
-    // Run both queries in parallel
     const [[initialCountResult], newUsersByMonth] = await Promise.all([
-      db
-        .select({ count: count() })
-        .from(users)
-        .where(lte(users.createdAt, startDate)),
+      db.select({ count: count() }).from(users).where(lte(users.createdAt, startDate)),
       db
         .select({
           month: sql<string>`TO_CHAR(${users.createdAt}, 'YYYY-MM')`,
@@ -661,7 +662,7 @@ export async function getUserGrowthAnalytics(): Promise<ActionResult<UserGrowthD
         .groupBy(sql`TO_CHAR(${users.createdAt}, 'YYYY-MM')`),
     ]);
 
-    const newUsersMap = new Map(newUsersByMonth.map(r => [r.month, r.count]));
+    const newUsersMap = new Map(newUsersByMonth.map((r) => [r.month, r.count]));
 
     const data: UserGrowthData[] = [];
     let runningTotal = initialCountResult.count;
@@ -686,7 +687,6 @@ export async function getUserGrowthAnalytics(): Promise<ActionResult<UserGrowthD
   }
 }
 
-// Site Settings
 export async function getSiteSettings(): Promise<ActionResult<Record<string, string>>> {
   try {
     const adminResult = await requireAdmin();
@@ -705,16 +705,20 @@ export async function getSiteSettings(): Promise<ActionResult<Record<string, str
   }
 }
 
-// Allowlist of valid site setting keys to prevent arbitrary key insertion
 const ALLOWED_SETTING_KEYS = new Set([
-  "siteName", "siteUrl", "supportEmail", "supportPhone",
-  "maintenanceMode", "registrationEnabled", "maxPhotos",
-  "termsUpdatedAt", "privacyUpdatedAt", "analyticsId",
+  "siteName",
+  "siteUrl",
+  "supportEmail",
+  "supportPhone",
+  "maintenanceMode",
+  "registrationEnabled",
+  "maxPhotos",
+  "termsUpdatedAt",
+  "privacyUpdatedAt",
+  "analyticsId",
 ]);
 
-export async function updateSiteSettings(
-  settings: Record<string, string>
-): Promise<ActionResult> {
+export async function updateSiteSettings(settings: Record<string, string>): Promise<ActionResult> {
   try {
     const adminResult = await requireAdmin();
     if (adminResult.error) return adminResult.error;
@@ -725,8 +729,8 @@ export async function updateSiteSettings(
         return { success: false, error: `Invalid setting key: ${key}` };
       }
 
-      // Use upsert to avoid check-then-act race condition
-      await db.insert(siteSettings)
+      await db
+        .insert(siteSettings)
         .values({ key, value, updatedAt: now })
         .onConflictDoUpdate({
           target: siteSettings.key,
@@ -741,7 +745,6 @@ export async function updateSiteSettings(
   }
 }
 
-// Contact Submissions Management
 export interface AdminContactSubmission {
   id: number;
   name: string;
@@ -769,9 +772,10 @@ export async function getContactSubmissions(
     const offset = (validatedPage - 1) * validatedLimit;
 
     const validContactStatuses = ["unread", "read", "replied", "archived"];
-    const whereClause = status && status !== "all" && validContactStatuses.includes(status)
-      ? eq(contactSubmissions.status, status)
-      : undefined;
+    const whereClause =
+      status && status !== "all" && validContactStatuses.includes(status)
+        ? eq(contactSubmissions.status, status)
+        : undefined;
 
     const submissions = await db
       .select()
@@ -822,10 +826,7 @@ export async function updateContactStatus(
       updateData.repliedBy = adminResult.userId;
     }
 
-    await db
-      .update(contactSubmissions)
-      .set(updateData)
-      .where(eq(contactSubmissions.id, id));
+    await db.update(contactSubmissions).set(updateData).where(eq(contactSubmissions.id, id));
 
     return { success: true, message: `Submission marked as ${status}` };
   } catch (error) {
@@ -848,12 +849,13 @@ export async function deleteContactSubmission(id: number): Promise<ActionResult>
   }
 }
 
-// Public stats (no auth required)
-export async function getPublicStats(): Promise<ActionResult<{
-  totalUsers: number;
-  verifiedProfiles: number;
-  happyCouples: number;
-}>> {
+export async function getPublicStats(): Promise<
+  ActionResult<{
+    totalUsers: number;
+    verifiedProfiles: number;
+    happyCouples: number;
+  }>
+> {
   try {
     const [totalUsersResult] = await db.select({ count: count() }).from(users);
     const [verifiedResult] = await db
@@ -879,7 +881,6 @@ export async function getPublicStats(): Promise<ActionResult<{
   }
 }
 
-// Subscription stats for admin subscriptions page
 export interface SubscriptionStats {
   totalPaid: number;
   activePaid: number;
@@ -888,14 +889,24 @@ export interface SubscriptionStats {
 }
 
 export async function getSubscriptionStats(): Promise<SubscriptionStats> {
-  const [totalPaid] = await db.select({ count: count() }).from(subscriptions).where(ne(subscriptions.plan, "free"));
-  const [activePaid] = await db.select({ count: count() }).from(subscriptions).where(eq(subscriptions.isActive, true));
-  const [totalRevenue] = await db.select({ sum: sql<number>`COALESCE(SUM(amount), 0)` }).from(payments).where(eq(payments.status, "completed"));
+  const [totalPaid] = await db
+    .select({ count: count() })
+    .from(subscriptions)
+    .where(ne(subscriptions.plan, "free"));
+  const [activePaid] = await db
+    .select({ count: count() })
+    .from(subscriptions)
+    .where(eq(subscriptions.isActive, true));
+  const [totalRevenue] = await db
+    .select({ sum: sql<number>`COALESCE(SUM(amount), 0)` })
+    .from(payments)
+    .where(eq(payments.status, "completed"));
 
-  const planCounts = await db.select({
-    plan: subscriptions.plan,
-    count: count(),
-  })
+  const planCounts = await db
+    .select({
+      plan: subscriptions.plan,
+      count: count(),
+    })
     .from(subscriptions)
     .where(ne(subscriptions.plan, "free"))
     .groupBy(subscriptions.plan);
@@ -908,7 +919,6 @@ export async function getSubscriptionStats(): Promise<SubscriptionStats> {
   };
 }
 
-// Recent subscriptions for admin subscriptions page
 export interface RecentSubscription {
   id: number;
   userId: number;
@@ -933,17 +943,16 @@ export async function getRecentSubscriptionsAdmin(): Promise<RecentSubscription[
 
   if (recentSubs.length === 0) return [];
 
-  // Batch fetch all users at once
-  const userIds = [...new Set(recentSubs.map(s => s.userId))];
+  const userIds = [...new Set(recentSubs.map((s) => s.userId))];
   const usersList = await db.query.users.findMany({
     where: inArray(users.id, userIds),
     with: { profile: true },
   });
-  const userMap = new Map(usersList.map(u => [u.id, u]));
+  const userMap = new Map(usersList.map((u) => [u.id, u]));
 
   return recentSubs
-    .filter(sub => userMap.has(sub.userId))
-    .map(sub => {
+    .filter((sub) => userMap.has(sub.userId))
+    .map((sub) => {
       const user = userMap.get(sub.userId)!;
       return {
         id: sub.id,
@@ -962,7 +971,6 @@ export async function getRecentSubscriptionsAdmin(): Promise<RecentSubscription[
     });
 }
 
-// Detailed analytics for admin analytics page
 export interface DetailedAnalytics {
   planCounts: { name: string; value: number; color: string }[];
   interestStats: { total: number; pending: number; accepted: number; rejected: number };
@@ -970,17 +978,27 @@ export interface DetailedAnalytics {
 }
 
 export async function getDetailedAnalytics(): Promise<DetailedAnalytics> {
-  const planCounts = await db.select({
-    plan: subscriptions.plan,
-    count: count(),
-  })
+  const planCounts = await db
+    .select({
+      plan: subscriptions.plan,
+      count: count(),
+    })
     .from(subscriptions)
     .groupBy(subscriptions.plan);
 
   const [totalInterests] = await db.select({ count: count() }).from(interests);
-  const [pendingInterests] = await db.select({ count: count() }).from(interests).where(eq(interests.status, "pending"));
-  const [acceptedInterests] = await db.select({ count: count() }).from(interests).where(eq(interests.status, "accepted"));
-  const [rejectedInterests] = await db.select({ count: count() }).from(interests).where(eq(interests.status, "rejected"));
+  const [pendingInterests] = await db
+    .select({ count: count() })
+    .from(interests)
+    .where(eq(interests.status, "pending"));
+  const [acceptedInterests] = await db
+    .select({ count: count() })
+    .from(interests)
+    .where(eq(interests.status, "accepted"));
+  const [rejectedInterests] = await db
+    .select({ count: count() })
+    .from(interests)
+    .where(eq(interests.status, "rejected"));
 
   const completionCase = sql`
     CASE
@@ -991,18 +1009,31 @@ export async function getDetailedAnalytics(): Promise<DetailedAnalytics> {
     END
   `;
 
-  const completionRanges = await db.select({
-    range: completionCase as SQL<string>,
-    count: count(),
-  })
+  const completionRanges = await db
+    .select({
+      range: completionCase as SQL<string>,
+      count: count(),
+    })
     .from(profiles)
     .groupBy(completionCase);
 
-  const planNameMap: Record<string, string> = { free: "Free", basic: "Basic", silver: "Silver", gold: "Gold", platinum: "Platinum" };
-  const planColorMap: Record<string, string> = { free: "#94A3B8", basic: "#3B82F6", silver: "#6B7280", gold: "#F59E0B", platinum: "#8B5CF6" };
+  const planNameMap: Record<string, string> = {
+    free: "Free",
+    basic: "Basic",
+    silver: "Silver",
+    gold: "Gold",
+    platinum: "Platinum",
+  };
+  const planColorMap: Record<string, string> = {
+    free: "#94A3B8",
+    basic: "#3B82F6",
+    silver: "#6B7280",
+    gold: "#F59E0B",
+    platinum: "#8B5CF6",
+  };
 
   return {
-    planCounts: planCounts.map(p => ({
+    planCounts: planCounts.map((p) => ({
       name: planNameMap[p.plan || ""] || p.plan || "Unknown",
       value: p.count,
       color: planColorMap[p.plan || ""] || "#E2E8F0",
@@ -1013,7 +1044,7 @@ export async function getDetailedAnalytics(): Promise<DetailedAnalytics> {
       accepted: acceptedInterests.count,
       rejected: rejectedInterests.count,
     },
-    completionRanges: completionRanges.map(c => ({
+    completionRanges: completionRanges.map((c) => ({
       range: c.range,
       count: c.count,
     })),

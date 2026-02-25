@@ -19,12 +19,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { lifestyleSchema, type LifestyleInput } from "@/lib/validations/profile";
-import { MARITAL_STATUS_OPTIONS, DIET_OPTIONS, SMOKING_OPTIONS, DRINKING_OPTIONS } from "@/constants";
+import {
+  MARITAL_STATUS_OPTIONS,
+  DIET_OPTIONS,
+  SMOKING_OPTIONS,
+  DRINKING_OPTIONS,
+} from "@/constants";
 import { useProfileStep, type ProfileStepProps } from "@/hooks/use-profile-step";
 
 function getDefaults(data: Record<string, unknown>): LifestyleInput {
   return {
-    maritalStatus: (data.maritalStatus as "never_married" | "divorced" | "widowed" | "awaiting_divorce") || undefined!,
+    maritalStatus:
+      (data.maritalStatus as "never_married" | "divorced" | "widowed" | "awaiting_divorce") ||
+      undefined!,
     diet: (data.diet as string) || "",
     smoking: (data.smoking as string) || "",
     drinking: (data.drinking as string) || "",
@@ -152,10 +159,7 @@ export function LifestyleStep({ data, onUpdate, registerValidate }: ProfileStepP
             <FormItem>
               <FormLabel>Hobbies & Interests</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="e.g., Reading, Music, Traveling, Cooking"
-                  {...field}
-                />
+                <Input placeholder="e.g., Reading, Music, Traveling, Cooking" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

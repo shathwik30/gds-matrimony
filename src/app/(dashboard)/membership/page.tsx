@@ -5,11 +5,22 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2, Check, Crown, Sparkles, Star, Zap, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { SUBSCRIPTION_PLANS, GST_RATE } from "@/constants";
-import { getMySubscription, activateProfileBoost, getBoostStatus } from "@/lib/actions/subscription";
+import {
+  getMySubscription,
+  activateProfileBoost,
+  getBoostStatus,
+} from "@/lib/actions/subscription";
 import { formatCurrency, formatRelativeTime } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 
@@ -30,7 +41,11 @@ export default function MembershipPage() {
   const [currentPlan, setCurrentPlan] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<Date | null>(null);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
-  const [boostStatus, setBoostStatus] = useState<{ isActive: boolean; expiresAt?: Date; remaining: number } | null>(null);
+  const [boostStatus, setBoostStatus] = useState<{
+    isActive: boolean;
+    expiresAt?: Date;
+    remaining: number;
+  } | null>(null);
   const [activatingBoost, setActivatingBoost] = useState(false);
 
   useEffect(() => {
@@ -46,7 +61,9 @@ export default function MembershipPage() {
         setCurrentPlan(result.data.plan);
         setSubscriptionEnd(result.data.endDate);
         // Check if subscription is active and not expired
-        const isActive = result.data.plan && result.data.plan !== "free" &&
+        const isActive =
+          result.data.plan &&
+          result.data.plan !== "free" &&
           (!result.data.endDate || new Date(result.data.endDate) > new Date());
         setHasActiveSubscription(!!isActive);
       } else {
@@ -167,18 +184,21 @@ export default function MembershipPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-brand" />
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="text-brand h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="container-wide py-6 sm:py-8 px-4 sm:px-6">
-      <div className="text-center mb-8 sm:mb-10 md:mb-12">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2">Choose Your Plan</h1>
-        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
-          Upgrade your membership to unlock premium features and connect with more potential matches.
+    <div className="container-wide px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mb-8 text-center sm:mb-10 md:mb-12">
+        <h1 className="mb-2 text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl">
+          Choose Your Plan
+        </h1>
+        <p className="text-muted-foreground mx-auto max-w-2xl px-2 text-sm sm:text-base">
+          Upgrade your membership to unlock premium features and connect with more potential
+          matches.
         </p>
         {currentPlan && currentPlan !== "free" && subscriptionEnd && (
           <div className="mt-4 space-y-2">
@@ -187,7 +207,7 @@ export default function MembershipPage() {
               {new Date(subscriptionEnd).toLocaleDateString()})
             </Badge>
             {hasActiveSubscription && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 You can subscribe to a new plan after your current subscription expires
               </p>
             )}
@@ -195,12 +215,11 @@ export default function MembershipPage() {
         )}
       </div>
 
-      {/* Profile Boost Card */}
       {currentPlan && currentPlan !== "free" && (
-        <Card className="mb-8 max-w-3xl mx-auto border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
+        <Card className="mx-auto mb-8 max-w-3xl border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-purple-100 flex items-center justify-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100">
                 <Zap className="h-6 w-6 text-purple-600" />
               </div>
               <div className="flex-1">
@@ -209,7 +228,9 @@ export default function MembershipPage() {
               </div>
               {boostStatus && boostStatus.remaining > 0 && (
                 <Badge variant="secondary" className="text-sm">
-                  {boostStatus.remaining === 9999 || boostStatus.remaining === -1 ? "Unlimited" : `${boostStatus.remaining} remaining`}
+                  {boostStatus.remaining === 9999 || boostStatus.remaining === -1
+                    ? "Unlimited"
+                    : `${boostStatus.remaining} remaining`}
                 </Badge>
               )}
             </div>
@@ -220,18 +241,20 @@ export default function MembershipPage() {
                 <Zap className="h-4 w-4 text-purple-600" />
                 <AlertTitle className="text-purple-900">Boost Active</AlertTitle>
                 <AlertDescription className="text-purple-700">
-                  Your profile is boosted! Expires {boostStatus.expiresAt ? formatRelativeTime(boostStatus.expiresAt) : "soon"}
+                  Your profile is boosted! Expires{" "}
+                  {boostStatus.expiresAt ? formatRelativeTime(boostStatus.expiresAt) : "soon"}
                 </AlertDescription>
               </Alert>
             ) : boostStatus && boostStatus.remaining > 0 ? (
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Activate a boost to increase your profile visibility by 15% in search results for 24 hours. Perfect for when you want to stand out!
+                <p className="text-muted-foreground text-sm">
+                  Activate a boost to increase your profile visibility by 15% in search results for
+                  24 hours. Perfect for when you want to stand out!
                 </p>
                 <Button
                   onClick={handleActivateBoost}
                   disabled={activatingBoost}
-                  className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 sm:w-auto"
                 >
                   {activatingBoost ? (
                     <>
@@ -259,7 +282,7 @@ export default function MembershipPage() {
         </Card>
       )}
 
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
         {SUBSCRIPTION_PLANS.map((plan) => {
           const isCurrentPlan = currentPlan === plan.id;
           const isPopular = plan.id === "gold";
@@ -270,8 +293,8 @@ export default function MembershipPage() {
             <Card
               key={plan.id}
               variant={isPopular ? "elevated" : "default"}
-              className={`relative animate-fade-in-up ${
-                isPopular ? "border-2 border-brand shadow-premium-xl md:scale-105" : ""
+              className={`animate-fade-in-up relative ${
+                isPopular ? "border-brand shadow-premium-xl border-2 md:scale-105" : ""
               } ${isCurrentPlan ? "border-2 border-green-500" : ""} ${
                 isDisabled ? "opacity-50" : ""
               }`}
@@ -284,27 +307,29 @@ export default function MembershipPage() {
                 </div>
               )}
 
-              <CardHeader className="text-center pb-2">
-                <div className={`mx-auto mb-2 p-3 rounded-full ${
-                  plan.id === "basic"
-                    ? "bg-blue-100 text-blue-600"
-                    : plan.id === "silver"
-                    ? "bg-gray-200 text-gray-600"
-                    : plan.id === "gold"
-                    ? "bg-yellow-100 text-yellow-600"
-                    : "bg-purple-100 text-purple-600"
-                }`}>
+              <CardHeader className="pb-2 text-center">
+                <div
+                  className={`mx-auto mb-2 rounded-full p-3 ${
+                    plan.id === "basic"
+                      ? "bg-blue-100 text-blue-600"
+                      : plan.id === "silver"
+                        ? "bg-gray-200 text-gray-600"
+                        : plan.id === "gold"
+                          ? "bg-yellow-100 text-yellow-600"
+                          : "bg-purple-100 text-purple-600"
+                  }`}
+                >
                   {PLAN_ICONS[plan.id]}
                 </div>
                 <CardTitle>{plan.name}</CardTitle>
                 <CardDescription className="space-y-1">
-                  <span className="text-3xl font-bold text-foreground block">
+                  <span className="text-foreground block text-3xl font-bold">
                     {formatCurrency(plan.price)}
                   </span>
-                  <span className="text-sm block">
+                  <span className="block text-sm">
                     /{plan.duration === 1 ? "month" : `${plan.duration} months`}
                   </span>
-                  <span className="text-xs text-muted-foreground block">
+                  <span className="text-muted-foreground block text-xs">
                     {formatCurrency(totalAmount)} after GST
                   </span>
                 </CardDescription>
@@ -313,16 +338,17 @@ export default function MembershipPage() {
               <CardContent className="space-y-3">
                 <ul className="space-y-2">
                   <li className="flex items-center gap-2 text-sm">
-                    <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    <Check className="h-4 w-4 flex-shrink-0 text-green-500" />
                     <span>
-                      {plan.features.interestsPerDay === 9999 || plan.features.interestsPerDay === -1
+                      {plan.features.interestsPerDay === 9999 ||
+                      plan.features.interestsPerDay === -1
                         ? "Unlimited"
                         : plan.features.interestsPerDay}{" "}
                       interests/day
                     </span>
                   </li>
                   <li className="flex items-center gap-2 text-sm">
-                    <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    <Check className="h-4 w-4 flex-shrink-0 text-green-500" />
                     <span>
                       {plan.features.contactViews === 9999 || plan.features.contactViews === -1
                         ? "Unlimited"
@@ -332,39 +358,47 @@ export default function MembershipPage() {
                   </li>
                   {plan.features.chat && (
                     <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <Check className="h-4 w-4 flex-shrink-0 text-green-500" />
                       <span>
-                        {plan.features.chat === "mutual_only" ? "Chat (mutual interest)" : "Direct messaging"}
+                        {plan.features.chat === "mutual_only"
+                          ? "Chat (mutual interest)"
+                          : "Direct messaging"}
                       </span>
                     </li>
                   )}
                   {plan.features.profileBoosts > 0 && (
                     <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span>{plan.features.profileBoosts} profile boost{plan.features.profileBoosts > 1 ? "s" : ""}</span>
+                      <Check className="h-4 w-4 flex-shrink-0 text-green-500" />
+                      <span>
+                        {plan.features.profileBoosts} profile boost
+                        {plan.features.profileBoosts > 1 ? "s" : ""}
+                      </span>
                     </li>
                   )}
                   {plan.features.seeProfileViewers && (
                     <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <Check className="h-4 w-4 flex-shrink-0 text-green-500" />
                       <span>See who viewed you</span>
                     </li>
                   )}
                   {plan.features.seeWhoLiked && (
                     <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <Check className="h-4 w-4 flex-shrink-0 text-green-500" />
                       <span>See who liked you</span>
                     </li>
                   )}
-                  {(plan.features.support === "priority" || plan.features.support === "premium") && (
+                  {(plan.features.support === "priority" ||
+                    plan.features.support === "premium") && (
                     <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span>{plan.features.support === "premium" ? "Premium" : "Priority"} support</span>
+                      <Check className="h-4 w-4 flex-shrink-0 text-green-500" />
+                      <span>
+                        {plan.features.support === "premium" ? "Premium" : "Priority"} support
+                      </span>
                     </li>
                   )}
                   {plan.features.featuredBadge && (
                     <li className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <Check className="h-4 w-4 flex-shrink-0 text-green-500" />
                       <span>Featured badge</span>
                     </li>
                   )}
@@ -374,7 +408,7 @@ export default function MembershipPage() {
               <CardFooter>
                 {hasActiveSubscription && !isCurrentPlan ? (
                   <div className="w-full text-center">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Available after current plan expires
                     </p>
                   </div>
@@ -382,7 +416,11 @@ export default function MembershipPage() {
                   <Button
                     className="w-full"
                     variant={isPopular ? "default" : "outline"}
-                    disabled={isCurrentPlan || processingPlan !== null || (hasActiveSubscription && !isCurrentPlan)}
+                    disabled={
+                      isCurrentPlan ||
+                      processingPlan !== null ||
+                      (hasActiveSubscription && !isCurrentPlan)
+                    }
                     onClick={() => handleSelectPlan(plan.id)}
                   >
                     {processingPlan === plan.id ? (
@@ -400,27 +438,27 @@ export default function MembershipPage() {
         })}
       </div>
 
-      <div className="mt-8 sm:mt-10 md:mt-12 text-center">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4">Why Upgrade?</h2>
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3 max-w-4xl mx-auto">
+      <div className="mt-8 text-center sm:mt-10 md:mt-12">
+        <h2 className="mb-4 text-lg font-semibold sm:text-xl">Why Upgrade?</h2>
+        <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="p-4">
-            <Crown className="h-8 w-8 mx-auto text-brand mb-2" />
+            <Crown className="text-brand mx-auto mb-2 h-8 w-8" />
             <h3 className="font-medium">More Connections</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Send more interests and connect with more profiles daily.
             </p>
           </div>
           <div className="p-4">
-            <Check className="h-8 w-8 mx-auto text-brand mb-2" />
+            <Check className="text-brand mx-auto mb-2 h-8 w-8" />
             <h3 className="font-medium">Verified Badge</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Stand out with a verified badge that shows you&apos;re genuine.
             </p>
           </div>
           <div className="p-4">
-            <Zap className="h-8 w-8 mx-auto text-brand mb-2" />
+            <Zap className="text-brand mx-auto mb-2 h-8 w-8" />
             <h3 className="font-medium">Priority Support</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Get dedicated support to help you find your perfect match.
             </p>
           </div>

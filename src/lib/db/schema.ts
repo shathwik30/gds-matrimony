@@ -15,7 +15,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-// Enums
 export const genderEnum = pgEnum("gender", ["male", "female"]);
 export const maritalStatusEnum = pgEnum("marital_status", [
   "never_married",
@@ -43,11 +42,7 @@ export const subscriptionPlanEnum = pgEnum("subscription_plan", [
   "gold",
   "platinum",
 ]);
-export const interestStatusEnum = pgEnum("interest_status", [
-  "pending",
-  "accepted",
-  "rejected",
-]);
+export const interestStatusEnum = pgEnum("interest_status", ["pending", "accepted", "rejected"]);
 export const trustLevelEnum = pgEnum("trust_level", [
   "new_member",
   "verified_user",
@@ -60,7 +55,6 @@ export const purchaseTypeEnum = pgEnum("purchase_type", [
   "contact_pack_50",
 ]);
 
-// Users Table
 export const users = pgTable(
   "users",
   {
@@ -87,7 +81,6 @@ export const users = pgTable(
   ]
 );
 
-// Profiles Table
 export const profiles = pgTable(
   "profiles",
   {
@@ -97,33 +90,28 @@ export const profiles = pgTable(
       .notNull()
       .unique(),
 
-    // Basic Info
     firstName: varchar("first_name", { length: 100 }),
     lastName: varchar("last_name", { length: 100 }),
     gender: genderEnum("gender"),
     dateOfBirth: date("date_of_birth"),
 
-    // Physical
-    height: integer("height"), // in cm
-    weight: integer("weight"), // in kg
+    height: integer("height"),
+    weight: integer("weight"),
     bodyType: varchar("body_type", { length: 50 }),
     complexion: varchar("complexion", { length: 50 }),
     physicalStatus: varchar("physical_status", { length: 100 }),
 
-    // Religion & Caste
     religion: varchar("religion", { length: 100 }),
     caste: varchar("caste", { length: 100 }),
     subCaste: varchar("sub_caste", { length: 100 }),
     motherTongue: varchar("mother_tongue", { length: 100 }),
     gothra: varchar("gothra", { length: 100 }),
 
-    // Location
     countryLivingIn: varchar("country_living_in", { length: 100 }),
     residingState: varchar("residing_state", { length: 100 }),
     residingCity: varchar("residing_city", { length: 100 }),
     citizenship: varchar("citizenship", { length: 100 }),
 
-    // Education & Career
     highestEducation: varchar("highest_education", { length: 100 }),
     educationDetail: text("education_detail"),
     employedIn: varchar("employed_in", { length: 100 }),
@@ -131,14 +119,12 @@ export const profiles = pgTable(
     jobTitle: varchar("job_title", { length: 100 }),
     annualIncome: varchar("annual_income", { length: 100 }),
 
-    // Lifestyle
     maritalStatus: maritalStatusEnum("marital_status"),
     diet: varchar("diet", { length: 50 }),
     smoking: varchar("smoking", { length: 50 }),
     drinking: varchar("drinking", { length: 50 }),
     hobbies: text("hobbies"),
 
-    // Family
     familyStatus: varchar("family_status", { length: 100 }),
     familyType: varchar("family_type", { length: 50 }),
     familyValue: varchar("family_value", { length: 100 }),
@@ -149,16 +135,13 @@ export const profiles = pgTable(
     sisters: integer("sisters"),
     sistersMarried: integer("sisters_married"),
 
-    // About
     aboutMe: text("about_me"),
 
-    // Profile Metadata
     profileImage: text("profile_image"),
     profileCompletion: integer("profile_completion").default(0),
     trustScore: integer("trust_score").default(0),
     trustLevel: trustLevelEnum("trust_level").default("new_member"),
 
-    // Notification Preferences (JSON)
     notificationPrefs: json("notification_prefs").$type<{
       email: boolean;
       interests: boolean;
@@ -166,7 +149,6 @@ export const profiles = pgTable(
       matches: boolean;
     }>(),
 
-    // Visibility
     hideProfile: boolean("hide_profile").default(false),
     showOnlineStatus: boolean("show_online_status").default(true),
     showLastActive: boolean("show_last_active").default(true),
@@ -184,7 +166,6 @@ export const profiles = pgTable(
   ]
 );
 
-// Profile Images Table
 export const profileImages = pgTable(
   "profile_images",
   {
@@ -201,52 +182,43 @@ export const profileImages = pgTable(
   (table) => [index("profile_images_profile_idx").on(table.profileId)]
 );
 
-// Partner Preferences Table
 export const partnerPreferences = pgTable("partner_preferences", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull()
-    .unique(), // unique constraint creates implicit index
+    .unique(),
 
-  // Age
   ageMin: integer("age_min"),
   ageMax: integer("age_max"),
 
-  // Height
   heightMin: integer("height_min"),
   heightMax: integer("height_max"),
 
-  // Religion & Caste
   religions: json("religions").$type<string[]>(),
   castes: json("castes").$type<string[]>(),
   motherTongues: json("mother_tongues").$type<string[]>(),
 
-  // Location
   countries: json("countries").$type<string[]>(),
   states: json("states").$type<string[]>(),
   cities: json("cities").$type<string[]>(),
 
-  // Education & Career
   educations: json("educations").$type<string[]>(),
   occupations: json("occupations").$type<string[]>(),
   incomeMin: varchar("income_min", { length: 50 }),
   incomeMax: varchar("income_max", { length: 50 }),
 
-  // Lifestyle
   maritalStatuses: json("marital_statuses").$type<string[]>(),
   diets: json("diets").$type<string[]>(),
   smoking: varchar("smoking", { length: 50 }),
   drinking: varchar("drinking", { length: 50 }),
 
-  // Additional
   aboutPartner: text("about_partner"),
 
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Subscriptions Table
 export const subscriptions = pgTable(
   "subscriptions",
   {
@@ -259,17 +231,14 @@ export const subscriptions = pgTable(
     endDate: timestamp("end_date"),
     isActive: boolean("is_active").default(true),
 
-    // Limits
     interestsPerDay: integer("interests_per_day").default(5),
     contactViews: integer("contact_views").default(0),
     profileBoosts: integer("profile_boosts").default(0),
 
-    // Usage
     interestsSentToday: integer("interests_sent_today").default(0),
     contactViewsUsed: integer("contact_views_used").default(0),
     boostsUsed: integer("boosts_used").default(0),
 
-    // Boost tracking
     lastBoostAt: timestamp("last_boost_at"),
     boostExpiresAt: timestamp("boost_expires_at"),
 
@@ -282,7 +251,6 @@ export const subscriptions = pgTable(
   ]
 );
 
-// Payments Table
 export const payments = pgTable(
   "payments",
   {
@@ -315,7 +283,6 @@ export const payments = pgTable(
   ]
 );
 
-// Interests Table
 export const interests = pgTable(
   "interests",
   {
@@ -340,7 +307,6 @@ export const interests = pgTable(
   ]
 );
 
-// Shortlists Table
 export const shortlists = pgTable(
   "shortlists",
   {
@@ -360,7 +326,6 @@ export const shortlists = pgTable(
   ]
 );
 
-// Profile Views Table
 export const profileViews = pgTable(
   "profile_views",
   {
@@ -379,7 +344,6 @@ export const profileViews = pgTable(
   ]
 );
 
-// Profile Seen Table (for repetition algorithm)
 export const profileSeen = pgTable(
   "profile_seen",
   {
@@ -402,14 +366,7 @@ export const profileSeen = pgTable(
   ]
 );
 
-// Messages Table
-// Message Status Enum
-export const messageStatusEnum = pgEnum("message_status", [
-  "pending",
-  "sent",
-  "delivered",
-  "read",
-]);
+export const messageStatusEnum = pgEnum("message_status", ["pending", "sent", "delivered", "read"]);
 
 export const messages = pgTable(
   "messages",
@@ -438,7 +395,6 @@ export const messages = pgTable(
   ]
 );
 
-// Message Attachments Table
 export const messageAttachments = pgTable(
   "message_attachments",
   {
@@ -455,7 +411,6 @@ export const messageAttachments = pgTable(
   (table) => [index("message_attachments_message_idx").on(table.messageId)]
 );
 
-// Typing Indicators Table
 export const typingIndicators = pgTable(
   "typing_indicators",
   {
@@ -468,12 +423,9 @@ export const typingIndicators = pgTable(
       .notNull(),
     lastTypingAt: timestamp("last_typing_at").defaultNow(),
   },
-  (table) => [
-    uniqueIndex("typing_indicator_unique").on(table.conversationId, table.userId),
-  ]
+  (table) => [uniqueIndex("typing_indicator_unique").on(table.conversationId, table.userId)]
 );
 
-// Conversations Table (for chat threads)
 export const conversations = pgTable(
   "conversations",
   {
@@ -484,7 +436,9 @@ export const conversations = pgTable(
     user2Id: integer("user2_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
-    lastMessageId: integer("last_message_id").references(() => messages.id, { onDelete: "set null" }),
+    lastMessageId: integer("last_message_id").references(() => messages.id, {
+      onDelete: "set null",
+    }),
     lastMessageAt: timestamp("last_message_at"),
     createdAt: timestamp("created_at").defaultNow(),
   },
@@ -496,7 +450,6 @@ export const conversations = pgTable(
   ]
 );
 
-// Blocks Table
 export const blocks = pgTable(
   "blocks",
   {
@@ -516,7 +469,6 @@ export const blocks = pgTable(
   ]
 );
 
-// Reports Table
 export const reports = pgTable(
   "reports",
   {
@@ -541,7 +493,6 @@ export const reports = pgTable(
   ]
 );
 
-// Verification Documents Table
 export const verifications = pgTable(
   "verifications",
   {
@@ -549,7 +500,7 @@ export const verifications = pgTable(
     userId: integer("user_id")
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
-    type: varchar("type", { length: 50 }).notNull(), // email, phone, photo, aadhaar
+    type: varchar("type", { length: 50 }).notNull(),
     documentUrl: text("document_url"),
     status: verificationStatusEnum("status").default("pending"),
     verifiedAt: timestamp("verified_at"),
@@ -564,14 +515,13 @@ export const verifications = pgTable(
   ]
 );
 
-// OTP Table
 export const otps = pgTable(
   "otps",
   {
     id: serial("id").primaryKey(),
     email: varchar("email", { length: 255 }).notNull(),
     otp: varchar("otp", { length: 10 }).notNull(),
-    type: varchar("type", { length: 50 }).notNull(), // email_verification, password_reset
+    type: varchar("type", { length: 50 }).notNull(),
     expiresAt: timestamp("expires_at").notNull(),
     isUsed: boolean("is_used").default(false),
     attempts: integer("attempts").default(0),
@@ -584,7 +534,6 @@ export const otps = pgTable(
   ]
 );
 
-// Site Settings Table (key-value store for admin configuration)
 export const siteSettings = pgTable("site_settings", {
   id: serial("id").primaryKey(),
   key: varchar("key", { length: 100 }).notNull().unique(),
@@ -592,7 +541,6 @@ export const siteSettings = pgTable("site_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Contact Pack Purchases Table
 export const contactPackPurchases = pgTable(
   "contact_pack_purchases",
   {
@@ -613,7 +561,6 @@ export const contactPackPurchases = pgTable(
   ]
 );
 
-// Contact Submissions Table
 export const contactSubmissions = pgTable(
   "contact_submissions",
   {
@@ -635,7 +582,6 @@ export const contactSubmissions = pgTable(
   ]
 );
 
-// Activity Log Table
 export const activityLogs = pgTable(
   "activity_logs",
   {
@@ -654,7 +600,6 @@ export const activityLogs = pgTable(
   ]
 );
 
-// Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles, {
     fields: [users.id],
@@ -758,7 +703,6 @@ export const partnerPreferencesRelations = relations(partnerPreferences, ({ one 
   }),
 }));
 
-// Types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Profile = typeof profiles.$inferSelect;

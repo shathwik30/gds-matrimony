@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import { env, clientEnv } from "@/lib/env";
+import { escapeHtml } from "@/lib/utils";
 
-// Lazy-initialize Resend to avoid crashing in dev mode if key is missing
 let _resend: Resend | null = null;
 function getResend(): Resend {
   if (!_resend) {
@@ -13,18 +13,6 @@ function getResend(): Resend {
 const FROM_EMAIL = env.FROM_EMAIL;
 const APP_NAME = clientEnv.APP_NAME;
 
-// Escape HTML to prevent XSS in email templates
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-// Validate and sanitize URLs for use in email href attributes
-// Only allows http: and https: protocols to prevent javascript: XSS
 function sanitizeUrl(url: string): string {
   try {
     const parsed = new URL(url);
@@ -52,7 +40,6 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions) {
     console.log("To:", to);
     console.log("Subject:", subject);
 
-    // Extract OTP if present (for verification emails)
     const otpMatch = html.match(/letter-spacing: 8px;">(\d{6})</);
     if (otpMatch) {
       console.log("🔑 OTP:", otpMatch[1]);
@@ -60,11 +47,9 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions) {
 
     console.log("=====================================\n");
 
-    // Return success in development mode
     return { success: true, data: { id: "dev-mode-email" } };
   }
 
-  // Production mode - send actual email
   try {
     const { data, error } = await getResend().emails.send({
       from: `${APP_NAME} <${FROM_EMAIL}>`,
@@ -85,7 +70,6 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions) {
   }
 }
 
-// Email Templates
 export function getVerificationEmailTemplate(otp: string, name?: string) {
   return `
     <!DOCTYPE html>
@@ -283,11 +267,7 @@ export function getInterestNotificationTemplate(
   `;
 }
 
-// Helper function to send interest notification email
-export async function sendInterestEmail(
-  toEmail: string,
-  senderName: string
-) {
+export async function sendInterestEmail(toEmail: string, senderName: string) {
   const profileLink = `${clientEnv.APP_URL}/interests`;
   const html = getInterestNotificationTemplate(senderName, undefined, profileLink);
 
@@ -298,11 +278,7 @@ export async function sendInterestEmail(
   });
 }
 
-// Interest Accepted Notification
-export function getInterestAcceptedTemplate(
-  accepterName: string,
-  profileLink: string
-) {
+export function getInterestAcceptedTemplate(accepterName: string, profileLink: string) {
   return `
     <!DOCTYPE html>
     <html>
@@ -353,10 +329,7 @@ export function getInterestAcceptedTemplate(
   `;
 }
 
-export async function sendInterestAcceptedEmail(
-  toEmail: string,
-  accepterName: string
-) {
+export async function sendInterestAcceptedEmail(toEmail: string, accepterName: string) {
   const profileLink = `${clientEnv.APP_URL}/messages`;
   const html = getInterestAcceptedTemplate(accepterName, profileLink);
 
@@ -367,11 +340,7 @@ export async function sendInterestAcceptedEmail(
   });
 }
 
-// New Message Notification
-export function getNewMessageTemplate(
-  senderName: string,
-  messagePreview: string
-) {
+export function getNewMessageTemplate(senderName: string, messagePreview: string) {
   return `
     <!DOCTYPE html>
     <html>
@@ -435,7 +404,6 @@ export async function sendNewMessageEmail(
   });
 }
 
-// Subscription Expiry Warning
 export function getSubscriptionExpiryTemplate(
   name: string,
   daysRemaining: number,
@@ -509,7 +477,6 @@ export async function sendSubscriptionExpiryEmail(
   });
 }
 
-// Account Suspension Notice
 export function getAccountSuspensionTemplate(name: string, reason: string) {
   return `
     <!DOCTYPE html>
@@ -569,11 +536,7 @@ export function getAccountSuspensionTemplate(name: string, reason: string) {
   `;
 }
 
-export async function sendAccountSuspensionEmail(
-  toEmail: string,
-  name: string,
-  reason: string
-) {
+export async function sendAccountSuspensionEmail(toEmail: string, name: string, reason: string) {
   const html = getAccountSuspensionTemplate(name, reason);
 
   return sendEmail({

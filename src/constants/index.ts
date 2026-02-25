@@ -1,7 +1,6 @@
 import type { SubscriptionPlan } from "@/types";
 import { City } from "country-state-city";
 
-// Mapping from camelCase state keys to ISO codes (for country-state-city library)
 const STATE_TO_ISO: Record<string, string> = {
   AndhraPradesh: "AP",
   ArunachalPradesh: "AR",
@@ -38,7 +37,6 @@ const STATE_TO_ISO: Record<string, string> = {
   Chandigarh: "CH",
 };
 
-// Site Configuration - centralized contact info
 export const SITE_CONFIG = {
   name: "GDS Marriage Links",
   url: "https://gdsmarriagelinks.com",
@@ -57,7 +55,6 @@ export const SITE_CONFIG = {
   },
 } as const;
 
-// Profile For Options
 export const PROFILE_FOR_OPTIONS = [
   { value: "myself", label: "Myself" },
   { value: "son", label: "Son" },
@@ -67,16 +64,13 @@ export const PROFILE_FOR_OPTIONS = [
   { value: "friend", label: "Friend" },
 ] as const;
 
-// Gender Options
 export const GENDER_OPTIONS = [
   { value: "male", label: "Male" },
   { value: "female", label: "Female" },
 ] as const;
 
-// Age Options (18-70)
 export const AGE_OPTIONS = Array.from({ length: 53 }, (_, i) => i + 18);
 
-// Marital Status Options
 export const MARITAL_STATUS_OPTIONS = [
   { value: "never_married", label: "Never Married" },
   { value: "divorced", label: "Divorced" },
@@ -84,7 +78,6 @@ export const MARITAL_STATUS_OPTIONS = [
   { value: "awaiting_divorce", label: "Awaiting Divorce" },
 ] as const;
 
-// Religion Options
 export const RELIGION_OPTIONS = [
   "Hindu",
   "Muslim",
@@ -97,29 +90,82 @@ export const RELIGION_OPTIONS = [
   "Other",
 ] as const;
 
-// Caste Options by Religion
 export const CASTE_OPTIONS: Record<string, string[]> = {
   Hindu: [
-    "Brahmin", "Kshatriya", "Vaishya", "Yadav", "Kurmi", "Saini", "Jat",
-    "Bania", "Kayastha", "Rajput", "Agarwal", "Gupta", "Maratha", "Nair",
-    "Vanniyar", "Lingayat", "Reddy", "Iyer", "Iyengar", "Kamma", "Patel",
-    "SC", "ST", "OBC", "Other"
+    "Brahmin",
+    "Kshatriya",
+    "Vaishya",
+    "Yadav",
+    "Kurmi",
+    "Saini",
+    "Jat",
+    "Bania",
+    "Kayastha",
+    "Rajput",
+    "Agarwal",
+    "Gupta",
+    "Maratha",
+    "Nair",
+    "Vanniyar",
+    "Lingayat",
+    "Reddy",
+    "Iyer",
+    "Iyengar",
+    "Kamma",
+    "Patel",
+    "SC",
+    "ST",
+    "OBC",
+    "Other",
   ],
   Muslim: [
-    "Ansari", "Pathan", "Shaikh", "Siddiqui", "Sayyid", "Qureshi",
-    "Mughal", "Mirza", "Khan", "Chaudhary", "Other"
+    "Ansari",
+    "Pathan",
+    "Shaikh",
+    "Siddiqui",
+    "Sayyid",
+    "Qureshi",
+    "Mughal",
+    "Mirza",
+    "Khan",
+    "Chaudhary",
+    "Other",
   ],
   Christian: [
-    "Roman Catholic", "Protestant", "Syrian Christian", "Malankara Orthodox",
-    "Pentecost", "Evangelical", "Anglican", "Baptist", "Methodist", "Presbyterian", "Other"
+    "Roman Catholic",
+    "Protestant",
+    "Syrian Christian",
+    "Malankara Orthodox",
+    "Pentecost",
+    "Evangelical",
+    "Anglican",
+    "Baptist",
+    "Methodist",
+    "Presbyterian",
+    "Other",
   ],
   Sikh: [
-    "Jat Sikh", "Khatri Sikh", "Ramgarhia", "Arora", "Mazbi Sikh",
-    "Lubana", "Ahluwalia", "Saini", "Rai Sikh", "Bhatia", "Other"
+    "Jat Sikh",
+    "Khatri Sikh",
+    "Ramgarhia",
+    "Arora",
+    "Mazbi Sikh",
+    "Lubana",
+    "Ahluwalia",
+    "Saini",
+    "Rai Sikh",
+    "Bhatia",
+    "Other",
   ],
   Jain: [
-    "Shwetambar", "Digambar", "Oswal", "Porwal", "Agarwal Jain",
-    "Khandelwal Jain", "Humad", "Other"
+    "Shwetambar",
+    "Digambar",
+    "Oswal",
+    "Porwal",
+    "Agarwal Jain",
+    "Khandelwal Jain",
+    "Humad",
+    "Other",
   ],
   Buddhist: ["Mahar", "Tibetan Buddhist", "Newar", "Burman", "Bhutia", "Sherpa", "Other"],
   Parsi: ["Irani", "Parsi", "Zoroastrian", "Other"],
@@ -127,15 +173,37 @@ export const CASTE_OPTIONS: Record<string, string[]> = {
   Other: ["Other"],
 };
 
-// Mother Tongue Options
 export const MOTHER_TONGUE_OPTIONS = [
-  "Hindi", "English", "Tamil", "Telugu", "Kannada", "Marathi", "Punjabi",
-  "Bengali", "Gujarati", "Malayalam", "Odia", "Urdu", "Nepali", "Assamese",
-  "Kashmiri", "Sindhi", "Konkani", "Marwari", "Sanskrit", "Manipuri", "Maithili",
-  "Chhattisgarhi", "Tulu", "Santhali", "Haryanvi", "Bihari", "Rajasthani", "Other"
+  "Hindi",
+  "English",
+  "Tamil",
+  "Telugu",
+  "Kannada",
+  "Marathi",
+  "Punjabi",
+  "Bengali",
+  "Gujarati",
+  "Malayalam",
+  "Odia",
+  "Urdu",
+  "Nepali",
+  "Assamese",
+  "Kashmiri",
+  "Sindhi",
+  "Konkani",
+  "Marwari",
+  "Sanskrit",
+  "Manipuri",
+  "Maithili",
+  "Chhattisgarhi",
+  "Tulu",
+  "Santhali",
+  "Haryanvi",
+  "Bihari",
+  "Rajasthani",
+  "Other",
 ] as const;
 
-// Height Options (in cm)
 export const HEIGHT_OPTIONS = Array.from({ length: 51 }, (_, i) => {
   const cm = 140 + i;
   const feet = Math.floor(cm / 30.48);
@@ -146,45 +214,66 @@ export const HEIGHT_OPTIONS = Array.from({ length: 51 }, (_, i) => {
   };
 });
 
-// Body Type Options
-export const BODY_TYPE_OPTIONS = [
-  "Slim", "Average", "Athletic", "Heavy", "Other"
-] as const;
+export const BODY_TYPE_OPTIONS = ["Slim", "Average", "Athletic", "Heavy", "Other"] as const;
 
-// Complexion Options
 export const COMPLEXION_OPTIONS = [
-  "Very Fair", "Fair", "Wheatish", "Wheatish Brown", "Dark"
+  "Very Fair",
+  "Fair",
+  "Wheatish",
+  "Wheatish Brown",
+  "Dark",
 ] as const;
 
-// Physical Status Options
-export const PHYSICAL_STATUS_OPTIONS = [
-  "Normal", "Physically Challenged"
-] as const;
+export const PHYSICAL_STATUS_OPTIONS = ["Normal", "Physically Challenged"] as const;
 
-// Education Options
 export const EDUCATION_OPTIONS = [
-  "High School", "Diploma", "Bachelor's Degree", "Master's Degree",
-  "Doctorate/PhD", "Professional Degree (CA, CS, ICWA)", "Engineering (B.Tech/B.E.)",
-  "Engineering (M.Tech/M.E.)", "Medical (MBBS)", "Medical (MD/MS)", "MBA/PGDM",
-  "Law (LLB)", "Law (LLM)", "Other"
+  "High School",
+  "Diploma",
+  "Bachelor's Degree",
+  "Master's Degree",
+  "Doctorate/PhD",
+  "Professional Degree (CA, CS, ICWA)",
+  "Engineering (B.Tech/B.E.)",
+  "Engineering (M.Tech/M.E.)",
+  "Medical (MBBS)",
+  "Medical (MD/MS)",
+  "MBA/PGDM",
+  "Law (LLB)",
+  "Law (LLM)",
+  "Other",
 ] as const;
 
-// Employed In Options
 export const EMPLOYED_IN_OPTIONS = [
-  "Private Sector", "Government/PSU", "Business/Self Employed",
-  "Defense/Civil Services", "Not Working", "Other"
+  "Private Sector",
+  "Government/PSU",
+  "Business/Self Employed",
+  "Defense/Civil Services",
+  "Not Working",
+  "Other",
 ] as const;
 
-// Occupation Options
 export const OCCUPATION_OPTIONS = [
-  "Software Professional", "Banking Professional", "Doctor", "Engineer",
-  "Teacher/Professor", "Lawyer", "Chartered Accountant", "Government Employee",
-  "Business Owner", "Manager", "Consultant", "Analyst", "Designer",
-  "Marketing Professional", "Sales Professional", "HR Professional",
-  "Finance Professional", "Medical Professional", "Other"
+  "Software Professional",
+  "Banking Professional",
+  "Doctor",
+  "Engineer",
+  "Teacher/Professor",
+  "Lawyer",
+  "Chartered Accountant",
+  "Government Employee",
+  "Business Owner",
+  "Manager",
+  "Consultant",
+  "Analyst",
+  "Designer",
+  "Marketing Professional",
+  "Sales Professional",
+  "HR Professional",
+  "Finance Professional",
+  "Medical Professional",
+  "Other",
 ] as const;
 
-// Annual Income Options
 export const ANNUAL_INCOME_OPTIONS = [
   { value: "upto_3", label: "Upto 3 Lakh" },
   { value: "3_5", label: "3-5 Lakh" },
@@ -199,49 +288,39 @@ export const ANNUAL_INCOME_OPTIONS = [
   { value: "above_100", label: "Above 1 Crore" },
 ] as const;
 
-// Diet Options
-export const DIET_OPTIONS = [
-  "Vegetarian", "Non-Vegetarian", "Eggetarian", "Vegan"
-] as const;
+export const DIET_OPTIONS = ["Vegetarian", "Non-Vegetarian", "Eggetarian", "Vegan"] as const;
 
-// Smoking Options
-export const SMOKING_OPTIONS = [
-  "No", "Yes", "Occasionally"
-] as const;
+export const SMOKING_OPTIONS = ["No", "Yes", "Occasionally"] as const;
 
-// Drinking Options
-export const DRINKING_OPTIONS = [
-  "No", "Yes", "Occasionally", "Socially"
-] as const;
+export const DRINKING_OPTIONS = ["No", "Yes", "Occasionally", "Socially"] as const;
 
-// Family Status Options
 export const FAMILY_STATUS_OPTIONS = [
-  "Middle Class", "Upper Middle Class", "Rich", "Affluent"
+  "Middle Class",
+  "Upper Middle Class",
+  "Rich",
+  "Affluent",
 ] as const;
 
-// Family Type Options
-export const FAMILY_TYPE_OPTIONS = [
-  "Joint Family", "Nuclear Family"
-] as const;
+export const FAMILY_TYPE_OPTIONS = ["Joint Family", "Nuclear Family"] as const;
 
-// Family Value Options
-export const FAMILY_VALUE_OPTIONS = [
-  "Traditional", "Moderate", "Liberal"
-] as const;
+export const FAMILY_VALUE_OPTIONS = ["Traditional", "Moderate", "Liberal"] as const;
 
-// Parent Occupation Options
 export const PARENT_OCCUPATION_OPTIONS = [
-  "Government Employee", "Private Employee", "Business", "Professional",
-  "Retired", "Homemaker", "Not Employed", "Passed Away"
+  "Government Employee",
+  "Private Employee",
+  "Business",
+  "Professional",
+  "Retired",
+  "Homemaker",
+  "Not Employed",
+  "Passed Away",
 ] as const;
 
-// Countries
 export const COUNTRY_OPTIONS = [
   { value: "India", label: "India" },
   { value: "Other", label: "Other" },
 ] as const;
 
-// Indian States
 export const STATE_OPTIONS = [
   { value: "AndhraPradesh", label: "Andhra Pradesh" },
   { value: "ArunachalPradesh", label: "Arunachal Pradesh" },
@@ -278,14 +357,15 @@ export const STATE_OPTIONS = [
   { value: "Chandigarh", label: "Chandigarh" },
 ] as const;
 
-// Cities by State - lazily computed from country-state-city library per state
 const citiesCache: Record<string, string[]> = {};
 export const CITIES_BY_STATE: Record<string, string[]> = new Proxy(citiesCache, {
   get(target, prop: string) {
     if (prop in target) return target[prop];
     const isoCode = STATE_TO_ISO[prop];
     if (!isoCode) return undefined;
-    const cities = City.getCitiesOfState("IN", isoCode).map((c) => c.name).sort();
+    const cities = City.getCitiesOfState("IN", isoCode)
+      .map((c) => c.name)
+      .sort();
     target[prop] = cities;
     return cities;
   },
@@ -303,10 +383,8 @@ export const CITIES_BY_STATE: Record<string, string[]> = new Proxy(citiesCache, 
   },
 });
 
-// GST rate (18%)
 export const GST_RATE = 0.18;
 
-// Subscription Plans (prices are base prices before GST)
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: "basic",
@@ -370,8 +448,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     features: {
       browseProfiles: true,
       viewPhotos: true,
-      interestsPerDay: 9999, // Unlimited
-      contactViews: 9999, // Unlimited
+      interestsPerDay: 9999,
+      contactViews: 9999,
       chat: true,
       seeProfileViewers: true,
       seeWhoLiked: true,
@@ -382,7 +460,6 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   },
 ];
 
-// Profile Completion Steps
 export const PROFILE_COMPLETION_STEPS = [
   { step: 1, name: "Basic Info", percentage: 10 },
   { step: 2, name: "Personal Details", percentage: 30 },
@@ -392,36 +469,50 @@ export const PROFILE_COMPLETION_STEPS = [
   { step: 6, name: "Photo & Bio", percentage: 100 },
 ] as const;
 
-// Trust Level Thresholds
+export const TRUST_BADGE_CLASSES: Record<string, string> = {
+  highly_trusted: "trust-badge-highly-trusted",
+  verified_user: "trust-badge-verified",
+  new_member: "trust-badge-new",
+};
+
+export const TRUST_LABELS: Record<string, string> = {
+  highly_trusted: "Highly Trusted",
+  verified_user: "Verified",
+  new_member: "New Member",
+};
+
+export const MATCH_SCORE_CLASSES = {
+  high: { min: 80, className: "match-score-high" },
+  medium: { min: 60, className: "match-score-medium" },
+  low: { min: 0, className: "match-score-low" },
+} as const;
+
 export const TRUST_LEVEL_THRESHOLDS = {
   new_member: { min: 0, max: 39 },
   verified_user: { min: 40, max: 69 },
   highly_trusted: { min: 70, max: 100 },
 } as const;
 
-// Polling Intervals (in milliseconds)
 export const POLLING_INTERVALS = {
-  CONVERSATIONS: 30000, // 30 seconds
-  MESSAGES: 10000, // 10 seconds
+  CONVERSATIONS: 30000,
+  MESSAGES: 10000,
 } as const;
 
-// OTP Configuration
 export const OTP_CONFIG = {
   MAX_ATTEMPTS: 5,
   EXPIRY_MINUTES: 10,
   RESEND_COOLDOWN_SECONDS: 60,
 } as const;
 
-// Contact Pack Options
 export const CONTACT_PACKS = [
   {
     id: "contact_pack_10",
     size: 10,
     price: 499,
     name: "Starter Pack",
-    pricePerContact: 49.90,
+    pricePerContact: 49.9,
     savings: undefined,
-    description: "Perfect for exploring a few promising matches"
+    description: "Perfect for exploring a few promising matches",
   },
   {
     id: "contact_pack_25",
@@ -430,7 +521,7 @@ export const CONTACT_PACKS = [
     name: "Value Pack",
     pricePerContact: 39.96,
     savings: "20%",
-    description: "Best value for active matchmaking"
+    description: "Best value for active matchmaking",
   },
   {
     id: "contact_pack_50",
@@ -439,6 +530,6 @@ export const CONTACT_PACKS = [
     name: "Premium Pack",
     pricePerContact: 35.98,
     savings: "30%",
-    description: "Maximum connections for serious seekers"
+    description: "Maximum connections for serious seekers",
   },
 ] as const;

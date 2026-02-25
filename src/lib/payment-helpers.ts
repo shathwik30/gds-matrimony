@@ -5,41 +5,27 @@ import { SUBSCRIPTION_PLANS } from "@/constants";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
-/**
- * Verify a Razorpay HMAC-SHA256 signature using constant-time comparison.
- */
-export function verifyRazorpaySignature(payload: string, signature: string, secret: string): boolean {
-  const expectedSignature = crypto
-    .createHmac("sha256", secret)
-    .update(payload)
-    .digest("hex");
+export function verifyRazorpaySignature(
+  payload: string,
+  signature: string,
+  secret: string
+): boolean {
+  const expectedSignature = crypto.createHmac("sha256", secret).update(payload).digest("hex");
 
-  // Both hex strings are same length (SHA-256 = 64 hex chars), safe for timingSafeEqual
   if (signature.length !== expectedSignature.length) return false;
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  );
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
 }
 
-/**
- * Safe month addition that handles overflow (e.g., Jan 31 + 1 month = Feb 28).
- */
 export function addMonths(date: Date, months: number): Date {
   const result = new Date(date);
   const day = result.getDate();
   result.setMonth(result.getMonth() + months);
   if (result.getDate() !== day) {
-    result.setDate(0); // last day of previous month
+    result.setDate(0);
   }
   return result;
 }
 
-/**
- * Activate a subscription within a transaction. Deactivates existing subs,
- * creates the new one, and links it to the payment.
- * Returns the new subscription id, or null if the plan is not found.
- */
 type SubscriptionPlanId = "free" | "basic" | "silver" | "gold" | "platinum";
 
 export async function activateSubscription(
@@ -54,36 +40,30 @@ export async function activateSubscription(
   const startDate = new Date();
   const endDate = addMonths(startDate, plan.duration);
 
-  // Deactivate existing subscriptions
   await tx
     .update(subscriptions)
     .set({ isActive: false })
     .where(and(eq(subscriptions.userId, userId), eq(subscriptions.isActive, true)));
 
-  // Create new subscription
-  const [newSub] = await tx.insert(subscriptions).values({
-    userId,
-    plan: planId as SubscriptionPlanId,
-    startDate,
-    endDate,
-    isActive: true,
-    interestsPerDay: plan.features.interestsPerDay,
-    contactViews: plan.features.contactViews,
-    profileBoosts: plan.features.profileBoosts,
-  }).returning({ id: subscriptions.id });
+  const [newSub] = await tx
+    .insert(subscriptions)
+    .values({
+      userId,
+      plan: planId as SubscriptionPlanId,
+      startDate,
+      endDate,
+      isActive: true,
+      interestsPerDay: plan.features.interestsPerDay,
+      contactViews: plan.features.contactViews,
+      profileBoosts: plan.features.profileBoosts,
+    })
+    .returning({ id: subscriptions.id });
 
-  // Link subscription to payment
-  await tx
-    .update(payments)
-    .set({ subscriptionId: newSub.id })
-    .where(eq(payments.id, paymentId));
+  await tx.update(payments).set({ subscriptionId: newSub.id }).where(eq(payments.id, paymentId));
 
   return { subscriptionId: newSub.id };
 }
 
-/**
- * Activate a contact pack purchase within a transaction.
- */
 export async function activateContactPack(
   tx: Tx,
   userId: number,

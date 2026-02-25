@@ -90,13 +90,13 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const [userPlan, setUserPlan] = useState<string | null>(null);
 
-  // Contact reveal state
   const [contactViewsRemaining, setContactViewsRemaining] = useState<number | null>(null);
   const [isUnlimitedViews, setIsUnlimitedViews] = useState(false);
   const [isRevealingContact, setIsRevealingContact] = useState(false);
-  const [revealedContact, setRevealedContact] = useState<{ email?: string; phone?: string } | null>(null);
+  const [revealedContact, setRevealedContact] = useState<{ email?: string; phone?: string } | null>(
+    null
+  );
 
-  // Lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -105,7 +105,6 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
   const dragStart = useRef({ x: 0, y: 0 });
   const panStart = useRef({ x: 0, y: 0 });
 
-  // Build combined image array: hero image first, then gallery images
   const allImages = profile
     ? [
         ...(profile.profileImage ? [{ id: 0, imageUrl: profile.profileImage }] : []),
@@ -171,7 +170,6 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
     isDragging.current = false;
   };
 
-  // Keyboard navigation for lightbox
   useEffect(() => {
     if (!lightboxOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -187,14 +185,15 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lightboxOpen, allImages.length]);
 
-  // Prevent body scroll when lightbox is open
   useEffect(() => {
     if (lightboxOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [lightboxOpen]);
 
   const loadProfile = useCallback(async () => {
@@ -210,7 +209,6 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
       const result = await getProfileById(userIdNum);
       if (result.success && result.data) {
         setProfile(result.data);
-        // Record profile view (fire-and-forget)
         recordProfileView(userIdNum).catch(() => {});
       } else {
         toast.error(result.error || "Failed to load profile");
@@ -228,13 +226,11 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
   }, [loadProfile]);
 
   useEffect(() => {
-    // Fetch user's subscription to show context-aware messages
     getMySubscription().then((result) => {
       if (result.success && result.data) {
         setUserPlan(result.data.plan);
       }
     });
-    // Fetch total contact views remaining (packs + subscription)
     getTotalContactViews().then((result) => {
       if (result.success && result.data) {
         setIsUnlimitedViews(result.data.isUnlimitedSub);
@@ -293,7 +289,6 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
       const result = await revealContact(profile.userId);
       if (result.success && result.data) {
         setRevealedContact(result.data);
-        // Refresh contact views balance
         const balanceResult = await getTotalContactViews();
         if (balanceResult.success && balanceResult.data) {
           setIsUnlimitedViews(balanceResult.data.isUnlimitedSub);
@@ -333,9 +328,9 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[70vh]">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+      <div className="flex min-h-[70vh] items-center justify-center">
+        <div className="space-y-4 text-center">
+          <Loader2 className="text-primary mx-auto h-12 w-12 animate-spin" />
           <p className="text-muted-foreground">Loading profile...</p>
         </div>
       </div>
@@ -345,16 +340,14 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
   if (!profile) {
     return (
       <div className="container-wide py-16 text-center">
-        <Card variant="elevated" className="max-w-md mx-auto">
-          <CardContent className="pt-12 pb-12 space-y-6">
-            <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mx-auto">
-              <ArrowLeft className="h-10 w-10 text-muted-foreground" />
+        <Card variant="elevated" className="mx-auto max-w-md">
+          <CardContent className="space-y-6 pt-12 pb-12">
+            <div className="bg-muted mx-auto flex h-20 w-20 items-center justify-center rounded-full">
+              <ArrowLeft className="text-muted-foreground h-10 w-10" />
             </div>
             <div className="space-y-3">
               <h1 className="text-2xl font-bold">Profile Not Found</h1>
-              <p className="text-muted-foreground">
-                This profile may have been hidden or deleted.
-              </p>
+              <p className="text-muted-foreground">This profile may have been hidden or deleted.</p>
             </div>
             <Button asChild size="default" className="shadow-premium-sm hover:shadow-premium-md">
               <Link href="/matches">Browse Matches</Link>
@@ -366,19 +359,17 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      {/* Back Button */}
-      <Button variant="ghost" className="mb-6 hover:bg-primary/5" asChild>
+    <div className="mx-auto max-w-5xl px-4 py-10">
+      <Button variant="ghost" className="hover:bg-primary/5 mb-6" asChild>
         <Link href="/matches">
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Matches
         </Link>
       </Button>
 
-      {/* Profile Header */}
-      <Card variant="elevated" className="overflow-hidden mb-8 group">
+      <Card variant="elevated" className="group mb-8 overflow-hidden">
         <div
-          className={`relative h-80 md:h-96 bg-gradient-to-br from-brand-light to-brand-light/50 ${
+          className={`from-brand-light to-brand-light/50 relative h-80 bg-gradient-to-br md:h-96 ${
             profile.canViewPhoto && profile.profileImage ? "cursor-pointer" : ""
           }`}
           onClick={() => profile.canViewPhoto && profile.profileImage && openLightbox(0)}
@@ -390,38 +381,37 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
                 alt={`${profile.firstName}'s photo`}
                 fill
                 className={`object-cover transition-all duration-500 group-hover:scale-105 ${
-                  !profile.canViewPhoto ? "blur-xl scale-110" : ""
+                  !profile.canViewPhoto ? "scale-110 blur-xl" : ""
                 }`}
               />
               {!profile.canViewPhoto && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
-                  <div className="bg-black/50 backdrop-blur-sm rounded-2xl px-6 py-4 text-center text-white">
-                    <Crown className="h-7 w-7 mx-auto mb-2 text-amber-400" />
-                    <p className="font-semibold text-sm">Upgrade to view photos</p>
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3">
+                  <div className="rounded-2xl bg-black/50 px-6 py-4 text-center text-white backdrop-blur-sm">
+                    <Crown className="mx-auto mb-2 h-7 w-7 text-amber-400" />
+                    <p className="text-sm font-semibold">Upgrade to view photos</p>
                   </div>
                 </div>
               )}
             </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/10 text-primary text-7xl font-bold">
+            <div className="from-primary/20 to-primary/10 text-primary flex h-full w-full items-center justify-center bg-gradient-to-br text-7xl font-bold">
               {getInitials(profile.firstName, profile.lastName)}
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
-          {/* Profile Info Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-8 text-white pointer-events-none">
-            <div className="flex items-center gap-3 mb-3">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+          <div className="pointer-events-none absolute right-0 bottom-0 left-0 p-8 text-white">
+            <div className="mb-3 flex items-center gap-3">
+              <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
                 {profile.firstName} {profile.lastName}
               </h1>
               {profile.trustLevel === "verified_user" && (
-                <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500">
                   <BadgeCheck className="h-5 w-5 text-white" />
                 </div>
               )}
             </div>
-            <p className="text-xl font-medium mb-2">
+            <p className="mb-2 text-xl font-medium">
               {profile.age} years{profile.height ? ` • ${heightToFeetInches(profile.height)}` : ""}
             </p>
             {profile.residingCity && (
@@ -433,25 +423,28 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <CardContent className="py-6 bg-gradient-to-b from-muted/30 to-transparent">
-          <div className="flex gap-3 flex-wrap items-center">
-            <Button onClick={handleSendInterest} disabled={isSendingInterest || interestSent} size="default" className="shadow-premium-sm hover:shadow-premium-md">
+        <CardContent className="from-muted/30 bg-gradient-to-b to-transparent py-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              onClick={handleSendInterest}
+              disabled={isSendingInterest || interestSent}
+              size="default"
+              className="shadow-premium-sm hover:shadow-premium-md"
+            >
               {isSendingInterest ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Heart className={`h-4 w-4 mr-2 ${interestSent ? "fill-current" : ""}`} />
+                <Heart className={`mr-2 h-4 w-4 ${interestSent ? "fill-current" : ""}`} />
               )}
               {interestSent ? "Interest Sent" : "Send Interest"}
             </Button>
             <Button variant="outline" asChild size="default">
               <Link href={`/messages?userId=${profile.userId}`}>
-                <MessageCircle className="h-4 w-4 mr-2" />
+                <MessageCircle className="mr-2 h-4 w-4" />
                 Message
               </Link>
             </Button>
 
-            {/* Block/Report Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="ml-auto">
@@ -460,7 +453,7 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="shadow-premium-lg">
                 <DropdownMenuItem onClick={handleBlock}>
-                  <Ban className="h-4 w-4 mr-2" />
+                  <Ban className="mr-2 h-4 w-4" />
                   Block User
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -468,7 +461,7 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
                   onClick={() => setShowReportDialog(true)}
                   className="text-destructive focus:text-destructive"
                 >
-                  <ShieldAlert className="h-4 w-4 mr-2" />
+                  <ShieldAlert className="mr-2 h-4 w-4" />
                   Report User
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -478,12 +471,11 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
       </Card>
 
       <div className="grid gap-8 md:grid-cols-2">
-        {/* Contact Info (for premium + accepted interest) */}
         {(profile.email || profile.phoneNumber) && (
-          <Card variant="feature" className="md:col-span-2 border-green-200 bg-green-50">
+          <Card variant="feature" className="border-green-200 bg-green-50 md:col-span-2">
             <CardHeader>
-              <CardTitle className="text-xl flex items-center gap-3 text-green-700">
-                <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+              <CardTitle className="flex items-center gap-3 text-xl text-green-700">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
                   <Phone className="h-5 w-5" />
                 </div>
                 Contact Information
@@ -492,7 +484,7 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
             <CardContent className="space-y-3">
               {profile.email && (
                 <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <Mail className="text-muted-foreground h-4 w-4" />
                   <a href={`mailto:${profile.email}`} className="text-sm hover:underline">
                     {profile.email}
                   </a>
@@ -500,7 +492,7 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
               )}
               {profile.phoneNumber && (
                 <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <Phone className="text-muted-foreground h-4 w-4" />
                   <a href={`tel:${profile.phoneNumber}`} className="text-sm hover:underline">
                     {profile.phoneNumber}
                   </a>
@@ -510,14 +502,13 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
           </Card>
         )}
 
-        {/* Upgrade CTA / Contact Reveal (when no contact info from server) */}
-        {!profile.email && !profile.phoneNumber && (
-          revealedContact ? (
-            /* Revealed contact info card */
-            <Card variant="feature" className="md:col-span-2 border-green-200 bg-green-50">
+        {!profile.email &&
+          !profile.phoneNumber &&
+          (revealedContact ? (
+            <Card variant="feature" className="border-green-200 bg-green-50 md:col-span-2">
               <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-3 text-green-700">
-                  <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                <CardTitle className="flex items-center gap-3 text-xl text-green-700">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
                     <Phone className="h-5 w-5" />
                   </div>
                   Contact Information
@@ -526,7 +517,7 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
               <CardContent className="space-y-3">
                 {revealedContact.email && (
                   <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <Mail className="text-muted-foreground h-4 w-4" />
                     <a href={`mailto:${revealedContact.email}`} className="text-sm hover:underline">
                       {revealedContact.email}
                     </a>
@@ -534,54 +525,62 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
                 )}
                 {revealedContact.phone && (
                   <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <Phone className="text-muted-foreground h-4 w-4" />
                     <a href={`tel:${revealedContact.phone}`} className="text-sm hover:underline">
                       {revealedContact.phone}
                     </a>
                   </div>
                 )}
                 {!revealedContact.email && !revealedContact.phone && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     This user has not added any contact information yet.
                   </p>
                 )}
               </CardContent>
             </Card>
           ) : (
-            /* CTA card: upgrade, view contact, or buy packs */
-            <Card variant="bordered" className="md:col-span-2 border-amber-300 bg-gradient-to-r from-amber-50 to-amber-100/50">
+            <Card
+              variant="bordered"
+              className="border-amber-300 bg-gradient-to-r from-amber-50 to-amber-100/50 md:col-span-2"
+            >
               <CardContent className="py-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
                   <div className="flex items-center gap-4">
-                    <div className="h-14 w-14 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-amber-100">
                       <Crown className="h-7 w-7 text-amber-600" />
                     </div>
                     <div>
-                      <p className="font-semibold text-base">View Contact Details</p>
+                      <p className="text-base font-semibold">View Contact Details</p>
                       {!userPlan || userPlan === "free" ? (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           Upgrade to a premium plan to view contact information.
                         </p>
-                      ) : (isUnlimitedViews || (contactViewsRemaining !== null && contactViewsRemaining > 0)) ? (
-                        <p className="text-sm text-muted-foreground">
+                      ) : isUnlimitedViews ||
+                        (contactViewsRemaining !== null && contactViewsRemaining > 0) ? (
+                        <p className="text-muted-foreground text-sm">
                           Use 1 contact view to reveal phone &amp; email.
                           {isUnlimitedViews
                             ? " You have unlimited views."
                             : ` ${contactViewsRemaining} view${contactViewsRemaining === 1 ? "" : "s"} remaining.`}
                         </p>
                       ) : (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           You have no contact views remaining. Buy a contact pack to continue.
                         </p>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex shrink-0 items-center gap-2">
                     {!userPlan || userPlan === "free" ? (
-                      <Button size="default" asChild className="shadow-premium-sm hover:shadow-premium-md">
+                      <Button
+                        size="default"
+                        asChild
+                        className="shadow-premium-sm hover:shadow-premium-md"
+                      >
                         <Link href="/membership">Upgrade</Link>
                       </Button>
-                    ) : (isUnlimitedViews || (contactViewsRemaining !== null && contactViewsRemaining > 0)) ? (
+                    ) : isUnlimitedViews ||
+                      (contactViewsRemaining !== null && contactViewsRemaining > 0) ? (
                       <Button
                         size="default"
                         onClick={handleRevealContact}
@@ -589,14 +588,18 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
                         className="shadow-premium-sm hover:shadow-premium-md"
                       >
                         {isRevealingContact ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
-                          <Eye className="h-4 w-4 mr-2" />
+                          <Eye className="mr-2 h-4 w-4" />
                         )}
                         {isRevealingContact ? "Revealing..." : "View Contact"}
                       </Button>
                     ) : (
-                      <Button size="default" asChild className="shadow-premium-sm hover:shadow-premium-md">
+                      <Button
+                        size="default"
+                        asChild
+                        className="shadow-premium-sm hover:shadow-premium-md"
+                      >
                         <Link href="/contact-packs">Buy Contact Packs</Link>
                       </Button>
                     )}
@@ -604,58 +607,62 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
                 </div>
               </CardContent>
             </Card>
-          )
-        )}
+          ))}
 
-        {/* About Section */}
         {profile.aboutMe && (
           <Card variant="elevated" className="md:col-span-2">
             <CardHeader>
               <CardTitle className="text-xl">About Me</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed text-base">
+              <p className="text-muted-foreground text-base leading-relaxed whitespace-pre-wrap">
                 {profile.aboutMe}
               </p>
             </CardContent>
           </Card>
         )}
 
-        {/* Gallery */}
         {profile.images && profile.images.length > 0 && (
           <Card variant="elevated" className="md:col-span-2">
             <CardHeader>
               <CardTitle className="text-xl">Photos</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`grid gap-3 ${
-                profile.images.length === 1 ? "grid-cols-1" :
-                profile.images.length === 2 ? "grid-cols-2" :
-                profile.images.length === 3 ? "grid-cols-3" :
-                "grid-cols-2 md:grid-cols-4"
-              }`}>
+              <div
+                className={`grid gap-3 ${
+                  profile.images.length === 1
+                    ? "grid-cols-1"
+                    : profile.images.length === 2
+                      ? "grid-cols-2"
+                      : profile.images.length === 3
+                        ? "grid-cols-3"
+                        : "grid-cols-2 md:grid-cols-4"
+                }`}
+              >
                 {profile.images.map((img) => {
                   const lightboxIdx = allImages.findIndex((ai) => ai.imageUrl === img.imageUrl);
                   return (
                     <div
                       key={img.id}
-                      className={`relative overflow-hidden rounded-xl bg-muted ${
+                      className={`bg-muted relative overflow-hidden rounded-xl ${
                         profile.images!.length === 1 ? "aspect-[4/3]" : "aspect-square"
                       } ${profile.canViewPhoto ? "cursor-pointer" : ""}`}
-                      onClick={() => profile.canViewPhoto && lightboxIdx >= 0 && openLightbox(lightboxIdx)}
+                      onClick={() =>
+                        profile.canViewPhoto && lightboxIdx >= 0 && openLightbox(lightboxIdx)
+                      }
                     >
                       <Image
                         src={img.imageUrl}
                         alt="Gallery photo"
                         fill
                         className={`object-cover transition-all duration-300 hover:scale-105 ${
-                          !profile.canViewPhoto ? "blur-lg scale-110" : ""
+                          !profile.canViewPhoto ? "scale-110 blur-lg" : ""
                         }`}
                       />
                       {!profile.canViewPhoto && (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="bg-black/40 backdrop-blur-sm rounded-xl p-2 text-white text-xs font-medium text-center">
-                            <Crown className="h-4 w-4 mx-auto mb-1 text-amber-400" />
+                          <div className="rounded-xl bg-black/40 p-2 text-center text-xs font-medium text-white backdrop-blur-sm">
+                            <Crown className="mx-auto mb-1 h-4 w-4 text-amber-400" />
                             Locked
                           </div>
                         </div>
@@ -668,12 +675,11 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
           </Card>
         )}
 
-        {/* Basic Details */}
         <Card variant="elevated">
           <CardHeader>
-            <CardTitle className="text-xl flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Calendar className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                <Calendar className="text-primary h-5 w-5" />
               </div>
               Basic Details
             </CardTitle>
@@ -681,10 +687,7 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
           <CardContent className="space-y-3">
             <DetailRow label="Age" value={`${profile.age} years`} />
             {profile.height && (
-              <DetailRow
-                label="Height"
-                value={heightToFeetInches(profile.height)}
-              />
+              <DetailRow label="Height" value={heightToFeetInches(profile.height)} />
             )}
             {profile.gender && (
               <DetailRow
@@ -701,12 +704,11 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
           </CardContent>
         </Card>
 
-        {/* Religion & Location */}
         <Card variant="elevated">
           <CardHeader>
-            <CardTitle className="text-xl flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <MapPin className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                <MapPin className="text-primary h-5 w-5" />
               </div>
               Religion & Location
             </CardTitle>
@@ -718,12 +720,7 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
                 value={profile.religion.charAt(0).toUpperCase() + profile.religion.slice(1)}
               />
             )}
-            {profile.caste && (
-              <DetailRow
-                label="Caste"
-                value={profile.caste}
-              />
-            )}
+            {profile.caste && <DetailRow label="Caste" value={profile.caste} />}
             {profile.motherTongue && (
               <DetailRow
                 label="Mother Tongue"
@@ -739,63 +736,43 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
           </CardContent>
         </Card>
 
-        {/* Education & Career */}
         <Card variant="elevated">
           <CardHeader>
-            <CardTitle className="text-xl flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <GraduationCap className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                <GraduationCap className="text-primary h-5 w-5" />
               </div>
               Education & Career
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {profile.highestEducation && (
-              <DetailRow
-                label="Education"
-                value={profile.highestEducation.replace(/_/g, " ")}
-              />
+              <DetailRow label="Education" value={profile.highestEducation.replace(/_/g, " ")} />
             )}
             {profile.occupation && (
-              <DetailRow
-                label="Occupation"
-                value={profile.occupation.replace(/_/g, " ")}
-              />
+              <DetailRow label="Occupation" value={profile.occupation.replace(/_/g, " ")} />
             )}
             {profile.annualIncome && (
-              <DetailRow
-                label="Annual Income"
-                value={profile.annualIncome.replace(/_/g, " ")}
-              />
+              <DetailRow label="Annual Income" value={profile.annualIncome.replace(/_/g, " ")} />
             )}
           </CardContent>
         </Card>
 
-        {/* Profile Stats */}
         <Card variant="elevated">
           <CardHeader>
-            <CardTitle className="text-xl flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Briefcase className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                <Briefcase className="text-primary h-5 w-5" />
               </div>
               Profile Info
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <DetailRow
-              label="Profile Completion"
-              value={`${profile.profileCompletion}%`}
-            />
+            <DetailRow label="Profile Completion" value={`${profile.profileCompletion}%`} />
             {profile.trustLevel && (
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Trust Level</span>
-                <Badge
-                  variant={
-                    profile.trustLevel === "verified_user"
-                      ? "default"
-                      : "secondary"
-                  }
-                >
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground text-sm">Trust Level</span>
+                <Badge variant={profile.trustLevel === "verified_user" ? "default" : "secondary"}>
                   {profile.trustLevel.replace(/_/g, " ")}
                 </Badge>
               </div>
@@ -810,7 +787,6 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
         </Card>
       </div>
 
-      {/* Report Dialog */}
       <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
         <DialogContent>
           <DialogHeader>
@@ -854,40 +830,40 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
               onClick={handleReport}
               disabled={!reportReason || isSubmittingReport}
             >
-              {isSubmittingReport && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {isSubmittingReport && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Submit Report
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Photo Lightbox */}
       {lightboxOpen && allImages.length > 0 && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 flex flex-col"
-          onClick={(e) => { if (e.target === e.currentTarget) closeLightbox(); }}
+          className="fixed inset-0 z-50 flex flex-col bg-black/95"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeLightbox();
+          }}
         >
-          {/* Top bar */}
-          <div className="flex items-center justify-between px-4 py-3 shrink-0">
-            <span className="text-white/70 text-sm font-medium">
+          <div className="flex shrink-0 items-center justify-between px-4 py-3">
+            <span className="text-sm font-medium text-white/70">
               {lightboxIndex + 1} / {allImages.length}
             </span>
             <div className="flex items-center gap-1">
               <button
                 onClick={handleZoomOut}
                 disabled={zoomLevel <= 1}
-                className="p-2 text-white/70 hover:text-white disabled:text-white/30 transition-colors rounded-lg hover:bg-white/10"
+                className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/10 hover:text-white disabled:text-white/30"
                 aria-label="Zoom out"
               >
                 <ZoomOut className="h-5 w-5" />
               </button>
-              <span className="text-white/70 text-sm w-14 text-center font-medium">
+              <span className="w-14 text-center text-sm font-medium text-white/70">
                 {Math.round(zoomLevel * 100)}%
               </span>
               <button
                 onClick={handleZoomIn}
                 disabled={zoomLevel >= 4}
-                className="p-2 text-white/70 hover:text-white disabled:text-white/30 transition-colors rounded-lg hover:bg-white/10"
+                className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/10 hover:text-white disabled:text-white/30"
                 aria-label="Zoom in"
               >
                 <ZoomIn className="h-5 w-5" />
@@ -895,7 +871,7 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
               {zoomLevel > 1 && (
                 <button
                   onClick={handleResetZoom}
-                  className="p-2 text-white/70 hover:text-white transition-colors rounded-lg hover:bg-white/10"
+                  className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
                   aria-label="Reset zoom"
                 >
                   <RotateCcw className="h-5 w-5" />
@@ -903,7 +879,7 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
               )}
               <button
                 onClick={closeLightbox}
-                className="p-2 text-white/70 hover:text-white transition-colors rounded-lg hover:bg-white/10 ml-2"
+                className="ml-2 rounded-lg p-2 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
                 aria-label="Close"
               >
                 <X className="h-6 w-6" />
@@ -911,9 +887,8 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
             </div>
           </div>
 
-          {/* Image area */}
           <div
-            className="flex-1 relative flex items-center justify-center overflow-hidden select-none"
+            className="relative flex flex-1 items-center justify-center overflow-hidden select-none"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
@@ -924,7 +899,7 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
             style={{ cursor: zoomLevel > 1 ? "grab" : "zoom-in", touchAction: "none" }}
           >
             <div
-              className="relative w-full h-full transition-transform duration-150 ease-out"
+              className="relative h-full w-full transition-transform duration-150 ease-out"
               style={{
                 transform: `scale(${zoomLevel}) translate(${panPosition.x / zoomLevel}px, ${panPosition.y / zoomLevel}px)`,
               }}
@@ -933,26 +908,31 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
                 src={allImages[lightboxIndex].imageUrl}
                 alt={`Photo ${lightboxIndex + 1}`}
                 fill
-                className="object-contain pointer-events-none"
+                className="pointer-events-none object-contain"
                 sizes="100vw"
                 priority
               />
             </div>
           </div>
 
-          {/* Navigation arrows */}
           {allImages.length > 1 && (
             <>
               <button
-                onClick={(e) => { e.stopPropagation(); goToPrev(); }}
-                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToPrev();
+                }}
+                className="absolute top-1/2 left-2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70 sm:left-4 sm:p-3"
                 aria-label="Previous photo"
               >
                 <ChevronLeft className="h-5 w-5 sm:h-7 sm:w-7" />
               </button>
               <button
-                onClick={(e) => { e.stopPropagation(); goToNext(); }}
-                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToNext();
+                }}
+                className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70 sm:right-4 sm:p-3"
                 aria-label="Next photo"
               >
                 <ChevronRight className="h-5 w-5 sm:h-7 sm:w-7" />
@@ -960,9 +940,8 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
             </>
           )}
 
-          {/* Thumbnail strip */}
           {allImages.length > 1 && (
-            <div className="flex items-center justify-center gap-2 px-4 py-3 shrink-0 overflow-x-auto">
+            <div className="flex shrink-0 items-center justify-center gap-2 overflow-x-auto px-4 py-3">
               {allImages.map((img, idx) => (
                 <button
                   key={img.id}
@@ -971,8 +950,10 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
                     setZoomLevel(1);
                     setPanPosition({ x: 0, y: 0 });
                   }}
-                  className={`relative h-12 w-12 sm:h-14 sm:w-14 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${
-                    idx === lightboxIndex ? "border-white opacity-100" : "border-transparent opacity-50 hover:opacity-80"
+                  className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border-2 transition-all sm:h-14 sm:w-14 ${
+                    idx === lightboxIndex
+                      ? "border-white opacity-100"
+                      : "border-transparent opacity-50 hover:opacity-80"
                   }`}
                 >
                   <Image
@@ -991,4 +972,3 @@ export default function ProfileDetailPage({ params }: ProfileDetailPageProps) {
     </div>
   );
 }
-

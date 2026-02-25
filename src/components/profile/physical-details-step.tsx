@@ -19,7 +19,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { physicalDetailsSchema, type PhysicalDetailsInput } from "@/lib/validations/profile";
-import { HEIGHT_OPTIONS, BODY_TYPE_OPTIONS, COMPLEXION_OPTIONS, PHYSICAL_STATUS_OPTIONS } from "@/constants";
+import {
+  HEIGHT_OPTIONS,
+  BODY_TYPE_OPTIONS,
+  COMPLEXION_OPTIONS,
+  PHYSICAL_STATUS_OPTIONS,
+} from "@/constants";
 import { useProfileStep, type ProfileStepProps } from "@/hooks/use-profile-step";
 
 function getDefaults(data: Record<string, unknown>): PhysicalDetailsInput {
@@ -83,7 +88,9 @@ export function PhysicalDetailsStep({ data, onUpdate, registerValidate }: Profil
                     type="number"
                     placeholder="Enter your weight"
                     {...field}
-                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                    onChange={(e) =>
+                      field.onChange(e.target.value ? parseInt(e.target.value) : undefined)
+                    }
                     value={field.value || ""}
                   />
                 </FormControl>

@@ -35,10 +35,7 @@ const contactSchema = z.object({
   phone: z
     .string()
     .optional()
-    .refine(
-      (val) => !val || isValidPhoneNumber(val, "IN"),
-      "Please enter a valid phone number"
-    ),
+    .refine((val) => !val || isValidPhoneNumber(val, "IN"), "Please enter a valid phone number"),
   subject: z.string().min(1, "Please select a subject"),
   message: z.string().min(10, "Message must be at least 10 characters"),
 });
@@ -116,39 +113,35 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <section className="bg-brand-light py-10 sm:py-16 md:py-24">
         <div className="container-wide px-4 sm:px-6 md:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 tracking-tight">Contact Us</h1>
-            <p className="text-base sm:text-lg text-muted-foreground">
-              Have questions or need assistance? We&apos;re here to help. Reach out
-              to us and we&apos;ll respond as soon as possible.
+          <div className="mx-auto max-w-3xl text-center">
+            <h1 className="mb-4 text-2xl font-bold tracking-tight sm:mb-6 sm:text-3xl md:text-5xl">
+              Contact Us
+            </h1>
+            <p className="text-muted-foreground text-base sm:text-lg">
+              Have questions or need assistance? We&apos;re here to help. Reach out to us and
+              we&apos;ll respond as soon as possible.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Contact Section */}
       <section className="py-10 sm:py-16 md:py-24">
         <div className="container-wide px-4 sm:px-6 md:px-8">
-          <div className="grid lg:grid-cols-3 gap-6 lg:gap-12">
-            {/* Contact Info */}
+          <div className="grid gap-6 lg:grid-cols-3 lg:gap-12">
             <div className="lg:col-span-1">
-              <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Get in Touch</h2>
+              <h2 className="mb-4 text-xl font-bold sm:mb-6 sm:text-2xl">Get in Touch</h2>
               <div className="space-y-6">
                 {contactInfo.map((info, index) => (
                   <div key={index} className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-full bg-brand-light flex items-center justify-center flex-shrink-0">
-                      <info.icon className="h-5 w-5 text-brand" />
+                    <div className="bg-brand-light flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full">
+                      <info.icon className="text-brand h-5 w-5" />
                     </div>
                     <div>
                       <p className="font-medium">{info.title}</p>
                       {info.href ? (
-                        <a
-                          href={info.href}
-                          className="text-muted-foreground hover:text-brand"
-                        >
+                        <a href={info.href} className="text-muted-foreground hover:text-brand">
                           {info.value}
                         </a>
                       ) : (
@@ -159,38 +152,32 @@ export default function ContactPage() {
                 ))}
               </div>
 
-              <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-brand-light rounded-xl">
-                <h3 className="font-semibold mb-2">Need Immediate Help?</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Our customer support team is available to assist you during
-                  working hours.
+              <div className="bg-brand-light mt-6 rounded-xl p-4 sm:mt-8 sm:p-6">
+                <h3 className="mb-2 font-semibold">Need Immediate Help?</h3>
+                <p className="text-muted-foreground mb-4 text-sm">
+                  Our customer support team is available to assist you during working hours.
                 </p>
                 <Button variant="outline" asChild>
                   <a href={SITE_CONFIG.phoneHref}>
-                    <Phone className="h-4 w-4 mr-2" />
+                    <Phone className="mr-2 h-4 w-4" />
                     Call Us Now
                   </a>
                 </Button>
               </div>
             </div>
 
-            {/* Contact Form */}
             <div className="lg:col-span-2">
               <Card variant="elevated">
                 <CardHeader>
                   <CardTitle>Send us a Message</CardTitle>
                   <CardDescription>
-                    Fill out the form below and we&apos;ll get back to you within 24
-                    hours.
+                    Fill out the form below and we&apos;ll get back to you within 24 hours.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Form {...form}>
-                    <form
-                      onSubmit={form.handleSubmit(onSubmit)}
-                      className="space-y-6"
-                    >
-                      <div className="grid md:grid-cols-2 gap-4">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                      <div className="grid gap-4 md:grid-cols-2">
                         <FormField
                           control={form.control}
                           name="name"
@@ -212,11 +199,7 @@ export default function ContactPage() {
                             <FormItem>
                               <FormLabel>Email *</FormLabel>
                               <FormControl>
-                                <Input
-                                  type="email"
-                                  placeholder="your@email.com"
-                                  {...field}
-                                />
+                                <Input type="email" placeholder="your@email.com" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -224,7 +207,7 @@ export default function ContactPage() {
                         />
                       </div>
 
-                      <div className="grid md:grid-cols-2 gap-4">
+                      <div className="grid gap-4 md:grid-cols-2">
                         <FormField
                           control={form.control}
                           name="phone"
@@ -232,11 +215,7 @@ export default function ContactPage() {
                             <FormItem>
                               <FormLabel>Phone Number</FormLabel>
                               <FormControl>
-                                <Input
-                                  type="tel"
-                                  placeholder="+91 98765 43210"
-                                  {...field}
-                                />
+                                <Input type="tel" placeholder="+91 98765 43210" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -249,10 +228,7 @@ export default function ContactPage() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Subject *</FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                value={field.value}
-                              >
+                              <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select a subject" />
@@ -290,15 +266,11 @@ export default function ContactPage() {
                         )}
                       />
 
-                      <Button
-                        type="submit"
-                        className="w-full md:w-auto"
-                        disabled={isSubmitting}
-                      >
+                      <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
                         {isSubmitting ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
-                          <Send className="h-4 w-4 mr-2" />
+                          <Send className="mr-2 h-4 w-4" />
                         )}
                         Send Message
                       </Button>
@@ -311,18 +283,17 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="py-10 sm:py-16 md:py-24 bg-muted/50">
+      <section className="bg-muted/50 py-10 sm:py-16 md:py-24">
         <div className="container-wide px-4 sm:px-6 md:px-8">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">
+          <div className="mb-8 text-center sm:mb-12">
+            <h2 className="mb-3 text-xl font-bold sm:mb-4 sm:text-2xl md:text-3xl">
               Frequently Asked Questions
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-muted-foreground mx-auto max-w-2xl">
               Find quick answers to common questions
             </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto">
+          <div className="mx-auto grid max-w-4xl gap-4 sm:gap-6 md:grid-cols-2">
             {[
               {
                 q: "How do I verify my profile?",
@@ -343,8 +314,8 @@ export default function ContactPage() {
             ].map((faq, index) => (
               <Card key={index} variant="elevated">
                 <CardContent className="pt-6">
-                  <h3 className="font-semibold mb-2">{faq.q}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+                  <h3 className="mb-2 font-semibold">{faq.q}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{faq.a}</p>
                 </CardContent>
               </Card>
             ))}

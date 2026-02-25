@@ -7,7 +7,6 @@ import { requireAuth } from "@/lib/actions/helpers";
 import { isUnlimited } from "@/lib/utils/subscription";
 import type { ActionResult } from "@/types";
 
-// Get user's total contact pack balance (only non-expired packs)
 export async function getContactPackBalance(): Promise<ActionResult<number>> {
   try {
     const authResult = await requireAuth();
@@ -19,10 +18,7 @@ export async function getContactPackBalance(): Promise<ActionResult<number>> {
       where: and(
         eq(contactPackPurchases.userId, userId),
         gt(contactPackPurchases.contactsRemaining, 0),
-        or(
-          isNull(contactPackPurchases.expiresAt),
-          gte(contactPackPurchases.expiresAt, now)
-        )
+        or(isNull(contactPackPurchases.expiresAt), gte(contactPackPurchases.expiresAt, now))
       ),
     });
 
@@ -34,7 +30,6 @@ export async function getContactPackBalance(): Promise<ActionResult<number>> {
   }
 }
 
-// Use a contact view (deduct from pack or subscription) with optimistic locking
 export async function useContactView(viewedUserId: number): Promise<ActionResult> {
   try {
     const authResult = await requireAuth();
@@ -47,28 +42,26 @@ export async function useContactView(viewedUserId: number): Promise<ActionResult
 
     const now = new Date();
 
-    // Try packs first (FIFO - oldest non-expired pack first) with optimistic locking
+    // FIFO: deduct from oldest non-expired pack first
     const pack = await db.query.contactPackPurchases.findFirst({
       where: and(
         eq(contactPackPurchases.userId, userId),
         gt(contactPackPurchases.contactsRemaining, 0),
-        or(
-          isNull(contactPackPurchases.expiresAt),
-          gte(contactPackPurchases.expiresAt, now)
-        )
+        or(isNull(contactPackPurchases.expiresAt), gte(contactPackPurchases.expiresAt, now))
       ),
       orderBy: (packs, { asc }) => [asc(packs.purchasedAt)],
     });
 
     if (pack) {
-      // Optimistic lock: only decrement if remaining count hasn't changed
       const [updated] = await db
         .update(contactPackPurchases)
         .set({ contactsRemaining: pack.contactsRemaining - 1 })
-        .where(and(
-          eq(contactPackPurchases.id, pack.id),
-          eq(contactPackPurchases.contactsRemaining, pack.contactsRemaining)
-        ))
+        .where(
+          and(
+            eq(contactPackPurchases.id, pack.id),
+            eq(contactPackPurchases.contactsRemaining, pack.contactsRemaining)
+          )
+        )
         .returning({ id: contactPackPurchases.id });
 
       if (!updated) {
@@ -77,11 +70,9 @@ export async function useContactView(viewedUserId: number): Promise<ActionResult
       return { success: true, message: "Contact viewed (from pack)" };
     }
 
-    // Fallback to subscription contactViews with optimistic locking
     const subscription = await getActiveSubscription(userId);
 
     if (subscription && subscription.contactViews !== null && subscription.contactViews > 0) {
-      // Unlimited subscribers (e.g. Platinum) don't need decrement
       if (isUnlimited(subscription.contactViews)) {
         return { success: true, message: "Contact viewed (unlimited subscription)" };
       }
@@ -89,10 +80,12 @@ export async function useContactView(viewedUserId: number): Promise<ActionResult
       const [updated] = await db
         .update(subscriptions)
         .set({ contactViews: subscription.contactViews - 1, updatedAt: new Date() })
-        .where(and(
-          eq(subscriptions.id, subscription.id),
-          eq(subscriptions.contactViews, subscription.contactViews)
-        ))
+        .where(
+          and(
+            eq(subscriptions.id, subscription.id),
+            eq(subscriptions.contactViews, subscription.contactViews)
+          )
+        )
         .returning({ id: subscriptions.id });
 
       if (!updated) {
@@ -108,8 +101,9 @@ export async function useContactView(viewedUserId: number): Promise<ActionResult
   }
 }
 
-// Get user's contact pack purchases history
-export async function getContactPackPurchases(): Promise<ActionResult<typeof contactPackPurchases.$inferSelect[]>> {
+export async function getContactPackPurchases(): Promise<
+  ActionResult<(typeof contactPackPurchases.$inferSelect)[]>
+> {
   try {
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
@@ -128,28 +122,29 @@ export async function getContactPackPurchases(): Promise<ActionResult<typeof con
   }
 }
 
-// Get total remaining contact views (packs + subscription combined)
-export async function getTotalContactViews(): Promise<ActionResult<{ total: number; fromPacks: number; fromSubscription: number; isUnlimitedSub: boolean }>> {
+export async function getTotalContactViews(): Promise<
+  ActionResult<{
+    total: number;
+    fromPacks: number;
+    fromSubscription: number;
+    isUnlimitedSub: boolean;
+  }>
+> {
   try {
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
-    // Get pack balance
     const now = new Date();
     const packs = await db.query.contactPackPurchases.findMany({
       where: and(
         eq(contactPackPurchases.userId, userId),
         gt(contactPackPurchases.contactsRemaining, 0),
-        or(
-          isNull(contactPackPurchases.expiresAt),
-          gte(contactPackPurchases.expiresAt, now)
-        )
+        or(isNull(contactPackPurchases.expiresAt), gte(contactPackPurchases.expiresAt, now))
       ),
     });
     const fromPacks = packs.reduce((sum, pack) => sum + pack.contactsRemaining, 0);
 
-    // Get subscription contact views
     const subscription = await getActiveSubscription(userId);
     const subViews = subscription?.contactViews ?? 0;
     const unlimitedSub = isUnlimited(subViews);
@@ -170,7 +165,6 @@ export async function getTotalContactViews(): Promise<ActionResult<{ total: numb
   }
 }
 
-// Reveal contact info for a profile by spending one contact view
 export async function revealContact(
   targetUserId: number
 ): Promise<ActionResult<{ email?: string; phone?: string }>> {
@@ -183,14 +177,12 @@ export async function revealContact(
       return { success: false, error: "Cannot reveal your own contact" };
     }
 
-    // Deduct a contact view (from packs first, then subscription)
     // eslint-disable-next-line react-hooks/rules-of-hooks -- useContactView is a server action, not a React hook
     const deductResult = await useContactView(targetUserId);
     if (!deductResult.success) {
       return { success: false, error: deductResult.error || "No contact views remaining" };
     }
 
-    // Fetch the target user's contact info
     const targetUser = await db.query.users.findFirst({
       where: eq(users.id, targetUserId),
       columns: { email: true, phoneNumber: true },

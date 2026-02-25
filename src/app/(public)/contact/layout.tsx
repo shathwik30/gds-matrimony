@@ -40,11 +40,7 @@ const contactFAQs = [
   },
 ];
 
-export default function ContactLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function ContactLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <FAQJsonLd questions={contactFAQs} />

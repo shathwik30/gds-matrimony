@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db, payments, subscriptions } from "@/lib/db";
 import { eq, and } from "drizzle-orm";
-import { verifyRazorpaySignature, activateSubscription, activateContactPack } from "@/lib/payment-helpers";
+import {
+  verifyRazorpaySignature,
+  activateSubscription,
+  activateContactPack,
+} from "@/lib/payment-helpers";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +16,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing signature" }, { status: 400 });
     }
 
-    // Verify webhook signature
     const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
     if (!webhookSecret) {
       console.error("RAZORPAY_WEBHOOK_SECRET not configured");
@@ -43,7 +46,9 @@ export async function POST(req: NextRequest) {
 
     switch (eventType) {
       case "payment.captured": {
-        const payment = (payload as Record<string, unknown>)?.payment as Record<string, unknown> | undefined;
+        const payment = (payload as Record<string, unknown>)?.payment as
+          | Record<string, unknown>
+          | undefined;
         const entity = payment?.entity as Record<string, unknown> | undefined;
         if (!entity?.order_id || !entity?.id) {
           console.error("Webhook: payment.captured missing order_id or id");
@@ -52,7 +57,6 @@ export async function POST(req: NextRequest) {
         const orderId = entity.order_id as string;
         const razorpayPaymentId = entity.id as string;
 
-        // Idempotency check: if this razorpayPaymentId was already processed, skip
         const existingPayment = await db.query.payments.findFirst({
           where: eq(payments.razorpayPaymentId, razorpayPaymentId),
         });
@@ -60,15 +64,13 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ received: true, note: "Already processed" });
         }
 
-        // Find payment record
         const paymentRecord = await db.query.payments.findFirst({
           where: eq(payments.razorpayOrderId, orderId),
         });
 
         if (paymentRecord && paymentRecord.status === "created") {
-          // Use transaction for atomicity of payment + subscription/pack creation
           await db.transaction(async (tx) => {
-            // Use optimistic locking to prevent double processing - only process "created" payments
+            // Optimistic locking to prevent double processing
             const [updated] = await tx
               .update(payments)
               .set({
@@ -79,20 +81,30 @@ export async function POST(req: NextRequest) {
               .where(and(eq(payments.id, paymentRecord.id), eq(payments.status, "created")))
               .returning({ id: payments.id });
 
-            if (!updated) return; // Already processed by another request
+            if (!updated) return;
 
-            // Handle contact pack purchases
-            if (paymentRecord.purchaseType?.startsWith("contact_pack_") && paymentRecord.contactPackSize) {
-              await activateContactPack(tx, paymentRecord.userId, paymentRecord.id, paymentRecord.contactPackSize);
-            }
-            // Activate subscription - create if not linked
-            else if (paymentRecord.subscriptionId) {
+            if (
+              paymentRecord.purchaseType?.startsWith("contact_pack_") &&
+              paymentRecord.contactPackSize
+            ) {
+              await activateContactPack(
+                tx,
+                paymentRecord.userId,
+                paymentRecord.id,
+                paymentRecord.contactPackSize
+              );
+            } else if (paymentRecord.subscriptionId) {
               await tx
                 .update(subscriptions)
                 .set({ isActive: true })
                 .where(eq(subscriptions.id, paymentRecord.subscriptionId));
             } else if (paymentRecord.plan) {
-              await activateSubscription(tx, paymentRecord.userId, paymentRecord.plan, paymentRecord.id);
+              await activateSubscription(
+                tx,
+                paymentRecord.userId,
+                paymentRecord.plan,
+                paymentRecord.id
+              );
             }
           });
         }
@@ -100,7 +112,9 @@ export async function POST(req: NextRequest) {
       }
 
       case "payment.failed": {
-        const failedPayment = (payload as Record<string, unknown>)?.payment as Record<string, unknown> | undefined;
+        const failedPayment = (payload as Record<string, unknown>)?.payment as
+          | Record<string, unknown>
+          | undefined;
         const failedEntity = failedPayment?.entity as Record<string, unknown> | undefined;
         if (!failedEntity?.order_id) {
           console.error("Webhook: payment.failed missing order_id");
@@ -108,12 +122,16 @@ export async function POST(req: NextRequest) {
         }
         const orderId = failedEntity.order_id as string;
 
-        // Only mark as failed if not already completed (prevent status regression)
+        // Prevent status regression: don't overwrite completed/refunded
         const paymentRecord = await db.query.payments.findFirst({
           where: eq(payments.razorpayOrderId, orderId),
         });
 
-        if (paymentRecord && paymentRecord.status !== "completed" && paymentRecord.status !== "refunded") {
+        if (
+          paymentRecord &&
+          paymentRecord.status !== "completed" &&
+          paymentRecord.status !== "refunded"
+        ) {
           await db
             .update(payments)
             .set({ status: "failed", updatedAt: new Date() })
@@ -123,7 +141,9 @@ export async function POST(req: NextRequest) {
       }
 
       case "refund.created": {
-        const refund = (payload as Record<string, unknown>)?.refund as Record<string, unknown> | undefined;
+        const refund = (payload as Record<string, unknown>)?.refund as
+          | Record<string, unknown>
+          | undefined;
         const refundEntity = refund?.entity as Record<string, unknown> | undefined;
         if (!refundEntity?.payment_id || typeof refundEntity.payment_id !== "string") {
           console.error("Webhook: refund.created missing payment_id");
@@ -131,7 +151,6 @@ export async function POST(req: NextRequest) {
         }
         const paymentId = refundEntity.payment_id;
 
-        // Find payment and deactivate linked subscription
         const paymentRecord = await db.query.payments.findFirst({
           where: eq(payments.razorpayPaymentId, paymentId),
         });
@@ -142,7 +161,6 @@ export async function POST(req: NextRequest) {
             .set({ status: "refunded", updatedAt: new Date() })
             .where(eq(payments.id, paymentRecord.id));
 
-          // Deactivate the linked subscription
           if (paymentRecord.subscriptionId) {
             await db
               .update(subscriptions)
@@ -161,9 +179,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error("Webhook error:", error);
-    return NextResponse.json(
-      { error: "Webhook processing failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
   }
 }

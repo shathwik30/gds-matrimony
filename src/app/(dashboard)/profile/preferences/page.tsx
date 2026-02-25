@@ -28,8 +28,8 @@ export default function PreferencesPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-brand" />
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Loader2 className="text-brand h-8 w-8 animate-spin" />
         </div>
       }
     >
@@ -45,7 +45,6 @@ function PreferencesContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Form state
   const [ageMin, setAgeMin] = useState("");
   const [ageMax, setAgeMax] = useState("");
   const [heightMin, setHeightMin] = useState("");
@@ -119,29 +118,30 @@ function PreferencesContent() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-brand" />
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="text-brand h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="mx-auto max-w-4xl px-4 py-8">
       {isOnboarding && (
-        <div className="bg-brand/10 border border-brand/20 rounded-lg p-4 mb-6">
-          <h2 className="text-lg font-semibold text-brand mb-1">Almost Done! 🎯</h2>
-          <p className="text-sm text-muted-foreground">
+        <div className="bg-brand/10 border-brand/20 mb-6 rounded-lg border p-4">
+          <h2 className="text-brand mb-1 text-lg font-semibold">Almost Done! 🎯</h2>
+          <p className="text-muted-foreground text-sm">
             Tell us about your ideal partner to get better match recommendations.
           </p>
         </div>
       )}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">{isOnboarding ? "Find Your Perfect Match" : "Partner Preferences"}</h1>
+        <h1 className="text-2xl font-bold">
+          {isOnboarding ? "Find Your Perfect Match" : "Partner Preferences"}
+        </h1>
         <p className="text-muted-foreground">
           {isOnboarding
             ? "Set your preferences to help us find the best matches for you"
-            : "Set your preferences to find your perfect match"
-          }
+            : "Set your preferences to find your perfect match"}
         </p>
       </div>
 
@@ -150,11 +150,11 @@ function PreferencesContent() {
           <CardHeader>
             <CardTitle>What are you looking for?</CardTitle>
             <CardDescription>
-              Tell us about your ideal partner. These preferences will help us find better matches for you.
+              Tell us about your ideal partner. These preferences will help us find better matches
+              for you.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Age Range */}
             <div className="space-y-2">
               <Label>Age Range</Label>
               <div className="grid grid-cols-2 gap-4">
@@ -189,7 +189,6 @@ function PreferencesContent() {
               </div>
             </div>
 
-            {/* Height Range */}
             <div className="space-y-2">
               <Label>Height Range</Label>
               <div className="grid grid-cols-2 gap-4">
@@ -224,7 +223,6 @@ function PreferencesContent() {
               </div>
             </div>
 
-            {/* Religion */}
             <div className="space-y-2">
               <Label>Religion (Optional)</Label>
               <Select
@@ -245,7 +243,6 @@ function PreferencesContent() {
               </Select>
             </div>
 
-            {/* Education */}
             <div className="space-y-2">
               <Label>Education (Optional)</Label>
               <Select
@@ -266,7 +263,6 @@ function PreferencesContent() {
               </Select>
             </div>
 
-            {/* Marital Status */}
             <div className="space-y-2">
               <Label>Marital Status (Optional)</Label>
               <Select
@@ -287,7 +283,6 @@ function PreferencesContent() {
               </Select>
             </div>
 
-            {/* About Partner */}
             <div className="space-y-2">
               <Label>About Your Ideal Partner (Optional)</Label>
               <Textarea
@@ -296,7 +291,7 @@ function PreferencesContent() {
                 onChange={(e) => setAboutPartner(e.target.value)}
                 rows={4}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Share what qualities and values you&apos;re looking for in a life partner
               </p>
             </div>
@@ -304,12 +299,12 @@ function PreferencesContent() {
             <Button type="submit" disabled={isSaving} className="w-full">
               {isSaving ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {isOnboarding ? "Completing Setup..." : "Saving..."}
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-2" />
+                  <Save className="mr-2 h-4 w-4" />
                   {isOnboarding ? "Complete Setup & Start Matching" : "Save Preferences"}
                 </>
               )}

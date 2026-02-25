@@ -3,14 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
-import {
-  FileText,
-  Check,
-  X,
-  ExternalLink,
-  Loader2,
-  User,
-} from "lucide-react";
+import { FileText, Check, X, ExternalLink, Loader2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -95,10 +88,10 @@ export function VerificationsTable({ verifications }: VerificationsTableProps) {
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200">
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
         {verifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-slate-500">
-            <FileText className="h-12 w-12 mb-4 text-slate-300" />
+            <FileText className="mb-4 h-12 w-12 text-slate-300" />
             <p className="text-lg font-medium">No pending verifications</p>
             <p className="text-sm">All verification requests have been processed</p>
           </div>
@@ -120,8 +113,8 @@ export function VerificationsTable({ verifications }: VerificationsTableProps) {
                   <TableRow key={verification.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-brand/10 flex items-center justify-center">
-                          <User className="h-5 w-5 text-brand" />
+                        <div className="bg-brand/10 flex h-10 w-10 items-center justify-center rounded-full">
+                          <User className="text-brand h-5 w-5" />
                         </div>
                         <div>
                           <p className="font-medium text-slate-900">
@@ -147,7 +140,7 @@ export function VerificationsTable({ verifications }: VerificationsTableProps) {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            <ExternalLink className="h-4 w-4 mr-2" />
+                            <ExternalLink className="mr-2 h-4 w-4" />
                             View Document
                           </a>
                         </Button>
@@ -165,7 +158,7 @@ export function VerificationsTable({ verifications }: VerificationsTableProps) {
                     <TableCell>
                       <Badge
                         variant="outline"
-                        className="bg-yellow-50 text-yellow-700 border-yellow-200"
+                        className="border-yellow-200 bg-yellow-50 text-yellow-700"
                       >
                         Pending
                       </Badge>
@@ -182,7 +175,7 @@ export function VerificationsTable({ verifications }: VerificationsTableProps) {
                             <Loader2 className="h-4 w-4 animate-spin" />
                           ) : (
                             <>
-                              <Check className="h-4 w-4 mr-1" />
+                              <Check className="mr-1 h-4 w-4" />
                               Approve
                             </>
                           )}
@@ -198,7 +191,7 @@ export function VerificationsTable({ verifications }: VerificationsTableProps) {
                           }
                           disabled={loadingId === verification.id || isPending}
                         >
-                          <X className="h-4 w-4 mr-1" />
+                          <X className="mr-1 h-4 w-4" />
                           Reject
                         </Button>
                       </div>
@@ -211,7 +204,6 @@ export function VerificationsTable({ verifications }: VerificationsTableProps) {
         )}
       </div>
 
-      {/* Reject Dialog */}
       <Dialog
         open={rejectDialog.open}
         onOpenChange={(open) => {
@@ -247,9 +239,7 @@ export function VerificationsTable({ verifications }: VerificationsTableProps) {
               onClick={handleReject}
               disabled={!rejectionReason.trim() || loadingId !== null}
             >
-              {loadingId !== null ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : null}
+              {loadingId !== null ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Reject Verification
             </Button>
           </DialogFooter>

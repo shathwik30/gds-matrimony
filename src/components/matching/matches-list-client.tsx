@@ -15,8 +15,8 @@ import type { DailyInterestStatus } from "@/lib/actions/interests";
 
 function ProfileCardFallback() {
   return (
-    <div className="flex items-center gap-2 p-4 rounded-lg border border-destructive/20 bg-destructive/5 text-sm text-muted-foreground">
-      <AlertCircle className="h-4 w-4 text-destructive shrink-0" />
+    <div className="border-destructive/20 bg-destructive/5 text-muted-foreground flex items-center gap-2 rounded-lg border p-4 text-sm">
+      <AlertCircle className="text-destructive h-4 w-4 shrink-0" />
       <span>This profile could not be displayed.</span>
     </div>
   );
@@ -44,18 +44,14 @@ export function MatchesListClient({
   dailyInterestStatus,
 }: MatchesListClientProps) {
   const [allProfiles, setAllProfiles] = useState<MatchProfile[]>(initialProfiles);
-  const [shortlistedIds, setShortlistedIds] = useState<Set<number>>(
-    new Set(initialShortlistedIds)
-  );
+  const [shortlistedIds, setShortlistedIds] = useState<Set<number>>(new Set(initialShortlistedIds));
   const [sentInterestIds, setSentInterestIds] = useState<Set<number>>(
     new Set(initialSentInterestIds)
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProfiles, setTotalProfiles] = useState(initialTotal);
   const [isPending, startTransition] = useTransition();
-  const [interestsSentToday, setInterestsSentToday] = useState(
-    dailyInterestStatus?.sentToday ?? 0
-  );
+  const [interestsSentToday, setInterestsSentToday] = useState(dailyInterestStatus?.sentToday ?? 0);
 
   const handleLoadMore = () => {
     startTransition(async () => {
@@ -123,15 +119,14 @@ export function MatchesListClient({
     }
   };
 
-  // Show load more button if there are more profiles available
   const showLoadMore = allProfiles.length < totalProfiles;
 
   if (allProfiles.length === 0) {
     return (
-      <div className="text-center py-16">
-        <Users className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />
-        <h3 className="text-lg font-semibold text-muted-foreground mb-2">No matches found</h3>
-        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+      <div className="py-16 text-center">
+        <Users className="text-muted-foreground/30 mx-auto mb-4 h-16 w-16" />
+        <h3 className="text-muted-foreground mb-2 text-lg font-semibold">No matches found</h3>
+        <p className="text-muted-foreground mx-auto max-w-md text-sm">
           Try adjusting your filters or partner preferences to see more profiles.
         </p>
       </div>
@@ -143,22 +138,23 @@ export function MatchesListClient({
   const remaining = Math.max(0, interestLimit - interestsSentToday);
 
   return (
-    <div className="space-y-4 max-w-4xl">
-      {/* Daily Interest Counter */}
+    <div className="max-w-4xl space-y-4">
       {dailyInterestStatus && (
-        <div className="flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-lg border bg-muted/50">
-          <Heart className="h-4 w-4 text-primary shrink-0" />
+        <div className="bg-muted/50 flex items-center gap-2 rounded-lg border px-3 py-2.5 sm:px-4">
+          <Heart className="text-primary h-4 w-4 shrink-0" />
           {interestIsUnlimited ? (
-            <span className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-              <Infinity className="h-4 w-4 text-primary" />
+            <span className="text-muted-foreground flex items-center gap-1.5 text-sm font-medium">
+              <Infinity className="text-primary h-4 w-4" />
               Unlimited interests
             </span>
           ) : (
-            <span className="text-sm text-muted-foreground">
-              <span className={`font-semibold ${remaining === 0 ? "text-destructive" : "text-foreground"}`}>
+            <span className="text-muted-foreground text-sm">
+              <span
+                className={`font-semibold ${remaining === 0 ? "text-destructive" : "text-foreground"}`}
+              >
                 {remaining} / {interestLimit}
-              </span>
-              {" "}interests remaining today
+              </span>{" "}
+              interests remaining today
             </span>
           )}
           {!interestIsUnlimited && remaining === 0 && (
@@ -182,11 +178,11 @@ export function MatchesListClient({
         </ErrorBoundary>
       ))}
       {showLoadMore && (
-        <div className="text-center py-4">
+        <div className="py-4 text-center">
           <Button variant="outline" onClick={handleLoadMore} disabled={isPending}>
             {isPending ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Loading...
               </>
             ) : (

@@ -34,13 +34,13 @@ export function ReportsFilter() {
           disabled={isPending}
           className={cn(
             currentStatus === option.value &&
-              "bg-brand text-white border-brand hover:bg-brand/90 hover:text-white"
+              "bg-brand border-brand hover:bg-brand/90 text-white hover:text-white"
           )}
         >
           {option.label}
         </Button>
       ))}
-      {isPending && <span className="text-sm text-slate-500 ml-2">Loading...</span>}
+      {isPending && <span className="ml-2 text-sm text-slate-500">Loading...</span>}
     </div>
   );
 }

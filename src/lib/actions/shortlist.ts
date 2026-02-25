@@ -7,7 +7,8 @@ import { getActiveSubscription } from "@/lib/actions/subscription";
 import { requireAuth, checkBlocked } from "@/lib/actions/helpers";
 import type { ActionResult } from "@/types";
 
-// Add to shortlist
+const MAX_SHORTLIST_SIZE = 100;
+
 export async function addToShortlist(userId: number): Promise<ActionResult> {
   try {
     const authResult = await requireAuth();
@@ -18,19 +19,14 @@ export async function addToShortlist(userId: number): Promise<ActionResult> {
       return { success: false, error: "You cannot shortlist yourself" };
     }
 
-    // Check if already shortlisted
     const existing = await db.query.shortlists.findFirst({
-      where: and(
-        eq(shortlists.userId, currentUserId),
-        eq(shortlists.shortlistedUserId, userId)
-      ),
+      where: and(eq(shortlists.userId, currentUserId), eq(shortlists.shortlistedUserId, userId)),
     });
 
     if (existing) {
       return { success: false, error: "Already in your shortlist" };
     }
 
-    // Check if user exists
     const targetUser = await db.query.users.findFirst({
       where: eq(users.id, userId),
     });
@@ -43,14 +39,16 @@ export async function addToShortlist(userId: number): Promise<ActionResult> {
       return { success: false, error: "Cannot shortlist this user" };
     }
 
-    // Enforce shortlist limit (max 100)
     const [{ count: shortlistCount }] = await db
       .select({ count: sql<number>`count(*)` })
       .from(shortlists)
       .where(eq(shortlists.userId, currentUserId));
 
-    if (shortlistCount >= 100) {
-      return { success: false, error: "Shortlist is full (max 100). Please remove some profiles first." };
+    if (shortlistCount >= MAX_SHORTLIST_SIZE) {
+      return {
+        success: false,
+        error: `Shortlist is full (max ${MAX_SHORTLIST_SIZE}). Please remove some profiles first.`,
+      };
     }
 
     await db.insert(shortlists).values({
@@ -58,7 +56,6 @@ export async function addToShortlist(userId: number): Promise<ActionResult> {
       shortlistedUserId: userId,
     });
 
-    // Log activity
     await logActivity(currentUserId, "shortlist_added", userId);
 
     return { success: true, message: "Added to shortlist" };
@@ -68,7 +65,6 @@ export async function addToShortlist(userId: number): Promise<ActionResult> {
   }
 }
 
-// Remove from shortlist
 export async function removeFromShortlist(userId: number): Promise<ActionResult> {
   try {
     const authResult = await requireAuth();
@@ -77,14 +73,8 @@ export async function removeFromShortlist(userId: number): Promise<ActionResult>
 
     await db
       .delete(shortlists)
-      .where(
-        and(
-          eq(shortlists.userId, currentUserId),
-          eq(shortlists.shortlistedUserId, userId)
-        )
-      );
+      .where(and(eq(shortlists.userId, currentUserId), eq(shortlists.shortlistedUserId, userId)));
 
-    // Log activity
     await logActivity(currentUserId, "shortlist_removed", userId);
 
     return { success: true, message: "Removed from shortlist" };
@@ -94,7 +84,6 @@ export async function removeFromShortlist(userId: number): Promise<ActionResult>
   }
 }
 
-// Get my shortlist
 export interface ShortlistProfile {
   id: number;
   shortlistedUserId: number;
@@ -159,14 +148,13 @@ export async function getMyShortlist(): Promise<ActionResult<ShortlistProfile[]>
       return { success: true, data: [] };
     }
 
-    // Batch fetch all profiles at once
-    const shortlistedUserIds = shortlistItems.map(item => item.shortlistedUserId);
+    const shortlistedUserIds = shortlistItems.map((item) => item.shortlistedUserId);
     const profilesList = await db.query.profiles.findMany({
       where: inArray(profiles.userId, shortlistedUserIds),
     });
 
-    const profileMap = new Map(profilesList.map(p => [p.userId, p]));
-    const result = shortlistItems.map(item =>
+    const profileMap = new Map(profilesList.map((p) => [p.userId, p]));
+    const result = shortlistItems.map((item) =>
       mapShortlistProfile(item, item.shortlistedUserId, profileMap)
     );
 
@@ -177,7 +165,6 @@ export async function getMyShortlist(): Promise<ActionResult<ShortlistProfile[]>
   }
 }
 
-// Get shortlisted user IDs (for bulk checking on matches page)
 export async function getShortlistedIds(): Promise<ActionResult<number[]>> {
   try {
     const authResult = await requireAuth();
@@ -199,7 +186,6 @@ export async function getShortlistedIds(): Promise<ActionResult<number[]>> {
   }
 }
 
-// Check if user is shortlisted
 export async function isShortlisted(userId: number): Promise<ActionResult<boolean>> {
   try {
     const authResult = await requireAuth();
@@ -207,10 +193,7 @@ export async function isShortlisted(userId: number): Promise<ActionResult<boolea
     const currentUserId = authResult.userId;
 
     const existing = await db.query.shortlists.findFirst({
-      where: and(
-        eq(shortlists.userId, currentUserId),
-        eq(shortlists.shortlistedUserId, userId)
-      ),
+      where: and(eq(shortlists.userId, currentUserId), eq(shortlists.shortlistedUserId, userId)),
     });
 
     return { success: true, data: !!existing };
@@ -220,14 +203,12 @@ export async function isShortlisted(userId: number): Promise<ActionResult<boolea
   }
 }
 
-// Get who shortlisted me (requires gold or platinum subscription)
 export async function getWhoShortlistedMe(): Promise<ActionResult<ShortlistProfile[]>> {
   try {
     const authResult = await requireAuth();
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
-    // Check subscription allows seeing who shortlisted (gold/platinum only)
     const subscription = await getActiveSubscription(userId);
 
     if (!subscription || !subscription.plan || !["gold", "platinum"].includes(subscription.plan)) {
@@ -243,16 +224,13 @@ export async function getWhoShortlistedMe(): Promise<ActionResult<ShortlistProfi
       return { success: true, data: [] };
     }
 
-    // Batch fetch all profiles at once
-    const shortlisterUserIds = shortlistItems.map(item => item.userId);
+    const shortlisterUserIds = shortlistItems.map((item) => item.userId);
     const profilesList = await db.query.profiles.findMany({
       where: inArray(profiles.userId, shortlisterUserIds),
     });
 
-    const profileMap = new Map(profilesList.map(p => [p.userId, p]));
-    const result = shortlistItems.map(item =>
-      mapShortlistProfile(item, item.userId, profileMap)
-    );
+    const profileMap = new Map(profilesList.map((p) => [p.userId, p]));
+    const result = shortlistItems.map((item) => mapShortlistProfile(item, item.userId, profileMap));
 
     return { success: true, data: result };
   } catch (error) {

@@ -19,7 +19,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { educationCareerSchema, type EducationCareerInput } from "@/lib/validations/profile";
-import { EDUCATION_OPTIONS, EMPLOYED_IN_OPTIONS, OCCUPATION_OPTIONS, ANNUAL_INCOME_OPTIONS } from "@/constants";
+import {
+  EDUCATION_OPTIONS,
+  EMPLOYED_IN_OPTIONS,
+  OCCUPATION_OPTIONS,
+  ANNUAL_INCOME_OPTIONS,
+} from "@/constants";
 import { useProfileStep, type ProfileStepProps } from "@/hooks/use-profile-step";
 
 function getDefaults(data: Record<string, unknown>): EducationCareerInput {

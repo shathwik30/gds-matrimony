@@ -13,7 +13,6 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Require password re-authentication
     let body: unknown;
     try {
       body = await request.json();
@@ -23,7 +22,10 @@ export async function DELETE(request: Request) {
 
     const { password } = (body as { password?: unknown }) || {};
     if (typeof password !== "string" || !password) {
-      return NextResponse.json({ error: "Password is required to delete account" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Password is required to delete account" },
+        { status: 400 }
+      );
     }
 
     const user = await db.query.users.findFirst({
@@ -39,7 +41,10 @@ export async function DELETE(request: Request) {
     }
 
     if (!user.password) {
-      return NextResponse.json({ error: "Cannot verify password for this account type" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Cannot verify password for this account type" },
+        { status: 400 }
+      );
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
@@ -47,7 +52,6 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Incorrect password" }, { status: 400 });
     }
 
-    // Deactivate user account atomically (soft delete)
     await db.transaction(async (tx) => {
       await tx
         .update(users)

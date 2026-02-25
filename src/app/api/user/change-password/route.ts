@@ -34,15 +34,24 @@ export async function POST(request: Request) {
     }
 
     if (typeof newPassword !== "string" || newPassword.length < 8) {
-      return NextResponse.json({ error: "New password must be at least 8 characters" }, { status: 400 });
+      return NextResponse.json(
+        { error: "New password must be at least 8 characters" },
+        { status: 400 }
+      );
     }
 
     if (newPassword.length > 128) {
-      return NextResponse.json({ error: "Password must be less than 128 characters" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Password must be less than 128 characters" },
+        { status: 400 }
+      );
     }
 
     if (!/^(?=.*[a-zA-Z])(?=.*[0-9])/.test(newPassword)) {
-      return NextResponse.json({ error: "Password must contain both letters and numbers" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Password must contain both letters and numbers" },
+        { status: 400 }
+      );
     }
 
     const user = await db.query.users.findFirst({
@@ -54,20 +63,24 @@ export async function POST(request: Request) {
     }
 
     if (!user.password) {
-      return NextResponse.json({ error: "Password change not available for this account type" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Password change not available for this account type" },
+        { status: 400 }
+      );
     }
 
-    // Check if account is locked
     if (user.lockedUntil && new Date(user.lockedUntil) > new Date()) {
-      return NextResponse.json({ error: "Account is temporarily locked. Please try again later." }, { status: 429 });
+      return NextResponse.json(
+        { error: "Account is temporarily locked. Please try again later." },
+        { status: 429 }
+      );
     }
 
     const isValidPassword = await bcrypt.compare(currentPassword, user.password);
     if (!isValidPassword) {
-      // Increment failed attempts and lock account if threshold reached
       const { sql } = await import("drizzle-orm");
       const MAX_ATTEMPTS = 5;
-      const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+      const LOCK_DURATION_MS = 15 * 60 * 1000;
       const newAttempts = (user.failedLoginAttempts || 0) + 1;
       const updateData: Record<string, unknown> = {
         failedLoginAttempts: sql`COALESCE(${users.failedLoginAttempts}, 0) + 1`,
@@ -75,18 +88,21 @@ export async function POST(request: Request) {
       if (newAttempts >= MAX_ATTEMPTS) {
         updateData.lockedUntil = new Date(Date.now() + LOCK_DURATION_MS);
       }
-      await db
-        .update(users)
-        .set(updateData)
-        .where(eq(users.id, userId));
+      await db.update(users).set(updateData).where(eq(users.id, userId));
       if (newAttempts >= MAX_ATTEMPTS) {
-        return NextResponse.json({ error: "Too many failed attempts. Account locked for 15 minutes." }, { status: 429 });
+        return NextResponse.json(
+          { error: "Too many failed attempts. Account locked for 15 minutes." },
+          { status: 429 }
+        );
       }
       return NextResponse.json({ error: "Current password is incorrect" }, { status: 400 });
     }
 
     if (currentPassword === newPassword) {
-      return NextResponse.json({ error: "New password must be different from current password" }, { status: 400 });
+      return NextResponse.json(
+        { error: "New password must be different from current password" },
+        { status: 400 }
+      );
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 12);

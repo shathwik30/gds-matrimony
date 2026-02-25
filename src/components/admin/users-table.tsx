@@ -69,7 +69,10 @@ export function UsersTable({ users, total, currentPage }: UsersTableProps) {
     }
   };
 
-  const handleVerifyUser = async (userId: number, trustLevel: "new_member" | "verified_user" | "highly_trusted") => {
+  const handleVerifyUser = async (
+    userId: number,
+    trustLevel: "new_member" | "verified_user" | "highly_trusted"
+  ) => {
     setLoadingUserId(userId);
     try {
       const result = await verifyUserProfile(userId, trustLevel);
@@ -98,7 +101,7 @@ export function UsersTable({ users, total, currentPage }: UsersTableProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200">
+    <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
@@ -115,7 +118,7 @@ export function UsersTable({ users, total, currentPage }: UsersTableProps) {
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-slate-500">
+                <TableCell colSpan={7} className="py-8 text-center text-slate-500">
                   No users found
                 </TableCell>
               </TableRow>
@@ -156,8 +159,8 @@ export function UsersTable({ users, total, currentPage }: UsersTableProps) {
                         user.profile?.trustLevel === "verified_user"
                           ? "border-blue-500 text-blue-600"
                           : user.profile?.trustLevel === "highly_trusted"
-                          ? "border-purple-500 text-purple-600"
-                          : "border-slate-300 text-slate-500"
+                            ? "border-purple-500 text-purple-600"
+                            : "border-slate-300 text-slate-500"
                       }
                     >
                       {user.profile?.trustLevel || "new_member"}
@@ -170,13 +173,16 @@ export function UsersTable({ users, total, currentPage }: UsersTableProps) {
                         user.subscription?.plan === "platinum"
                           ? "border-purple-500 text-purple-600"
                           : user.subscription?.plan === "gold"
-                          ? "border-amber-500 text-amber-600"
-                          : user.subscription?.plan === "silver"
-                          ? "border-slate-400 text-slate-600"
-                          : "border-slate-300 text-slate-500"
+                            ? "border-amber-500 text-amber-600"
+                            : user.subscription?.plan === "silver"
+                              ? "border-slate-400 text-slate-600"
+                              : "border-slate-300 text-slate-500"
                       }
                     >
-                      {user.subscription?.plan ? user.subscription.plan.charAt(0).toUpperCase() + user.subscription.plan.slice(1) : "Free"}
+                      {user.subscription?.plan
+                        ? user.subscription.plan.charAt(0).toUpperCase() +
+                          user.subscription.plan.slice(1)
+                        : "Free"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm text-slate-500">
@@ -226,11 +232,15 @@ export function UsersTable({ users, total, currentPage }: UsersTableProps) {
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleVerifyUser(user.id, "verified_user")}>
+                        <DropdownMenuItem
+                          onClick={() => handleVerifyUser(user.id, "verified_user")}
+                        >
                           <Shield className="mr-2 h-4 w-4 text-blue-500" />
                           Mark Verified
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleVerifyUser(user.id, "highly_trusted")}>
+                        <DropdownMenuItem
+                          onClick={() => handleVerifyUser(user.id, "highly_trusted")}
+                        >
                           <Shield className="mr-2 h-4 w-4 text-purple-500" />
                           Mark Highly Trusted
                         </DropdownMenuItem>
@@ -248,11 +258,11 @@ export function UsersTable({ users, total, currentPage }: UsersTableProps) {
         </Table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200">
+        <div className="flex items-center justify-between border-t border-slate-200 px-6 py-4">
           <p className="text-sm text-slate-500">
-            Showing {(currentPage - 1) * 20 + 1} to {Math.min(currentPage * 20, total)} of {total} users
+            Showing {(currentPage - 1) * 20 + 1} to {Math.min(currentPage * 20, total)} of {total}{" "}
+            users
           </p>
           <div className="flex items-center gap-2">
             <Button

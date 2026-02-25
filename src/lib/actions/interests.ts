@@ -10,15 +10,28 @@ import { requireAuth, checkBlocked } from "@/lib/actions/helpers";
 import { isUnlimited } from "@/lib/utils/subscription";
 import type { ActionResult, InterestWithProfile } from "@/types";
 
-// Format a profile record into the InterestWithProfile shape
 function formatInterestProfile(
-  interest: { id: number; status: "pending" | "accepted" | "rejected" | null; createdAt: Date | null },
+  interest: {
+    id: number;
+    status: "pending" | "accepted" | "rejected" | null;
+    createdAt: Date | null;
+  },
   profile: {
-    id: number; userId: number; firstName: string | null; lastName: string | null;
-    gender: "male" | "female" | null; dateOfBirth: string | null; height: number | null;
-    religion: string | null; caste: string | null; residingCity: string | null;
-    residingState: string | null; highestEducation: string | null; occupation: string | null;
-    profileImage: string | null; profileCompletion: number | null;
+    id: number;
+    userId: number;
+    firstName: string | null;
+    lastName: string | null;
+    gender: "male" | "female" | null;
+    dateOfBirth: string | null;
+    height: number | null;
+    religion: string | null;
+    caste: string | null;
+    residingCity: string | null;
+    residingState: string | null;
+    highestEducation: string | null;
+    occupation: string | null;
+    profileImage: string | null;
+    profileCompletion: number | null;
     trustLevel: "new_member" | "verified_user" | "highly_trusted" | null;
     user?: { lastActive: Date | null } | null;
   }
@@ -50,7 +63,6 @@ function formatInterestProfile(
   };
 }
 
-// Send interest to a profile
 export async function sendInterest(toUserId: number): Promise<ActionResult> {
   try {
     const authResult = await requireAuth();
@@ -65,7 +77,6 @@ export async function sendInterest(toUserId: number): Promise<ActionResult> {
       return { success: false, error: "Cannot send interest to this user" };
     }
 
-    // Check if target user is active
     const targetUser = await db.query.users.findFirst({
       where: eq(users.id, toUserId),
       columns: { isActive: true },
@@ -74,23 +85,17 @@ export async function sendInterest(toUserId: number): Promise<ActionResult> {
       return { success: false, error: "This user is no longer active" };
     }
 
-    // Check if interest already exists
     const existingInterest = await db.query.interests.findFirst({
-      where: and(
-        eq(interests.senderId, senderId),
-        eq(interests.receiverId, toUserId)
-      ),
+      where: and(eq(interests.senderId, senderId), eq(interests.receiverId, toUserId)),
     });
 
     if (existingInterest) {
       return { success: false, error: "Interest already sent" };
     }
 
-    // Check subscription limits (auto-deactivates if expired)
     const subscription = await getActiveSubscription(senderId);
     const interestsPerDay = subscription ? (subscription.interestsPerDay ?? 5) : 5;
 
-    // Skip limit check for unlimited plans
     if (!isUnlimited(interestsPerDay)) {
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
@@ -100,12 +105,7 @@ export async function sendInterest(toUserId: number): Promise<ActionResult> {
         const countResult = await tx
           .select({ count: sql<number>`count(*)` })
           .from(interests)
-          .where(
-            and(
-              eq(interests.senderId, senderId),
-              gte(interests.createdAt, todayStart)
-            )
-          );
+          .where(and(eq(interests.senderId, senderId), gte(interests.createdAt, todayStart)));
 
         const todayCount = Number(countResult[0]?.count || 0);
 
@@ -125,11 +125,10 @@ export async function sendInterest(toUserId: number): Promise<ActionResult> {
       if (limitResult.limitReached) {
         return {
           success: false,
-          error: `Daily limit of ${interestsPerDay} interests reached. ${!subscription ? "Upgrade to send more interests." : "Upgrade your plan for more."}`
+          error: `Daily limit of ${interestsPerDay} interests reached. ${!subscription ? "Upgrade to send more interests." : "Upgrade your plan for more."}`,
         };
       }
     } else {
-      // Unlimited plan - just insert
       await db.insert(interests).values({
         senderId,
         receiverId: toUserId,
@@ -137,7 +136,6 @@ export async function sendInterest(toUserId: number): Promise<ActionResult> {
       });
     }
 
-    // Send email notification (non-blocking - don't fail interest if email fails)
     try {
       const [senderProfile, receiverProfile] = await Promise.all([
         db.query.profiles.findFirst({
@@ -160,7 +158,6 @@ export async function sendInterest(toUserId: number): Promise<ActionResult> {
       console.error("Failed to send interest email:", emailError);
     }
 
-    // Log activity (non-blocking)
     try {
       await logActivity(senderId, "interest_sent", toUserId);
     } catch (logError) {
@@ -174,7 +171,6 @@ export async function sendInterest(toUserId: number): Promise<ActionResult> {
   }
 }
 
-// Respond to interest (accept/decline)
 export async function respondToInterest(
   interestId: number,
   status: "accepted" | "rejected"
@@ -184,12 +180,8 @@ export async function respondToInterest(
     if (authResult.error) return authResult.error;
     const { userId } = authResult;
 
-    // Get interest
     const interest = await db.query.interests.findFirst({
-      where: and(
-        eq(interests.id, interestId),
-        eq(interests.receiverId, userId)
-      ),
+      where: and(eq(interests.id, interestId), eq(interests.receiverId, userId)),
     });
 
     if (!interest) {
@@ -200,7 +192,6 @@ export async function respondToInterest(
       return { success: false, error: "Interest already responded" };
     }
 
-    // Atomically update interest status (prevents race condition)
     const [updated] = await db
       .update(interests)
       .set({ status, respondedAt: new Date() })
@@ -211,7 +202,6 @@ export async function respondToInterest(
       return { success: false, error: "Interest already responded" };
     }
 
-    // Send notification email if accepted
     if (status === "accepted") {
       try {
         const [senderUser, accepterProfile] = await Promise.all([
@@ -220,16 +210,16 @@ export async function respondToInterest(
         ]);
 
         if (senderUser && accepterProfile) {
-          const accepterName = `${accepterProfile.firstName || ""} ${accepterProfile.lastName || ""}`.trim() || "Someone";
+          const accepterName =
+            `${accepterProfile.firstName || ""} ${accepterProfile.lastName || ""}`.trim() ||
+            "Someone";
           await sendInterestAcceptedEmail(senderUser.email, accepterName);
         }
       } catch (emailError) {
         console.error("Failed to send acceptance email:", emailError);
-        // Don't fail the response if email fails
       }
     }
 
-    // Log activity
     await logActivity(
       userId,
       status === "accepted" ? "interest_accepted" : "interest_rejected",
@@ -238,9 +228,10 @@ export async function respondToInterest(
 
     return {
       success: true,
-      message: status === "accepted"
-        ? "Interest accepted! You can now message each other."
-        : "Interest rejected"
+      message:
+        status === "accepted"
+          ? "Interest accepted! You can now message each other."
+          : "Interest rejected",
     };
   } catch (error) {
     console.error("Respond to interest error:", error);
@@ -248,7 +239,6 @@ export async function respondToInterest(
   }
 }
 
-// Get received interests
 export async function getReceivedInterests(): Promise<ActionResult<InterestWithProfile[]>> {
   try {
     const authResult = await requireAuth();
@@ -283,7 +273,6 @@ export async function getReceivedInterests(): Promise<ActionResult<InterestWithP
   }
 }
 
-// Get sent interests
 export async function getSentInterests(): Promise<ActionResult<InterestWithProfile[]>> {
   try {
     const authResult = await requireAuth();
@@ -307,9 +296,7 @@ export async function getSentInterests(): Promise<ActionResult<InterestWithProfi
       },
     });
 
-    const formatted = sent.map((interest) =>
-      formatInterestProfile(interest, interest.toProfile)
-    );
+    const formatted = sent.map((interest) => formatInterestProfile(interest, interest.toProfile));
 
     return { success: true, data: formatted };
   } catch (error) {
@@ -318,7 +305,6 @@ export async function getSentInterests(): Promise<ActionResult<InterestWithProfi
   }
 }
 
-// Get daily interest status (sent today count + limit)
 export interface DailyInterestStatus {
   sentToday: number;
   limit: number;
@@ -347,12 +333,7 @@ export async function getDailyInterestStatus(): Promise<ActionResult<DailyIntere
     const countResult = await db
       .select({ count: sql<number>`count(*)` })
       .from(interests)
-      .where(
-        and(
-          eq(interests.senderId, userId),
-          gte(interests.createdAt, todayStart)
-        )
-      );
+      .where(and(eq(interests.senderId, userId), gte(interests.createdAt, todayStart)));
 
     const sentToday = Number(countResult[0]?.count || 0);
 
@@ -366,7 +347,6 @@ export async function getDailyInterestStatus(): Promise<ActionResult<DailyIntere
   }
 }
 
-// Get accepted interests (mutual connections)
 export async function getAcceptedInterests(): Promise<ActionResult<InterestWithProfile[]>> {
   try {
     const authResult = await requireAuth();
@@ -375,10 +355,7 @@ export async function getAcceptedInterests(): Promise<ActionResult<InterestWithP
 
     const accepted = await db.query.interests.findMany({
       where: and(
-        or(
-          eq(interests.senderId, userId),
-          eq(interests.receiverId, userId)
-        ),
+        or(eq(interests.senderId, userId), eq(interests.receiverId, userId)),
         eq(interests.status, "accepted")
       ),
       orderBy: [desc(interests.respondedAt)],
