@@ -3,16 +3,8 @@
 import { db, blocks, users } from "@/lib/db";
 import { eq, and, or } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { parseUserId } from "@/lib/utils";
+import { parseAdminEmails, parseUserId } from "@/lib/utils";
 import type { ActionResult } from "@/types";
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-export function parseAdminEmails(envValue?: string): string[] {
-  return (envValue?.split(",") || [])
-    .map((e) => e.trim().toLowerCase())
-    .filter((e) => EMAIL_REGEX.test(e));
-}
 
 export async function requireAuth(): Promise<
   { userId: number; error?: never } | { userId?: never; error: ActionResult<never> }

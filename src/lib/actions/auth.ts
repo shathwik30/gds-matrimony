@@ -27,7 +27,7 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import type { ActionResult } from "@/types";
 import { OTP_CONFIG } from "@/constants";
-import { parseAdminEmails } from "./helpers";
+import { parseAdminEmails } from "@/lib/utils";
 
 import { env as serverEnv, clientEnv as clientEnvConfig } from "@/lib/env";
 

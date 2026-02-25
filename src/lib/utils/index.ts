@@ -233,6 +233,14 @@ export function calculateActivityScore(lastActive: Date | string | null | undefi
   return -25;
 }
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function parseAdminEmails(envValue?: string): string[] {
+  return (envValue?.split(",") || [])
+    .map((e) => e.trim().toLowerCase())
+    .filter((e) => EMAIL_REGEX.test(e));
+}
+
 export function parseUserId(id: string | undefined | null): number | null {
   if (!id) return null;
   const parsed = parseInt(id, 10);
