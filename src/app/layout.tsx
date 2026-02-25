@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { SkipToContent } from "@/components/accessibility/skip-to-content";
@@ -125,6 +126,7 @@ export default function RootLayout({
   return (
     <html lang="en-IN" suppressHydrationWarning>
       <body className={`${inter.variable} ${playfairDisplay.variable} font-sans antialiased`}>
+        <GoogleAnalytics gaId="G-X95W9F1N6B" />
         <OrganizationJsonLd />
         <WebSiteJsonLd />
         <SkipToContent />
