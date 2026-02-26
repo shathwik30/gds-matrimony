@@ -15,9 +15,9 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   siteName: "GDS Marriage Links",
   siteUrl: "https://gdsmarriagelinks.com",
   supportEmail: "support@gdsmarriagelinks.com",
-  contactPhone: "+91 98765 43210",
+  supportPhone: "+91 98765 43210",
   maintenanceMode: "false",
-  newRegistrations: "true",
+  registrationEnabled: "true",
   fromEmail: "noreply@gdsmarriagelinks.com",
   fromName: "GDS Marriage Links",
   welcomeEmail: "true",
@@ -153,11 +153,11 @@ export default function AdminSettingsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="contactPhone">Contact Phone</Label>
+                  <Label htmlFor="supportPhone">Support Phone</Label>
                   <Input
-                    id="contactPhone"
-                    value={settings.contactPhone}
-                    onChange={(e) => updateField("contactPhone", e.target.value)}
+                    id="supportPhone"
+                    value={settings.supportPhone}
+                    onChange={(e) => updateField("supportPhone", e.target.value)}
                   />
                 </div>
               </div>

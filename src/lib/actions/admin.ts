@@ -717,6 +717,22 @@ const ALLOWED_SETTING_KEYS = new Set([
   "termsUpdatedAt",
   "privacyUpdatedAt",
   "analyticsId",
+  "fromEmail",
+  "fromName",
+  "welcomeEmail",
+  "interestNotifications",
+  "messageNotifications",
+  "subscriptionReminders",
+  "notificationEmail",
+  "adminNewRegistration",
+  "adminNewReport",
+  "adminNewPayment",
+  "adminVerificationRequest",
+  "twoFactorAuth",
+  "emailVerificationRequired",
+  "profileModeration",
+  "sessionTimeout",
+  "maxLoginAttempts",
 ]);
 
 export async function updateSiteSettings(settings: Record<string, string>): Promise<ActionResult> {
