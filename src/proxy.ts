@@ -53,7 +53,9 @@ export default auth((req) => {
   }
 
   // Redirect admin users away from normal user routes to admin panel
-  if (isUserOnlyRoute && isLoggedIn && isAdmin) {
+  // Allow admins to view public profiles (e.g. /profile/123) from admin panel
+  const isViewingPublicProfile = /^\/profile\/\d+/.test(nextUrl.pathname);
+  if (isUserOnlyRoute && isLoggedIn && isAdmin && !isViewingPublicProfile) {
     return NextResponse.redirect(new URL("/admin", nextUrl));
   }
 
