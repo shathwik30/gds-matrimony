@@ -28,6 +28,7 @@ import jwt from "jsonwebtoken";
 import type { ActionResult } from "@/types";
 import { OTP_CONFIG } from "@/constants";
 import { parseAdminEmails } from "@/lib/utils";
+import { getSiteSetting } from "@/lib/actions/helpers";
 
 import { env as serverEnv, clientEnv as clientEnvConfig } from "@/lib/env";
 
@@ -36,6 +37,15 @@ const APP_URL = clientEnvConfig.APP_URL;
 
 export async function registerUser(data: RegisterInput): Promise<ActionResult> {
   try {
+    // Check if registration is enabled
+    const registrationEnabled = await getSiteSetting("registrationEnabled");
+    if (registrationEnabled === "false") {
+      return {
+        success: false,
+        error: "Registration is currently disabled. Please try again later.",
+      };
+    }
+
     // Validate input
     const validated = registerSchema.parse(data);
 
@@ -171,11 +181,14 @@ export async function verifyEmailOTP(data: VerifyOtpInput): Promise<ActionResult
     });
 
     if (user) {
-      await sendEmail({
-        to: validated.email,
-        subject: "Welcome to GDS Marriage Links!",
-        html: getWelcomeEmailTemplate(user.profile?.firstName || "there"),
-      });
+      const welcomeEmailEnabled = await getSiteSetting("welcomeEmail");
+      if (welcomeEmailEnabled !== "false") {
+        await sendEmail({
+          to: validated.email,
+          subject: "Welcome to GDS Marriage Links!",
+          html: getWelcomeEmailTemplate(user.profile?.firstName || "there"),
+        });
+      }
     }
 
     return {

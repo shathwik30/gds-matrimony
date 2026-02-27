@@ -16,8 +16,13 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   siteUrl: "https://gdsmarriagelinks.com",
   supportEmail: "support@gdsmarriagelinks.com",
   supportPhone: "+91 98765 43210",
+  address: "Mumbai, Maharashtra, India",
+  workingHours: "Mon - Sat: 9:00 AM - 6:00 PM",
   maintenanceMode: "false",
   registrationEnabled: "true",
+  maxPhotos: "5",
+  termsUpdatedAt: "January 2025",
+  privacyUpdatedAt: "January 2025",
   fromEmail: "noreply@gdsmarriagelinks.com",
   fromName: "GDS Marriage Links",
   welcomeEmail: "true",
@@ -160,6 +165,52 @@ export default function AdminSettingsPage() {
                     onChange={(e) => updateField("supportPhone", e.target.value)}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="address">Office Address</Label>
+                  <Input
+                    id="address"
+                    value={settings.address}
+                    onChange={(e) => updateField("address", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="workingHours">Working Hours</Label>
+                  <Input
+                    id="workingHours"
+                    value={settings.workingHours}
+                    onChange={(e) => updateField("workingHours", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="maxPhotos">Max Profile Photos</Label>
+                  <Input
+                    id="maxPhotos"
+                    type="number"
+                    value={settings.maxPhotos}
+                    onChange={(e) => updateField("maxPhotos", e.target.value)}
+                  />
+                  <p className="text-xs text-slate-500">
+                    Maximum number of photos users can upload to their profile
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="termsUpdatedAt">Terms Last Updated</Label>
+                  <Input
+                    id="termsUpdatedAt"
+                    value={settings.termsUpdatedAt}
+                    onChange={(e) => updateField("termsUpdatedAt", e.target.value)}
+                    placeholder="e.g. February 2026"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="privacyUpdatedAt">Privacy Policy Last Updated</Label>
+                  <Input
+                    id="privacyUpdatedAt"
+                    value={settings.privacyUpdatedAt}
+                    onChange={(e) => updateField("privacyUpdatedAt", e.target.value)}
+                    placeholder="e.g. February 2026"
+                  />
+                </div>
               </div>
 
               <div className="flex items-center justify-between rounded-lg bg-slate-50 p-4">
@@ -183,8 +234,8 @@ export default function AdminSettingsPage() {
                   </p>
                 </div>
                 <Switch
-                  checked={settings.newRegistrations === "true"}
-                  onCheckedChange={() => toggleSwitch("newRegistrations")}
+                  checked={settings.registrationEnabled === "true"}
+                  onCheckedChange={() => toggleSwitch("registrationEnabled")}
                 />
               </div>
             </CardContent>

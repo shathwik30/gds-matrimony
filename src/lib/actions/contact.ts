@@ -1,9 +1,9 @@
 "use server";
 
 import { sendEmail } from "@/lib/email";
-import { db, contactSubmissions } from "@/lib/db";
+import { db, contactSubmissions, siteSettings } from "@/lib/db";
 import { escapeHtml } from "@/lib/utils";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { ActionResult } from "@/types";
 
 interface ContactFormData {
@@ -70,9 +70,24 @@ export async function submitContactForm(data: ContactFormData): Promise<ActionRe
       return { success: false, error: "Message must not exceed 2000 characters" };
     }
 
-    const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "GDS Marriage Links";
+    // Read support email from DB settings, falling back to env vars
+    const [dbSupportEmail] = await db
+      .select({ value: siteSettings.value })
+      .from(siteSettings)
+      .where(eq(siteSettings.key, "supportEmail"))
+      .limit(1);
+    const [dbSiteName] = await db
+      .select({ value: siteSettings.value })
+      .from(siteSettings)
+      .where(eq(siteSettings.key, "siteName"))
+      .limit(1);
+
+    const APP_NAME = dbSiteName?.value || process.env.NEXT_PUBLIC_APP_NAME || "GDS Marriage Links";
     const SUPPORT_EMAIL =
-      process.env.SUPPORT_EMAIL || process.env.FROM_EMAIL || "support@gdsmarriagelinks.com";
+      dbSupportEmail?.value ||
+      process.env.SUPPORT_EMAIL ||
+      process.env.FROM_EMAIL ||
+      "support@gdsmarriagelinks.com";
 
     const safeName = escapeHtml(data.name);
     const safeEmail = escapeHtml(data.email);

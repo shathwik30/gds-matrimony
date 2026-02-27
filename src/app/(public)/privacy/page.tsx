@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { SITE_CONFIG } from "@/constants";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { getPublicSiteSettings } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -11,7 +12,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function PrivacyPage() {
+export const dynamic = "force-dynamic";
+
+export default async function PrivacyPage() {
+  const settings = await getPublicSiteSettings();
+  const privacyUpdatedAt = settings.privacyUpdatedAt || "January 2025";
   return (
     <div className="min-h-screen">
       <BreadcrumbJsonLd
@@ -24,7 +29,7 @@ export default function PrivacyPage() {
         <div className="container">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="mb-4 text-4xl font-bold md:text-5xl">Privacy Policy</h1>
-            <p className="text-muted-foreground">Last updated: January 2025</p>
+            <p className="text-muted-foreground">Last updated: {privacyUpdatedAt}</p>
           </div>
         </div>
       </section>

@@ -6,7 +6,7 @@ import { calculateAge } from "@/lib/utils";
 import { sendInterestEmail, sendInterestAcceptedEmail } from "@/lib/email";
 import { logActivity } from "@/lib/actions/activity";
 import { getActiveSubscription } from "@/lib/actions/subscription";
-import { requireAuth, checkBlocked, getAdminUserIds } from "@/lib/actions/helpers";
+import { requireAuth, checkBlocked, getAdminUserIds, getSiteSetting } from "@/lib/actions/helpers";
 import { isUnlimited } from "@/lib/utils/subscription";
 import type { ActionResult, InterestWithProfile } from "@/types";
 
@@ -141,22 +141,25 @@ export async function sendInterest(toUserId: number): Promise<ActionResult> {
     }
 
     try {
-      const [senderProfile, receiverProfile] = await Promise.all([
-        db.query.profiles.findFirst({
-          where: eq(profiles.userId, senderId),
-          with: { user: true },
-        }),
-        db.query.profiles.findFirst({
-          where: eq(profiles.userId, toUserId),
-          with: { user: true },
-        }),
-      ]);
+      const interestNotifications = await getSiteSetting("interestNotifications");
+      if (interestNotifications !== "false") {
+        const [senderProfile, receiverProfile] = await Promise.all([
+          db.query.profiles.findFirst({
+            where: eq(profiles.userId, senderId),
+            with: { user: true },
+          }),
+          db.query.profiles.findFirst({
+            where: eq(profiles.userId, toUserId),
+            with: { user: true },
+          }),
+        ]);
 
-      if (receiverProfile?.user?.email && senderProfile) {
-        await sendInterestEmail(
-          receiverProfile.user.email,
-          `${senderProfile.firstName || "Someone"}`
-        );
+        if (receiverProfile?.user?.email && senderProfile) {
+          await sendInterestEmail(
+            receiverProfile.user.email,
+            `${senderProfile.firstName || "Someone"}`
+          );
+        }
       }
     } catch (emailError) {
       console.error("Failed to send interest email:", emailError);
@@ -216,16 +219,19 @@ export async function respondToInterest(
 
     if (status === "accepted") {
       try {
-        const [senderUser, accepterProfile] = await Promise.all([
-          db.query.users.findFirst({ where: eq(users.id, interest.senderId) }),
-          db.query.profiles.findFirst({ where: eq(profiles.userId, userId) }),
-        ]);
+        const interestNotifications = await getSiteSetting("interestNotifications");
+        if (interestNotifications !== "false") {
+          const [senderUser, accepterProfile] = await Promise.all([
+            db.query.users.findFirst({ where: eq(users.id, interest.senderId) }),
+            db.query.profiles.findFirst({ where: eq(profiles.userId, userId) }),
+          ]);
 
-        if (senderUser && accepterProfile) {
-          const accepterName =
-            `${accepterProfile.firstName || ""} ${accepterProfile.lastName || ""}`.trim() ||
-            "Someone";
-          await sendInterestAcceptedEmail(senderUser.email, accepterName);
+          if (senderUser && accepterProfile) {
+            const accepterName =
+              `${accepterProfile.firstName || ""} ${accepterProfile.lastName || ""}`.trim() ||
+              "Someone";
+            await sendInterestAcceptedEmail(senderUser.email, accepterName);
+          }
         }
       } catch (emailError) {
         console.error("Failed to send acceptance email:", emailError);

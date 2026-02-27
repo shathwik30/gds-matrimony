@@ -1,5 +1,7 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { db, siteSettings } from "@/lib/db";
+import { eq } from "drizzle-orm";
 
 // Routes that require authentication
 const protectedRoutes = [
@@ -33,7 +35,7 @@ const userOnlyRoutes = [
   "/contact-packs",
 ];
 
-export default auth((req) => {
+export default auth(async (req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
   const isAdmin = !!req.auth?.user?.isAdmin;
@@ -41,6 +43,34 @@ export default auth((req) => {
   const isProtectedRoute = protectedRoutes.some((route) => nextUrl.pathname.startsWith(route));
   const isAuthRoute = authRoutes.some((route) => nextUrl.pathname.startsWith(route));
   const isUserOnlyRoute = userOnlyRoutes.some((route) => nextUrl.pathname.startsWith(route));
+
+  // Check maintenance mode - block public access but allow admin and API routes
+  if (!isAdmin && !nextUrl.pathname.startsWith("/admin") && !nextUrl.pathname.startsWith("/api")) {
+    try {
+      const [maintenance] = await db
+        .select({ value: siteSettings.value })
+        .from(siteSettings)
+        .where(eq(siteSettings.key, "maintenanceMode"))
+        .limit(1);
+      if (maintenance?.value === "true") {
+        // Allow login page so admins can log in
+        if (!isAuthRoute) {
+          return new NextResponse(
+            `<!DOCTYPE html><html><head><title>Under Maintenance</title></head>
+            <body style="display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:sans-serif;background:#f9fafb;margin:0;">
+              <div style="text-align:center;padding:2rem;">
+                <h1 style="color:#C00F0C;font-size:2rem;">Under Maintenance</h1>
+                <p style="color:#666;font-size:1.1rem;margin-top:1rem;">We are currently performing scheduled maintenance. Please check back shortly.</p>
+              </div>
+            </body></html>`,
+            { status: 503, headers: { "Content-Type": "text/html", "Retry-After": "3600" } }
+          );
+        }
+      }
+    } catch {
+      // Don't block requests if settings query fails
+    }
+  }
 
   // Redirect logged-in users away from auth pages
   if (isAuthRoute && isLoggedIn) {

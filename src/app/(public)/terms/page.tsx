@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { SITE_CONFIG } from "@/constants";
 import { BreadcrumbJsonLd } from "@/components/seo/json-ld";
+import { getPublicSiteSettings } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -10,7 +11,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function TermsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function TermsPage() {
+  const settings = await getPublicSiteSettings();
+  const termsUpdatedAt = settings.termsUpdatedAt || "January 2025";
   return (
     <div className="min-h-screen">
       <BreadcrumbJsonLd
@@ -23,7 +28,7 @@ export default function TermsPage() {
         <div className="container">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="mb-4 text-4xl font-bold md:text-5xl">Terms of Service</h1>
-            <p className="text-muted-foreground">Last updated: January 2025</p>
+            <p className="text-muted-foreground">Last updated: {termsUpdatedAt}</p>
           </div>
         </div>
       </section>

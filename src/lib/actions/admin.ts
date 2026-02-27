@@ -16,6 +16,7 @@ import {
 } from "@/lib/db";
 import { eq, and, desc, sql, gte, lte, count, ne, inArray, type SQL } from "drizzle-orm";
 import bcrypt from "bcryptjs";
+import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/actions/helpers";
 import type { ActionResult } from "@/types";
 
@@ -711,6 +712,8 @@ const ALLOWED_SETTING_KEYS = new Set([
   "siteUrl",
   "supportEmail",
   "supportPhone",
+  "address",
+  "workingHours",
   "maintenanceMode",
   "registrationEnabled",
   "maxPhotos",
@@ -754,6 +757,9 @@ export async function updateSiteSettings(settings: Record<string, string>): Prom
           set: { value, updatedAt: now },
         });
     }
+
+    // Revalidate all pages so updated settings (footer, contact info, etc.) take effect
+    revalidatePath("/", "layout");
 
     return { success: true, message: "Settings saved successfully" };
   } catch (error) {

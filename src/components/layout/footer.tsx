@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Facebook, Instagram, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 import { SITE_CONFIG } from "@/constants";
+import { getContactSettings } from "@/lib/settings";
 
 const footerLinks = {
   company: [
@@ -22,7 +23,9 @@ const socialLinks = [
   { icon: Linkedin, href: SITE_CONFIG.social.linkedin, label: "LinkedIn" },
 ].filter((link) => link.href);
 
-export function Footer() {
+export async function Footer() {
+  const contact = await getContactSettings();
+
   return (
     <footer className="from-muted/20 to-muted/40 border-t bg-gradient-to-b">
       <div className="container-wide py-10 sm:py-14 md:py-20">
@@ -31,14 +34,14 @@ export function Footer() {
             <Link href="/" className="group mb-4 flex w-fit items-center gap-2 sm:mb-6 sm:gap-3">
               <Image
                 src="/images/logo.svg"
-                alt={SITE_CONFIG.name}
+                alt={contact.siteName}
                 width={120}
                 height={77}
                 unoptimized
                 className="h-10 w-auto transition-transform group-hover:scale-110 sm:h-14"
               />
               <span className="group-hover:text-primary text-base font-semibold transition-colors sm:text-xl">
-                {SITE_CONFIG.name}
+                {contact.siteName}
               </span>
             </Link>
             <p className="text-muted-foreground mb-5 max-w-md text-sm leading-relaxed sm:mb-8 sm:text-base">
@@ -51,10 +54,10 @@ export function Footer() {
                   <Mail className="text-primary h-4 w-4" />
                 </div>
                 <a
-                  href={`mailto:${SITE_CONFIG.supportEmail}`}
+                  href={`mailto:${contact.supportEmail}`}
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  {SITE_CONFIG.supportEmail}
+                  {contact.supportEmail}
                 </a>
               </div>
               <div className="group flex items-center gap-3">
@@ -62,17 +65,17 @@ export function Footer() {
                   <Phone className="text-primary h-4 w-4" />
                 </div>
                 <a
-                  href={SITE_CONFIG.phoneHref}
+                  href={contact.phoneHref}
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  {SITE_CONFIG.phone}
+                  {contact.phone}
                 </a>
               </div>
               <div className="group flex items-center gap-3">
                 <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
                   <MapPin className="text-primary h-4 w-4" />
                 </div>
-                <span className="text-muted-foreground">{SITE_CONFIG.address}</span>
+                <span className="text-muted-foreground">{contact.address}</span>
               </div>
             </div>
           </div>
@@ -120,7 +123,7 @@ export function Footer() {
       <div className="from-primary via-primary to-primary/90 bg-gradient-to-r text-white">
         <div className="container-wide flex flex-col items-center justify-between gap-4 py-4 sm:flex-row sm:py-6">
           <p className="text-center text-xs font-medium sm:text-left sm:text-sm">
-            &copy; {new Date().getFullYear()} {SITE_CONFIG.name}. All rights reserved.
+            &copy; {new Date().getFullYear()} {contact.siteName}. All rights reserved.
           </p>
           <div className="flex items-center gap-3">
             {socialLinks.map((social) => (

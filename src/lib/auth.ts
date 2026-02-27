@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { db, users, subscriptions } from "@/lib/db";
+import { db, users, subscriptions, siteSettings } from "@/lib/db";
 import { eq, sql } from "drizzle-orm";
 import { parseAdminEmails } from "@/lib/utils";
 
@@ -36,7 +36,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("Invalid email or password");
         }
 
-        if (!user.emailVerified) {
+        // Check emailVerificationRequired setting
+        const [emailVerifSetting] = await db
+          .select({ value: siteSettings.value })
+          .from(siteSettings)
+          .where(eq(siteSettings.key, "emailVerificationRequired"))
+          .limit(1);
+        const emailVerificationRequired = emailVerifSetting?.value !== "false";
+
+        if (emailVerificationRequired && !user.emailVerified) {
           throw new Error("Please verify your email before logging in");
         }
 
@@ -53,7 +61,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
-          const MAX_ATTEMPTS = 5;
+          // Read maxLoginAttempts from site settings, falling back to 5
+          const [maxAttemptsSetting] = await db
+            .select({ value: siteSettings.value })
+            .from(siteSettings)
+            .where(eq(siteSettings.key, "maxLoginAttempts"))
+            .limit(1);
+          const MAX_ATTEMPTS = parseInt(maxAttemptsSetting?.value || "5", 10) || 5;
           const LOCKOUT_MINUTES = 15;
 
           // Atomic increment to prevent race conditions

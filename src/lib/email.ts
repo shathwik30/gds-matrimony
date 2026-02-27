@@ -1,6 +1,8 @@
 import { Resend } from "resend";
 import { env, clientEnv } from "@/lib/env";
 import { escapeHtml } from "@/lib/utils";
+import { db, siteSettings } from "@/lib/db";
+import { eq } from "drizzle-orm";
 
 let _resend: Resend | null = null;
 function getResend(): Resend {
@@ -10,8 +12,30 @@ function getResend(): Resend {
   return _resend;
 }
 
-const FROM_EMAIL = env.FROM_EMAIL;
-const APP_NAME = clientEnv.APP_NAME;
+const DEFAULT_FROM_EMAIL = env.FROM_EMAIL;
+const DEFAULT_APP_NAME = clientEnv.APP_NAME;
+const APP_NAME = DEFAULT_APP_NAME;
+
+async function getEmailSenderConfig(): Promise<{ fromEmail: string; appName: string }> {
+  try {
+    const results = await db
+      .select({ key: siteSettings.key, value: siteSettings.value })
+      .from(siteSettings)
+      .where(eq(siteSettings.key, "fromEmail"))
+      .limit(1);
+    const nameResults = await db
+      .select({ value: siteSettings.value })
+      .from(siteSettings)
+      .where(eq(siteSettings.key, "fromName"))
+      .limit(1);
+    return {
+      fromEmail: results[0]?.value || DEFAULT_FROM_EMAIL,
+      appName: nameResults[0]?.value || DEFAULT_APP_NAME,
+    };
+  } catch {
+    return { fromEmail: DEFAULT_FROM_EMAIL, appName: DEFAULT_APP_NAME };
+  }
+}
 
 function sanitizeUrl(url: string): string {
   try {
@@ -51,8 +75,9 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions) {
   }
 
   try {
+    const { fromEmail, appName } = await getEmailSenderConfig();
     const { data, error } = await getResend().emails.send({
-      from: `${APP_NAME} <${FROM_EMAIL}>`,
+      from: `${appName} <${fromEmail}>`,
       to,
       subject,
       html,

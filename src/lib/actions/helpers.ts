@@ -1,6 +1,6 @@
 "use server";
 
-import { db, blocks, users } from "@/lib/db";
+import { db, blocks, users, siteSettings } from "@/lib/db";
 import { eq, and, or, inArray } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { parseAdminEmails, parseUserId } from "@/lib/utils";
@@ -55,6 +55,20 @@ export async function checkBlocked(userId1: number, userId2: number): Promise<bo
     ),
   });
   return !!blockExists;
+}
+
+/** Reads a single site setting from the database. Returns null if not found. */
+export async function getSiteSetting(key: string): Promise<string | null> {
+  try {
+    const [result] = await db
+      .select({ value: siteSettings.value })
+      .from(siteSettings)
+      .where(eq(siteSettings.key, key))
+      .limit(1);
+    return result?.value ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /** Returns the user IDs of all admin accounts, for filtering them out of user-facing queries. */

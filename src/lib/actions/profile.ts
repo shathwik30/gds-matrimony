@@ -26,7 +26,7 @@ function extractFileKey(url: string): string | null {
 import { calculateAge, calculateProfileCompletion } from "@/lib/utils";
 import { calculateCompatibilityScore } from "@/lib/utils/compatibility";
 import { getActiveSubscription } from "@/lib/actions/subscription";
-import { requireAuth, getAdminUserIds } from "@/lib/actions/helpers";
+import { requireAuth, getAdminUserIds, getSiteSetting } from "@/lib/actions/helpers";
 import type { ProfileInput, PartnerPreferencesInput } from "@/lib/validations/profile";
 import type { ActionResult, MatchProfile, SearchFilters } from "@/types";
 
@@ -209,13 +209,17 @@ export async function addGalleryImage(imageUrl: string): Promise<ActionResult> {
       return { success: false, error: "Profile not found" };
     }
 
+    // Read max photos setting from DB, default to 5
+    const maxPhotosSetting = await getSiteSetting("maxPhotos");
+    const maxPhotos = parseInt(maxPhotosSetting || "5", 10) || 5;
+
     // Use transaction to prevent race condition between count check and insert
     const result = await db.transaction(async (tx) => {
       const existingImages = await tx.query.profileImages.findMany({
         where: eq(profileImages.profileId, profile.id),
       });
 
-      if (existingImages.length >= 5) {
+      if (existingImages.length >= maxPhotos) {
         return { limitReached: true as const };
       }
 
@@ -232,7 +236,7 @@ export async function addGalleryImage(imageUrl: string): Promise<ActionResult> {
     });
 
     if (result.limitReached) {
-      return { success: false, error: "Maximum 5 images allowed" };
+      return { success: false, error: `Maximum ${maxPhotos} images allowed` };
     }
 
     return { success: true, message: "Image added successfully", data: { id: result.id } };
