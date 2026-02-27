@@ -100,9 +100,21 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Admin Settings</h1>
-        <p className="text-slate-500">Configure platform settings and preferences</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Admin Settings</h1>
+          <p className="text-slate-500">Configure platform settings and preferences</p>
+        </div>
+        <Button onClick={handleSave} disabled={isSaving}>
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            "Save Settings"
+          )}
+        </Button>
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
