@@ -80,9 +80,6 @@ export function Header() {
             unoptimized
             className="h-10 w-auto transition-transform group-hover:scale-110 md:h-14"
           />
-          <span className="group-hover:text-primary hidden text-lg font-semibold transition-colors sm:inline-block md:text-xl">
-            GDS Marriage Links
-          </span>
         </Link>
 
         {status === "authenticated" && session?.user ? (

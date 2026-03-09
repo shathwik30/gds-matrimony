@@ -272,7 +272,9 @@ export async function resendOTP(email: string): Promise<ActionResult> {
   }
 }
 
-export async function loginUser(data: LoginInput): Promise<ActionResult<{ isAdmin?: boolean }>> {
+export async function loginUser(
+  data: LoginInput
+): Promise<ActionResult<{ isAdmin?: boolean; isStaff?: boolean }>> {
   try {
     const validated = loginSchema.parse(data);
     const email = validated.email.toLowerCase();
@@ -290,7 +292,16 @@ export async function loginUser(data: LoginInput): Promise<ActionResult<{ isAdmi
     const adminEmails = parseAdminEmails(process.env.ADMIN_EMAILS);
     const isAdmin = adminEmails.includes(email);
 
-    return { success: true, message: "Login successful!", data: { isAdmin } };
+    let isStaff = false;
+    if (!isAdmin) {
+      const user = await db.query.users.findFirst({
+        where: eq(users.email, email),
+        columns: { role: true },
+      });
+      isStaff = user?.role === "staff";
+    }
+
+    return { success: true, message: "Login successful!", data: { isAdmin, isStaff } };
   } catch (error) {
     console.error("Login error:", error);
     if (error instanceof Error) {

@@ -16,12 +16,13 @@ const protectedRoutes = [
   "/shortlist",
   "/contact-packs",
   "/admin",
+  "/staff",
 ];
 
 // Routes that should redirect to dashboard if already logged in
 const authRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
 
-// Dashboard routes that normal users access but admins should not
+// Dashboard routes that normal users access but admins/staff should not
 const userOnlyRoutes = [
   "/dashboard",
   "/matches",
@@ -35,14 +36,19 @@ const userOnlyRoutes = [
   "/contact-packs",
 ];
 
+// Staff-only routes
+const staffOnlyRoutes = ["/staff"];
+
 export default auth(async (req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
   const isAdmin = !!req.auth?.user?.isAdmin;
+  const isStaff = !!req.auth?.user?.isStaff;
 
   const isProtectedRoute = protectedRoutes.some((route) => nextUrl.pathname.startsWith(route));
   const isAuthRoute = authRoutes.some((route) => nextUrl.pathname.startsWith(route));
   const isUserOnlyRoute = userOnlyRoutes.some((route) => nextUrl.pathname.startsWith(route));
+  const isStaffOnlyRoute = staffOnlyRoutes.some((route) => nextUrl.pathname.startsWith(route));
 
   // Check maintenance mode - block public access but allow admin and API routes
   if (!isAdmin && !nextUrl.pathname.startsWith("/admin") && !nextUrl.pathname.startsWith("/api")) {
@@ -72,14 +78,21 @@ export default auth(async (req) => {
     }
   }
 
+  const homeRoute = isAdmin ? "/admin" : isStaff ? "/staff" : "/dashboard";
+
   // Redirect logged-in users away from auth pages
   if (isAuthRoute && isLoggedIn) {
-    return NextResponse.redirect(new URL(isAdmin ? "/admin" : "/dashboard", nextUrl));
+    return NextResponse.redirect(new URL(homeRoute, nextUrl));
   }
 
   // Redirect logged-in users from landing page
   if (nextUrl.pathname === "/" && isLoggedIn) {
-    return NextResponse.redirect(new URL(isAdmin ? "/admin" : "/dashboard", nextUrl));
+    return NextResponse.redirect(new URL(homeRoute, nextUrl));
+  }
+
+  // Redirect staff away from user/admin routes to staff panel
+  if (isStaff && isLoggedIn && (isUserOnlyRoute || nextUrl.pathname.startsWith("/admin"))) {
+    return NextResponse.redirect(new URL("/staff", nextUrl));
   }
 
   // Redirect admin users away from normal user routes to admin panel
@@ -87,6 +100,11 @@ export default auth(async (req) => {
   const isViewingPublicProfile = /^\/profile\/\d+/.test(nextUrl.pathname);
   if (isUserOnlyRoute && isLoggedIn && isAdmin && !isViewingPublicProfile) {
     return NextResponse.redirect(new URL("/admin", nextUrl));
+  }
+
+  // Redirect non-staff users away from staff routes
+  if (isStaffOnlyRoute && isLoggedIn && !isStaff) {
+    return NextResponse.redirect(new URL(isAdmin ? "/admin" : "/dashboard", nextUrl));
   }
 
   // Redirect non-logged-in users to login

@@ -8,6 +8,7 @@ export interface SessionUser {
   profileCompleted: boolean;
   subscriptionPlan: "free" | "basic" | "silver" | "gold" | "platinum";
   isAdmin?: boolean;
+  isStaff?: boolean;
 }
 
 export interface UserProfile extends Profile {

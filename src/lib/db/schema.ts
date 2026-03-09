@@ -55,6 +55,8 @@ export const purchaseTypeEnum = pgEnum("purchase_type", [
   "contact_pack_50",
 ]);
 
+export const userRoleEnum = pgEnum("user_role", ["user", "staff"]);
+
 export const users = pgTable(
   "users",
   {
@@ -66,6 +68,8 @@ export const users = pgTable(
     secondaryPhoneNumber: varchar("secondary_phone_number", { length: 20 }),
     phoneVerified: boolean("phone_verified").default(false),
     profileFor: profileForEnum("profile_for").default("myself"),
+    role: userRoleEnum("role").default("user"),
+    createdByStaffId: integer("created_by_staff_id"),
     isActive: boolean("is_active").default(true),
     lastActive: timestamp("last_active"),
     failedLoginAttempts: integer("failed_login_attempts").default(0),
@@ -78,6 +82,8 @@ export const users = pgTable(
     index("users_phone_idx").on(table.phoneNumber),
     index("users_last_active_idx").on(table.lastActive),
     index("users_is_active_idx").on(table.isActive),
+    index("users_role_idx").on(table.role),
+    index("users_created_by_staff_idx").on(table.createdByStaffId),
   ]
 );
 
@@ -623,6 +629,12 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   shortlists: many(shortlists),
   sentMessages: many(messages, { relationName: "sentMessages" }),
   receivedMessages: many(messages, { relationName: "receivedMessages" }),
+  createdByStaff: one(users, {
+    fields: [users.createdByStaffId],
+    references: [users.id],
+    relationName: "staffCreatedUsers",
+  }),
+  createdUsers: many(users, { relationName: "staffCreatedUsers" }),
 }));
 
 export const profilesRelations = relations(profiles, ({ one, many }) => ({

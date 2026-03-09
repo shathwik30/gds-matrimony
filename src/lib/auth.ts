@@ -103,6 +103,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const adminEmails = parseAdminEmails(process.env.ADMIN_EMAILS);
         const isAdmin = adminEmails.includes(email);
+        const isStaff = !isAdmin && user.role === "staff";
 
         return {
           id: String(user.id),
@@ -114,6 +115,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           profileCompleted: (user.profile?.profileCompletion || 0) >= 70,
           subscriptionPlan: user.subscriptions?.[0]?.plan || "free",
           isAdmin,
+          isStaff,
         };
       },
     }),
@@ -125,6 +127,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.profileCompleted = user.profileCompleted;
         token.subscriptionPlan = user.subscriptionPlan;
         token.isAdmin = user.isAdmin;
+        token.isStaff = user.isStaff;
         if (user.name) token.name = user.name;
         if (user.image) token.picture = user.image;
         token.lastActiveCheck = Date.now();
@@ -135,7 +138,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           const dbUser = await db.query.users.findFirst({
             where: eq(users.id, parseInt(token.id as string, 10)),
-            columns: { isActive: true, email: true },
             with: {
               profile: {
                 columns: {
@@ -159,6 +161,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.profileCompleted = (dbUser.profile?.profileCompletion || 0) >= 70;
           const refreshAdminEmails = parseAdminEmails(process.env.ADMIN_EMAILS);
           token.isAdmin = refreshAdminEmails.includes(dbUser.email.toLowerCase());
+          token.isStaff = !token.isAdmin && dbUser.role === "staff";
           if (dbUser.profile?.firstName) {
             token.name = `${dbUser.profile.firstName} ${dbUser.profile.lastName || ""}`.trim();
           }
@@ -190,6 +193,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.profileCompleted = token.profileCompleted as boolean;
         session.user.subscriptionPlan = token.subscriptionPlan as string;
         session.user.isAdmin = (token.isAdmin as boolean) || false;
+        session.user.isStaff = (token.isStaff as boolean) || false;
         if (token.name) session.user.name = token.name;
         if (token.picture) session.user.image = token.picture as string;
       }
@@ -212,6 +216,7 @@ declare module "next-auth" {
     profileCompleted?: boolean;
     subscriptionPlan?: string;
     isAdmin?: boolean;
+    isStaff?: boolean;
   }
 
   interface Session {
@@ -223,6 +228,7 @@ declare module "next-auth" {
       profileCompleted?: boolean;
       subscriptionPlan?: string;
       isAdmin?: boolean;
+      isStaff?: boolean;
     };
   }
 }
@@ -233,5 +239,6 @@ declare module "@auth/core/jwt" {
     profileCompleted?: boolean;
     subscriptionPlan?: string;
     isAdmin?: boolean;
+    isStaff?: boolean;
   }
 }

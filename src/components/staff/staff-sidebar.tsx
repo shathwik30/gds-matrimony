@@ -4,38 +4,17 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  Users,
-  UserPlus,
-  UserCog,
-  Shield,
-  AlertTriangle,
-  Mail,
-  CreditCard,
-  BarChart3,
-  Settings,
-  LogOut,
-  Menu,
-  X,
-} from "lucide-react";
+import { LayoutDashboard, UserPlus, Users, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { logoutUser } from "@/lib/actions/auth";
 
 const sidebarItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/create-user", label: "Create User", icon: UserPlus },
-  { href: "/admin/staff", label: "Staff Accounts", icon: UserCog },
-  { href: "/admin/verifications", label: "Verifications", icon: Shield },
-  { href: "/admin/reports", label: "Reports", icon: AlertTriangle },
-  { href: "/admin/contact-submissions", label: "Contact Submissions", icon: Mail },
-  { href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard },
-  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
+  { href: "/staff", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/staff/create", label: "Create Profile", icon: UserPlus },
+  { href: "/staff/profiles", label: "My Profiles", icon: Users },
 ];
 
-export function AdminSidebar() {
+export function StaffSidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -46,11 +25,11 @@ export function AdminSidebar() {
   const sidebarContent = (
     <>
       <div className="flex h-14 items-center justify-between border-b border-slate-700 px-4 lg:h-16">
-        <Link href="/admin" className="flex items-center gap-2">
+        <Link href="/staff" className="flex items-center gap-2">
           <div className="bg-brand flex h-8 w-8 items-center justify-center rounded-lg font-bold text-white">
             G
           </div>
-          <span className="font-semibold">Admin Panel</span>
+          <span className="font-semibold">Staff Panel</span>
         </Link>
         <button
           onClick={() => setMobileOpen(false)}
@@ -65,7 +44,7 @@ export function AdminSidebar() {
         <ul className="space-y-1">
           {sidebarItems.map((item) => {
             const isActive =
-              pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
+              pathname === item.href || (item.href !== "/staff" && pathname.startsWith(item.href));
 
             return (
               <li key={item.href}>
@@ -112,7 +91,7 @@ export function AdminSidebar() {
         >
           <Menu className="h-5 w-5" />
         </button>
-        <span className="text-sm font-semibold text-slate-900">Admin Panel</span>
+        <span className="text-sm font-semibold text-slate-900">Staff Panel</span>
       </div>
 
       {/* Mobile overlay */}

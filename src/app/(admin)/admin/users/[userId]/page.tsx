@@ -11,6 +11,7 @@ import {
   Heart,
   MessageSquare,
   CreditCard,
+  UserCog,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -124,6 +125,12 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                     ? formatDistanceToNow(new Date(user.lastActive), { addSuffix: true })
                     : "Never"}
                 </div>
+                {user.createdByStaffEmail && (
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <UserCog className="h-4 w-4 text-slate-400" />
+                    Created by staff: {user.createdByStaffEmail}
+                  </div>
+                )}
               </div>
             </div>
           </div>

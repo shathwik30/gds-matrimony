@@ -71,13 +71,37 @@ export async function getSiteSetting(key: string): Promise<string | null> {
   }
 }
 
-/** Returns the user IDs of all admin accounts, for filtering them out of user-facing queries. */
+export async function requireStaff(): Promise<
+  { userId: number; error?: never } | { userId?: never; error: ActionResult<never> }
+> {
+  const authResult = await requireAuth();
+  if (authResult.error) return { error: authResult.error };
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, authResult.userId),
+    columns: { role: true },
+  });
+
+  if (user?.role !== "staff") {
+    return { error: { success: false, error: "Unauthorized" } };
+  }
+
+  return { userId: authResult.userId };
+}
+
+/** Returns the user IDs of all admin and staff accounts, for filtering them out of user-facing queries. */
 export async function getAdminUserIds(): Promise<number[]> {
   const adminEmails = parseAdminEmails(process.env.ADMIN_EMAILS);
-  if (adminEmails.length === 0) return [];
-  const adminUsers = await db
+
+  const conditions = [];
+  if (adminEmails.length > 0) {
+    conditions.push(inArray(users.email, adminEmails));
+  }
+  conditions.push(eq(users.role, "staff"));
+
+  const excludedUsers = await db
     .select({ id: users.id })
     .from(users)
-    .where(inArray(users.email, adminEmails));
-  return adminUsers.map((u) => u.id);
+    .where(or(...conditions));
+  return excludedUsers.map((u) => u.id);
 }

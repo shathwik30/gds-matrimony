@@ -64,6 +64,13 @@
       "when": 1772020729213,
       "tag": "0008_military_squadron_sinister",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1773073579204,
+      "tag": "0009_yielding_red_wolf",
+      "breakpoints": true
     }
   ]
 }

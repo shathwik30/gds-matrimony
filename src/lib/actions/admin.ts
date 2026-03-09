@@ -234,6 +234,7 @@ export async function getAdminUserDetails(userId: number): Promise<
       interestsReceived: number;
       profileViews: number;
       messagesCount: number;
+      createdByStaffEmail?: string;
     }
   >
 > {
@@ -268,6 +269,15 @@ export async function getAdminUserDetails(userId: number): Promise<
       db.select({ count: count() }).from(messages).where(eq(messages.senderId, userId)),
     ]);
 
+    let createdByStaffEmail: string | undefined;
+    if (user.createdByStaffId) {
+      const staffUser = await db.query.users.findFirst({
+        where: eq(users.id, user.createdByStaffId),
+        columns: { email: true },
+      });
+      createdByStaffEmail = staffUser?.email;
+    }
+
     return {
       success: true,
       data: {
@@ -299,6 +309,7 @@ export async function getAdminUserDetails(userId: number): Promise<
         interestsReceived: interestsReceivedResult.count,
         profileViews: profileViewsResult.count,
         messagesCount: messagesResult.count,
+        createdByStaffEmail,
       },
     };
   } catch (error) {
@@ -1143,5 +1154,175 @@ export async function adminCreateUser(data: AdminCreateUserInput): Promise<Actio
   } catch (error) {
     console.error("Admin create user error:", error);
     return { success: false, error: "Failed to create user account" };
+  }
+}
+
+// ── Staff Management ───────────────────────────────────────────────
+
+export interface AdminStaff {
+  id: number;
+  email: string;
+  name: string | null;
+  isActive: boolean | null;
+  createdAt: Date | null;
+  createdProfilesCount: number;
+}
+
+export async function adminCreateStaff(data: {
+  email: string;
+  password: string;
+  name: string;
+}): Promise<ActionResult> {
+  try {
+    const adminResult = await requireAdmin();
+    if (adminResult.error) return adminResult.error;
+
+    const email = data.email.trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return { success: false, error: "Please enter a valid email address" };
+    }
+
+    if (!data.password || data.password.length < 8) {
+      return { success: false, error: "Password must be at least 8 characters" };
+    }
+
+    if (!data.name || data.name.trim().length < 2) {
+      return { success: false, error: "Name must be at least 2 characters" };
+    }
+
+    const existingUser = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
+    if (existingUser) {
+      return { success: false, error: "A user with this email already exists" };
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 12);
+
+    await db.transaction(async (tx) => {
+      const [user] = await tx
+        .insert(users)
+        .values({
+          email,
+          password: hashedPassword,
+          role: "staff",
+          emailVerified: true,
+          isActive: true,
+        })
+        .returning({ id: users.id });
+
+      // Create a basic profile with just the name
+      await tx.insert(profiles).values({
+        userId: user.id,
+        firstName: data.name.trim(),
+      });
+    });
+
+    return {
+      success: true,
+      message: `Staff account created successfully for ${email}`,
+    };
+  } catch (error) {
+    console.error("Admin create staff error:", error);
+    return { success: false, error: "Failed to create staff account" };
+  }
+}
+
+export async function adminGetStaffList(): Promise<ActionResult<AdminStaff[]>> {
+  try {
+    const adminResult = await requireAdmin();
+    if (adminResult.error) return adminResult.error;
+
+    const staffUsers = await db.query.users.findMany({
+      where: eq(users.role, "staff"),
+      with: { profile: true },
+      orderBy: [desc(users.createdAt)],
+    });
+
+    if (staffUsers.length === 0) {
+      return { success: true, data: [] };
+    }
+
+    const staffIds = staffUsers.map((s) => s.id);
+    const countResults = await db
+      .select({
+        staffId: users.createdByStaffId,
+        count: count(),
+      })
+      .from(users)
+      .where(inArray(users.createdByStaffId, staffIds))
+      .groupBy(users.createdByStaffId);
+
+    const countMap = new Map(countResults.map((r) => [r.staffId, r.count]));
+
+    const formatted: AdminStaff[] = staffUsers.map((s) => ({
+      id: s.id,
+      email: s.email,
+      name: s.profile?.firstName || null,
+      isActive: s.isActive,
+      createdAt: s.createdAt,
+      createdProfilesCount: countMap.get(s.id) || 0,
+    }));
+
+    return { success: true, data: formatted };
+  } catch (error) {
+    console.error("Admin get staff list error:", error);
+    return { success: false, error: "Failed to fetch staff list" };
+  }
+}
+
+export async function adminToggleStaffStatus(userId: number): Promise<ActionResult> {
+  try {
+    const adminResult = await requireAdmin();
+    if (adminResult.error) return adminResult.error;
+
+    const user = await db.query.users.findFirst({
+      where: and(eq(users.id, userId), eq(users.role, "staff")),
+    });
+
+    if (!user) {
+      return { success: false, error: "Staff account not found" };
+    }
+
+    const newStatus = !user.isActive;
+    await db.update(users).set({ isActive: newStatus }).where(eq(users.id, userId));
+
+    return {
+      success: true,
+      message: newStatus ? "Staff account activated" : "Staff account deactivated",
+    };
+  } catch (error) {
+    console.error("Admin toggle staff status error:", error);
+    return { success: false, error: "Failed to update staff status" };
+  }
+}
+
+export async function adminDeleteStaff(userId: number): Promise<ActionResult> {
+  try {
+    const adminResult = await requireAdmin();
+    if (adminResult.error) return adminResult.error;
+
+    const user = await db.query.users.findFirst({
+      where: and(eq(users.id, userId), eq(users.role, "staff")),
+    });
+
+    if (!user) {
+      return { success: false, error: "Staff account not found" };
+    }
+
+    // Set createdByStaffId to null for profiles this staff created
+    await db
+      .update(users)
+      .set({ createdByStaffId: null })
+      .where(eq(users.createdByStaffId, userId));
+
+    // Delete the staff user (cascades to profile)
+    await db.delete(users).where(eq(users.id, userId));
+
+    return { success: true, message: "Staff account deleted" };
+  } catch (error) {
+    console.error("Admin delete staff error:", error);
+    return { success: false, error: "Failed to delete staff account" };
   }
 }

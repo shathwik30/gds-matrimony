@@ -53,7 +53,11 @@ function LoginForm() {
 
       if (result.success) {
         toast.success("Login successful!");
-        const redirectTo = result.data?.isAdmin ? "/admin" : callbackUrl;
+        const redirectTo = result.data?.isAdmin
+          ? "/admin"
+          : result.data?.isStaff
+            ? "/staff"
+            : callbackUrl;
         // eslint-disable-next-line react-hooks/immutability
         window.location.href = redirectTo;
       } else {
