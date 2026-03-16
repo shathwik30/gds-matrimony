@@ -279,6 +279,91 @@ export async function staffGetCreatedUserCount(): Promise<ActionResult<number>> 
   }
 }
 
+export interface PlatformProfile {
+  id: number;
+  firstName: string | null;
+  lastName: string | null;
+  gender: string | null;
+  dateOfBirth: string | null;
+  maritalStatus: string | null;
+  height: number | null;
+  religion: string | null;
+  caste: string | null;
+  residingState: string | null;
+  residingCity: string | null;
+  countryLivingIn: string | null;
+  highestEducation: string | null;
+  educationDetail: string | null;
+  occupation: string | null;
+  profileImage: string | null;
+}
+
+export async function staffGetAllPlatformProfiles(
+  page: number = 1,
+  limit: number = 20,
+  search?: string
+): Promise<ActionResult<{ users: PlatformProfile[]; total: number }>> {
+  try {
+    const staffResult = await requireStaff();
+    if (staffResult.error) return staffResult.error;
+
+    const validatedLimit = Math.min(Math.max(1, limit), 100);
+    const validatedPage = Math.max(1, page);
+    const offset = (validatedPage - 1) * validatedLimit;
+
+    const conditions = [eq(users.role, "user")];
+
+    if (search && search.trim()) {
+      const searchTerm = `%${search.trim().toLowerCase()}%`;
+      conditions.push(
+        sql`(LOWER(${profiles.firstName}) LIKE ${searchTerm} OR LOWER(${profiles.lastName}) LIKE ${searchTerm} OR LOWER(${users.email}) LIKE ${searchTerm})`
+      );
+    }
+
+    const whereClause = and(...conditions);
+
+    const usersList = await db
+      .select({
+        id: users.id,
+        firstName: profiles.firstName,
+        lastName: profiles.lastName,
+        gender: profiles.gender,
+        dateOfBirth: profiles.dateOfBirth,
+        maritalStatus: profiles.maritalStatus,
+        height: profiles.height,
+        religion: profiles.religion,
+        caste: profiles.caste,
+        residingState: profiles.residingState,
+        residingCity: profiles.residingCity,
+        countryLivingIn: profiles.countryLivingIn,
+        highestEducation: profiles.highestEducation,
+        educationDetail: profiles.educationDetail,
+        occupation: profiles.occupation,
+        profileImage: profiles.profileImage,
+      })
+      .from(users)
+      .innerJoin(profiles, eq(users.id, profiles.userId))
+      .where(whereClause)
+      .orderBy(desc(users.createdAt))
+      .limit(validatedLimit)
+      .offset(offset);
+
+    const [totalResult] = await db
+      .select({ count: count() })
+      .from(users)
+      .innerJoin(profiles, eq(users.id, profiles.userId))
+      .where(whereClause);
+
+    return {
+      success: true,
+      data: { users: usersList, total: totalResult.count },
+    };
+  } catch (error) {
+    console.error("Staff get all platform profiles error:", error);
+    return { success: false, error: "Failed to fetch profiles" };
+  }
+}
+
 export async function staffGetProfileDetails(targetUserId: number): Promise<
   ActionResult<{
     user: {

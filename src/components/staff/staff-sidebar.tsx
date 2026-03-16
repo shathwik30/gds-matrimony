@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, UserPlus, Users, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, UserPlus, Users, Globe, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { logoutUser } from "@/lib/actions/auth";
 
@@ -12,6 +12,7 @@ const sidebarItems = [
   { href: "/staff", label: "Dashboard", icon: LayoutDashboard },
   { href: "/staff/create", label: "Create Profile", icon: UserPlus },
   { href: "/staff/profiles", label: "My Profiles", icon: Users },
+  { href: "/staff/all-profiles", label: "All Profiles", icon: Globe },
 ];
 
 export function StaffSidebar() {
