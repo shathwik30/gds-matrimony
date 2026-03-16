@@ -2,12 +2,13 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { Search, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Loader2, ChevronLeft, ChevronRight, Share2, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { staffGetMyCreatedUsers, type StaffCreatedUser } from "@/lib/actions/staff";
 import { formatDate, getFullName } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface StaffProfilesTableProps {
   initialUsers: StaffCreatedUser[];
@@ -20,6 +21,16 @@ export function StaffProfilesTable({ initialUsers, initialTotal }: StaffProfiles
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [copiedId, setCopiedId] = useState<number | null>(null);
+
+  const handleShare = (userId: number) => {
+    const url = `${window.location.origin}/shared-profile/${userId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedId(userId);
+      toast.success("Profile link copied to clipboard");
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
   const limit = 20;
   const totalPages = Math.ceil(total / limit);
 
@@ -98,12 +109,27 @@ export function StaffProfilesTable({ initialUsers, initialTotal }: StaffProfiles
                       {user.createdAt ? formatDate(user.createdAt) : "—"}
                     </td>
                     <td className="px-6 py-3">
-                      <Link
-                        href={`/staff/profiles/${user.id}`}
-                        className="text-brand hover:underline"
-                      >
-                        View
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/staff/profiles/${user.id}`}
+                          className="text-brand hover:underline"
+                        >
+                          View
+                        </Link>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleShare(user.id)}
+                          className="h-7 gap-1 px-2 text-xs text-slate-500 hover:text-slate-900"
+                        >
+                          {copiedId === user.id ? (
+                            <Check className="h-3.5 w-3.5 text-emerald-500" />
+                          ) : (
+                            <Share2 className="h-3.5 w-3.5" />
+                          )}
+                          Share
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}

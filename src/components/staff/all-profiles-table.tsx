@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Search, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Loader2, ChevronLeft, ChevronRight, Share2, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { staffGetAllPlatformProfiles, type PlatformProfile } from "@/lib/actions/staff";
 import { getFullName, heightToFeetInches } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface AllProfilesTableProps {
   initialUsers: PlatformProfile[];
@@ -34,6 +35,16 @@ export function AllProfilesTable({ initialUsers, initialTotal }: AllProfilesTabl
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [copiedId, setCopiedId] = useState<number | null>(null);
+
+  const handleShare = (userId: number) => {
+    const url = `${window.location.origin}/shared-profile/${userId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedId(userId);
+      toast.success("Profile link copied to clipboard");
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
   const limit = 20;
   const totalPages = Math.ceil(total / limit);
 
@@ -86,6 +97,7 @@ export function AllProfilesTable({ initialUsers, initialTotal }: AllProfilesTabl
                   <th className="px-4 py-3 font-medium">Basic Details</th>
                   <th className="px-4 py-3 font-medium">Religion & Location</th>
                   <th className="px-4 py-3 font-medium">Education</th>
+                  <th className="px-4 py-3 font-medium">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -142,6 +154,23 @@ export function AllProfilesTable({ initialUsers, initialTotal }: AllProfilesTabl
                         )}
                         {user.occupation && <p>Occupation: {capitalize(user.occupation)}</p>}
                       </div>
+                    </td>
+
+                    {/* Share */}
+                    <td className="px-4 py-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleShare(user.id)}
+                        className="gap-1.5 text-slate-600 hover:text-slate-900"
+                      >
+                        {copiedId === user.id ? (
+                          <Check className="h-4 w-4 text-emerald-500" />
+                        ) : (
+                          <Share2 className="h-4 w-4" />
+                        )}
+                        Share
+                      </Button>
                     </td>
                   </tr>
                 ))}

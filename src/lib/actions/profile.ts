@@ -791,3 +791,59 @@ export async function getRecommendedMatches(
     return { success: false, error: "Failed to get recommendations" };
   }
 }
+
+export interface SharedProfileData {
+  id: number;
+  firstName: string | null;
+  lastName: string | null;
+  gender: string | null;
+  dateOfBirth: string | null;
+  maritalStatus: string | null;
+  height: number | null;
+  religion: string | null;
+  caste: string | null;
+  residingState: string | null;
+  residingCity: string | null;
+  countryLivingIn: string | null;
+  highestEducation: string | null;
+  occupation: string | null;
+  profileImage: string | null;
+}
+
+export async function getSharedProfile(userId: number): Promise<ActionResult<SharedProfileData>> {
+  try {
+    const user = await db.query.users.findFirst({
+      where: and(eq(users.id, userId), eq(users.role, "user"), eq(users.isActive, true)),
+      with: { profile: true },
+    });
+
+    if (!user || !user.profile) {
+      return { success: false, error: "Profile not found" };
+    }
+
+    const p = user.profile;
+    return {
+      success: true,
+      data: {
+        id: user.id,
+        firstName: p.firstName,
+        lastName: p.lastName,
+        gender: p.gender,
+        dateOfBirth: p.dateOfBirth,
+        maritalStatus: p.maritalStatus,
+        height: p.height,
+        religion: p.religion,
+        caste: p.caste,
+        residingState: p.residingState,
+        residingCity: p.residingCity,
+        countryLivingIn: p.countryLivingIn,
+        highestEducation: p.highestEducation,
+        occupation: p.occupation,
+        profileImage: p.profileImage,
+      },
+    };
+  } catch (error) {
+    console.error("Get shared profile error:", error);
+    return { success: false, error: "Failed to fetch profile" };
+  }
+}

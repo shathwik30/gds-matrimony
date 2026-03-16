@@ -10,6 +10,7 @@ import {
   UserCheck,
   UserX,
   Shield,
+  Share2,
   Loader2,
   ChevronLeft,
   ChevronRight,
@@ -35,6 +36,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { AdminUser, toggleUserStatus, verifyUserProfile } from "@/lib/actions/admin";
 import { getInitials } from "@/lib/utils";
+
+function copyShareLink(userId: number) {
+  const url = `${window.location.origin}/shared-profile/${userId}`;
+  navigator.clipboard.writeText(url).then(() => {
+    toast.success("Profile link copied to clipboard");
+  });
+}
 
 interface UsersTableProps {
   users: AdminUser[];
@@ -212,6 +220,10 @@ export function UsersTable({ users, total, currentPage }: UsersTableProps) {
                             <Eye className="mr-2 h-4 w-4" />
                             View Details
                           </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => copyShareLink(user.id)}>
+                          <Share2 className="mr-2 h-4 w-4" />
+                          Copy Share Link
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         {user.isActive ? (
