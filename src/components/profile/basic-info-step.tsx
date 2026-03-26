@@ -112,7 +112,7 @@ export function BasicInfoStep({ data, onUpdate, registerValidate }: ProfileStepP
                 <FormControl>
                   <div className="relative">
                     <Phone className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                    <Input placeholder="+91 98765 43210" className="pl-9" {...field} />
+                    <Input placeholder="Enter mobile number" className="pl-9" {...field} />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -132,7 +132,7 @@ export function BasicInfoStep({ data, onUpdate, registerValidate }: ProfileStepP
                 <FormControl>
                   <div className="relative">
                     <Phone className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                    <Input placeholder="+91 98765 43210" className="pl-9" {...field} />
+                    <Input placeholder="Enter mobile number" className="pl-9" {...field} />
                   </div>
                 </FormControl>
                 <FormMessage />

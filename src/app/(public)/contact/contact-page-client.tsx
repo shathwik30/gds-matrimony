@@ -222,7 +222,11 @@ export default function ContactPageClient({ contact }: { contact: ContactSetting
                             <FormItem>
                               <FormLabel>Phone Number</FormLabel>
                               <FormControl>
-                                <Input type="tel" placeholder="+91 98765 43210" {...field} />
+                                <Input
+                                  type="tel"
+                                  placeholder="Enter your phone number"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
