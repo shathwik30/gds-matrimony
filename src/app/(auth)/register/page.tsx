@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2, Check, ShieldCheck } from "lucide-react";
+import { Loader2, Check, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -51,6 +51,28 @@ const OPTIONAL_CONSENTS = [
   "I agree to receive SMS/WhatsApp notifications.",
   "I agree to receive promotional offers and marketing communications (optional).",
 ] as const;
+
+function generateStrongPassword(): string {
+  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lower = "abcdefghjkmnpqrstuvwxyz";
+  const digits = "23456789";
+  const special = "@#$%&*!?";
+  const all = upper + lower + digits + special;
+  // Ensure at least one of each required type
+  let password =
+    upper[Math.floor(Math.random() * upper.length)] +
+    lower[Math.floor(Math.random() * lower.length)] +
+    digits[Math.floor(Math.random() * digits.length)] +
+    special[Math.floor(Math.random() * special.length)];
+  for (let i = 4; i < 12; i++) {
+    password += all[Math.floor(Math.random() * all.length)];
+  }
+  // Shuffle
+  return password
+    .split("")
+    .sort(() => Math.random() - 0.5)
+    .join("");
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -120,6 +142,16 @@ export default function RegisterPage() {
   };
 
   const allMandatoryChecked = mandatoryChecked.every(Boolean) && termsAccepted;
+
+  const handleSuggestPassword = () => {
+    const suggested = generateStrongPassword();
+    form.setValue("password", suggested, { shouldValidate: true });
+    form.setValue("confirmPassword", suggested, { shouldValidate: true });
+    navigator.clipboard.writeText(suggested).then(
+      () => toast.success("Password generated and copied to clipboard"),
+      () => toast.success("Password generated — copy it before proceeding")
+    );
+  };
 
   const password = form.watch("password");
   const passwordRequirements = [
@@ -221,7 +253,17 @@ export default function RegisterPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <div className="flex items-center justify-between">
+                        <FormLabel>Password</FormLabel>
+                        <button
+                          type="button"
+                          onClick={handleSuggestPassword}
+                          className="text-primary hover:text-primary/80 flex items-center gap-1 text-xs font-medium transition-colors"
+                        >
+                          <Sparkles className="h-3 w-3" />
+                          Suggest Password
+                        </button>
+                      </div>
                       <FormControl>
                         <PasswordInput placeholder="Create a password" {...field} />
                       </FormControl>

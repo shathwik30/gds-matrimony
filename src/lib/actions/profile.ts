@@ -122,6 +122,7 @@ export async function updateProfile(data: Partial<ProfileInput>): Promise<Action
       "aboutMe",
       "profileImage",
       "hideProfile",
+      "isMarried",
       "showOnlineStatus",
       "showLastActive",
     ]);
@@ -164,6 +165,33 @@ export async function updateProfile(data: Partial<ProfileInput>): Promise<Action
   } catch (error) {
     console.error("Update profile error:", error);
     return { success: false, error: "Failed to update profile" };
+  }
+}
+
+export async function toggleMarriedStatus(married: boolean): Promise<ActionResult> {
+  try {
+    const authResult = await requireAuth();
+    if (authResult.error) return authResult.error;
+    const { userId } = authResult;
+
+    await db
+      .update(profiles)
+      .set({
+        isMarried: married,
+        hideProfile: married ? true : false,
+        updatedAt: new Date(),
+      })
+      .where(eq(profiles.userId, userId));
+
+    return {
+      success: true,
+      message: married
+        ? "Congratulations on your marriage! Your profile has been suspended."
+        : "Welcome back! Your profile is now active again.",
+    };
+  } catch (error) {
+    console.error("Toggle married status error:", error);
+    return { success: false, error: "Failed to update married status" };
   }
 }
 

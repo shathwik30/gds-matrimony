@@ -24,6 +24,7 @@ import {
   RELIGION_OPTIONS,
   CASTE_OPTIONS,
   MOTHER_TONGUE_OPTIONS,
+  COUNTRY_OPTIONS,
   STATE_OPTIONS,
   CITIES_BY_STATE,
 } from "@/constants";
@@ -209,14 +210,11 @@ export function ReligionLocationStep({ data, onUpdate, registerValidate }: Profi
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="India">India</SelectItem>
-                    <SelectItem value="USA">USA</SelectItem>
-                    <SelectItem value="UK">UK</SelectItem>
-                    <SelectItem value="Canada">Canada</SelectItem>
-                    <SelectItem value="Australia">Australia</SelectItem>
-                    <SelectItem value="UAE">UAE</SelectItem>
-                    <SelectItem value="Singapore">Singapore</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
+                    {COUNTRY_OPTIONS.map((c) => (
+                      <SelectItem key={c.value} value={c.value}>
+                        {c.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />

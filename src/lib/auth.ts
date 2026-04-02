@@ -116,6 +116,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           subscriptionPlan: user.subscriptions?.[0]?.plan || "free",
           isAdmin,
           isStaff,
+          isMarried: user.profile?.isMarried || false,
         };
       },
     }),
@@ -128,6 +129,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.subscriptionPlan = user.subscriptionPlan;
         token.isAdmin = user.isAdmin;
         token.isStaff = user.isStaff;
+        token.isMarried = user.isMarried;
         if (user.name) token.name = user.name;
         if (user.image) token.picture = user.image;
         token.lastActiveCheck = Date.now();
@@ -145,6 +147,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   firstName: true,
                   lastName: true,
                   profileImage: true,
+                  isMarried: true,
                 },
               },
               subscriptions: {
@@ -159,6 +162,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
           token.subscriptionPlan = dbUser.subscriptions?.[0]?.plan || "free";
           token.profileCompleted = (dbUser.profile?.profileCompletion || 0) >= 70;
+          token.isMarried = dbUser.profile?.isMarried || false;
           const refreshAdminEmails = parseAdminEmails(process.env.ADMIN_EMAILS);
           token.isAdmin = refreshAdminEmails.includes(dbUser.email.toLowerCase());
           token.isStaff = !token.isAdmin && dbUser.role === "staff";
@@ -182,6 +186,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
         if (typeof session.profileCompleted === "boolean")
           token.profileCompleted = session.profileCompleted;
+        if (typeof session.isMarried === "boolean") token.isMarried = session.isMarried;
         // subscriptionPlan cannot be updated from client - must go through server-side payment flow
       }
 
@@ -194,6 +199,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.subscriptionPlan = token.subscriptionPlan as string;
         session.user.isAdmin = (token.isAdmin as boolean) || false;
         session.user.isStaff = (token.isStaff as boolean) || false;
+        session.user.isMarried = (token.isMarried as boolean) || false;
         if (token.name) session.user.name = token.name;
         if (token.picture) session.user.image = token.picture as string;
       }
@@ -217,6 +223,7 @@ declare module "next-auth" {
     subscriptionPlan?: string;
     isAdmin?: boolean;
     isStaff?: boolean;
+    isMarried?: boolean;
   }
 
   interface Session {
@@ -229,6 +236,7 @@ declare module "next-auth" {
       subscriptionPlan?: string;
       isAdmin?: boolean;
       isStaff?: boolean;
+      isMarried?: boolean;
     };
   }
 }
@@ -240,5 +248,6 @@ declare module "@auth/core/jwt" {
     subscriptionPlan?: string;
     isAdmin?: boolean;
     isStaff?: boolean;
+    isMarried?: boolean;
   }
 }

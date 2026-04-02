@@ -9,6 +9,7 @@ export interface SessionUser {
   subscriptionPlan: "free" | "basic" | "silver" | "gold" | "platinum";
   isAdmin?: boolean;
   isStaff?: boolean;
+  isMarried?: boolean;
 }
 
 export interface UserProfile extends Profile {

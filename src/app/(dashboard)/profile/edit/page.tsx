@@ -45,6 +45,32 @@ const STEPS = [
   { id: 8, title: "Photos", description: "Profile & gallery photos", icon: Camera },
 ];
 
+// Required fields per step — used to detect the first incomplete step
+const STEP_REQUIRED_FIELDS: string[][] = [
+  ["firstName", "lastName", "gender", "dateOfBirth", "phoneNumber"], // Step 1
+  ["height"], // Step 2
+  ["religion", "motherTongue", "countryLivingIn", "residingState", "residingCity"], // Step 3
+  ["highestEducation"], // Step 4
+  ["maritalStatus"], // Step 5
+  [], // Step 6 — all optional
+  ["aboutMe"], // Step 7
+  ["profileImage"], // Step 8
+];
+
+function getFirstIncompleteStep(data: Record<string, unknown>): number {
+  for (let i = 0; i < STEP_REQUIRED_FIELDS.length; i++) {
+    const fields = STEP_REQUIRED_FIELDS[i];
+    const hasEmpty = fields.some((f) => {
+      const val = data[f];
+      if (val === null || val === undefined || val === "") return true;
+      if (f === "aboutMe" && typeof val === "string" && val.length < 50) return true;
+      return false;
+    });
+    if (hasEmpty) return i + 1;
+  }
+  return 1; // All complete — start at step 1 for review
+}
+
 export default function EditProfilePage() {
   return (
     <Suspense
@@ -73,15 +99,7 @@ function EditProfileContent() {
     validateCurrentStep.current = fn;
   }, []);
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
-  useEffect(() => {
-    validateCurrentStep.current = null;
-  }, [currentStep]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       const result = await getMyProfile();
       if (result.success && result.data) {
@@ -90,13 +108,24 @@ function EditProfileContent() {
           data.dateOfBirth = new Date(data.dateOfBirth);
         }
         setProfileData(data);
+        if (isOnboarding) {
+          setCurrentStep(getFirstIncompleteStep(data));
+        }
       }
     } catch {
       toast.error("Failed to load profile");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isOnboarding]);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  useEffect(() => {
+    validateCurrentStep.current = null;
+  }, [currentStep]);
 
   const handleStepData = (data: Record<string, unknown>) => {
     setProfileData((prev) => ({ ...prev, ...data }));
@@ -173,15 +202,24 @@ function EditProfileContent() {
         <div className="flex items-center">
           {STEPS.map((s, idx) => {
             const Icon = s.icon;
-            const isDone = s.id < currentStep;
+            const stepFields = STEP_REQUIRED_FIELDS[s.id - 1];
+            const isStepComplete =
+              stepFields.length === 0 ||
+              stepFields.every((f) => {
+                const val = profileData[f];
+                if (val === null || val === undefined || val === "") return false;
+                if (f === "aboutMe" && typeof val === "string" && val.length < 50) return false;
+                return true;
+              });
+            const isDone = isStepComplete && s.id !== currentStep;
             const isActive = s.id === currentStep;
-            const isPending = s.id > currentStep;
+            const isPending = !isDone && !isActive;
             return (
               <div key={s.id} className="flex flex-1 items-center last:flex-none">
                 <button
                   type="button"
-                  disabled={isPending}
-                  onClick={() => !isPending && setCurrentStep(s.id)}
+                  disabled={isPending && !isDone}
+                  onClick={() => (isDone || isActive) && setCurrentStep(s.id)}
                   title={s.title}
                   className={`relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full transition-all duration-200 focus:outline-none ${isActive ? "bg-brand shadow-brand/30 ring-brand/20 scale-110 text-white shadow-lg ring-4" : ""} ${isDone ? "cursor-pointer bg-green-500 text-white hover:bg-green-600" : ""} ${isPending ? "bg-muted text-muted-foreground cursor-not-allowed" : ""} `}
                 >

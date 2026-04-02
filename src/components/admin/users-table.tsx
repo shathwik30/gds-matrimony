@@ -14,6 +14,8 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  Heart,
+  HeartOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,7 +36,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { AdminUser, toggleUserStatus, verifyUserProfile } from "@/lib/actions/admin";
+import {
+  AdminUser,
+  toggleUserStatus,
+  verifyUserProfile,
+  adminToggleMarriedStatus,
+} from "@/lib/actions/admin";
 import { getInitials } from "@/lib/utils";
 
 function copyShareLink(userId: number) {
@@ -99,6 +106,25 @@ export function UsersTable({ users, total, currentPage }: UsersTableProps) {
     }
   };
 
+  const handleToggleMarried = async (userId: number, isMarried: boolean) => {
+    setLoadingUserId(userId);
+    try {
+      const result = await adminToggleMarriedStatus(userId, isMarried);
+      if (result.success) {
+        toast.success(result.message);
+        startTransition(() => {
+          router.refresh();
+        });
+      } else {
+        toast.error(result.error);
+      }
+    } catch {
+      toast.error("Failed to update married status");
+    } finally {
+      setLoadingUserId(null);
+    }
+  };
+
   const goToPage = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", page.toString());
@@ -153,12 +179,17 @@ export function UsersTable({ users, total, currentPage }: UsersTableProps) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant={user.isActive ? "default" : "destructive"}
-                      className={user.isActive ? "bg-emerald-100 text-emerald-700" : ""}
-                    >
-                      {user.isActive ? "Active" : "Inactive"}
-                    </Badge>
+                    <div className="flex flex-col gap-1">
+                      <Badge
+                        variant={user.isActive ? "default" : "destructive"}
+                        className={user.isActive ? "bg-emerald-100 text-emerald-700" : ""}
+                      >
+                        {user.isActive ? "Active" : "Inactive"}
+                      </Badge>
+                      {user.profile?.isMarried && (
+                        <Badge className="bg-pink-100 text-pink-700">Married</Badge>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge
@@ -241,6 +272,18 @@ export function UsersTable({ users, total, currentPage }: UsersTableProps) {
                           >
                             <UserCheck className="mr-2 h-4 w-4" />
                             Activate User
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator />
+                        {user.profile?.isMarried ? (
+                          <DropdownMenuItem onClick={() => handleToggleMarried(user.id, false)}>
+                            <HeartOff className="mr-2 h-4 w-4 text-slate-500" />
+                            Unmark Married
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem onClick={() => handleToggleMarried(user.id, true)}>
+                            <Heart className="mr-2 h-4 w-4 text-pink-500" />
+                            Mark as Married
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuSeparator />

@@ -138,6 +138,7 @@ export interface AdminUser {
     profileImage: string | null;
     profileCompletion: number | null;
     trustLevel: string | null;
+    isMarried: boolean | null;
   } | null;
   subscription: {
     plan: string | null;
@@ -146,11 +147,28 @@ export interface AdminUser {
   } | null;
 }
 
+export interface AdminUserFilters {
+  status?: string;
+  gender?: string;
+  subscription?: string;
+  trustLevel?: string;
+  married?: string;
+  profileCompletion?: string;
+  emailVerified?: string;
+  religion?: string;
+  country?: string;
+  state?: string;
+  joinedFrom?: string;
+  joinedTo?: string;
+  sort?: string;
+}
+
 export async function getAdminUsers(
   page: number = 1,
   limit: number = 20,
   search?: string,
-  filter?: string
+  filter?: string,
+  filters?: AdminUserFilters
 ): Promise<ActionResult<{ users: AdminUser[]; total: number }>> {
   try {
     const adminResult = await requireAdmin();
@@ -160,15 +178,198 @@ export async function getAdminUsers(
     const validatedPage = Math.max(1, page);
     const offset = (validatedPage - 1) * validatedLimit;
 
-    const conditions = [];
+    const conditions: SQL[] = [];
+
+    // Legacy single filter (backwards compatible)
     if (filter === "active") conditions.push(eq(users.isActive, true));
     else if (filter === "inactive") conditions.push(eq(users.isActive, false));
 
-    if (search && search.trim()) {
-      const searchTerm = `%${search.trim().toLowerCase()}%`;
-      conditions.push(sql`LOWER(${users.email}) LIKE ${searchTerm}`);
+    // Rich filters
+    if (filters) {
+      if (filters.status === "active") conditions.push(eq(users.isActive, true));
+      else if (filters.status === "inactive") conditions.push(eq(users.isActive, false));
+
+      if (filters.emailVerified === "verified") conditions.push(eq(users.emailVerified, true));
+      else if (filters.emailVerified === "unverified")
+        conditions.push(eq(users.emailVerified, false));
+
+      if (filters.gender && filters.gender !== "all")
+        conditions.push(sql`${profiles.gender} = ${filters.gender}`);
+
+      if (filters.subscription && filters.subscription !== "all") {
+        if (filters.subscription === "free") {
+          conditions.push(
+            sql`NOT EXISTS (SELECT 1 FROM subscriptions s WHERE s.user_id = ${users.id} AND s.is_active = true AND s.plan != 'free')`
+          );
+        } else {
+          conditions.push(
+            sql`EXISTS (SELECT 1 FROM subscriptions s WHERE s.user_id = ${users.id} AND s.is_active = true AND s.plan = ${filters.subscription})`
+          );
+        }
+      }
+
+      if (filters.trustLevel && filters.trustLevel !== "all")
+        conditions.push(sql`${profiles.trustLevel} = ${filters.trustLevel}`);
+
+      if (filters.married === "married") conditions.push(sql`${profiles.isMarried} = true`);
+      else if (filters.married === "unmarried")
+        conditions.push(sql`(${profiles.isMarried} = false OR ${profiles.isMarried} IS NULL)`);
+
+      if (filters.profileCompletion) {
+        if (filters.profileCompletion === "complete")
+          conditions.push(sql`${profiles.profileCompletion} >= 70`);
+        else if (filters.profileCompletion === "incomplete")
+          conditions.push(sql`${profiles.profileCompletion} < 70`);
+        else if (filters.profileCompletion === "empty")
+          conditions.push(
+            sql`(${profiles.profileCompletion} IS NULL OR ${profiles.profileCompletion} = 0)`
+          );
+      }
+
+      if (filters.religion && filters.religion !== "all")
+        conditions.push(sql`${profiles.religion} = ${filters.religion}`);
+
+      if (filters.country && filters.country !== "all")
+        conditions.push(sql`${profiles.countryLivingIn} = ${filters.country}`);
+
+      if (filters.state && filters.state !== "all")
+        conditions.push(sql`${profiles.residingState} = ${filters.state}`);
+
+      if (filters.joinedFrom) conditions.push(gte(users.createdAt, new Date(filters.joinedFrom)));
+
+      if (filters.joinedTo) {
+        const toDate = new Date(filters.joinedTo);
+        toDate.setHours(23, 59, 59, 999);
+        conditions.push(lte(users.createdAt, toDate));
+      }
     }
 
+    // Search by name or email
+    if (search && search.trim()) {
+      const searchTerm = `%${search.trim().toLowerCase()}%`;
+      conditions.push(
+        sql`(LOWER(${users.email}) LIKE ${searchTerm} OR LOWER(CONCAT(COALESCE(${profiles.firstName},''), ' ', COALESCE(${profiles.lastName},''))) LIKE ${searchTerm} OR LOWER(${users.phoneNumber}) LIKE ${searchTerm})`
+      );
+    }
+
+    // Build sort
+    let orderByClause;
+    switch (filters?.sort) {
+      case "name_asc":
+        orderByClause = sql`${profiles.firstName} ASC NULLS LAST`;
+        break;
+      case "name_desc":
+        orderByClause = sql`${profiles.firstName} DESC NULLS LAST`;
+        break;
+      case "oldest":
+        orderByClause = sql`${users.createdAt} ASC`;
+        break;
+      case "last_active":
+        orderByClause = sql`${users.lastActive} DESC NULLS LAST`;
+        break;
+      case "completion_desc":
+        orderByClause = sql`${profiles.profileCompletion} DESC NULLS LAST`;
+        break;
+      case "completion_asc":
+        orderByClause = sql`${profiles.profileCompletion} ASC NULLS LAST`;
+        break;
+      default:
+        orderByClause = sql`${users.createdAt} DESC`;
+    }
+
+    // We need a join-based query because filters touch profiles table
+    const hasProfileFilter =
+      filters &&
+      (filters.gender ||
+        filters.trustLevel ||
+        filters.married ||
+        filters.profileCompletion ||
+        filters.religion ||
+        filters.country ||
+        filters.state ||
+        filters.sort);
+    const hasSearchName = search && search.trim();
+
+    // Use join-based query when profile columns are involved in filters/search
+    if (hasProfileFilter || hasSearchName) {
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+      const userRows = await db
+        .select({
+          id: users.id,
+          email: users.email,
+          emailVerified: users.emailVerified,
+          phoneNumber: users.phoneNumber,
+          isActive: users.isActive,
+          createdAt: users.createdAt,
+          lastActive: users.lastActive,
+          profileFirstName: profiles.firstName,
+          profileLastName: profiles.lastName,
+          profileGender: profiles.gender,
+          profileImage: profiles.profileImage,
+          profileCompletion: profiles.profileCompletion,
+          trustLevel: profiles.trustLevel,
+          isMarried: profiles.isMarried,
+        })
+        .from(users)
+        .leftJoin(profiles, eq(users.id, profiles.userId))
+        .where(whereClause)
+        .orderBy(orderByClause)
+        .limit(validatedLimit)
+        .offset(offset);
+
+      const [totalResult] = await db
+        .select({ count: count() })
+        .from(users)
+        .leftJoin(profiles, eq(users.id, profiles.userId))
+        .where(whereClause);
+
+      // Fetch subscriptions for these users
+      const userIds = userRows.map((u) => u.id);
+      const subs =
+        userIds.length > 0
+          ? await db.query.subscriptions.findMany({
+              where: and(inArray(subscriptions.userId, userIds), eq(subscriptions.isActive, true)),
+            })
+          : [];
+      const subsByUser = new Map(subs.map((s) => [s.userId, s]));
+
+      const formattedUsers: AdminUser[] = userRows.map((row) => ({
+        id: row.id,
+        email: row.email,
+        emailVerified: row.emailVerified,
+        phoneNumber: row.phoneNumber,
+        isActive: row.isActive,
+        createdAt: row.createdAt,
+        lastActive: row.lastActive,
+        profile:
+          row.profileFirstName !== undefined
+            ? {
+                firstName: row.profileFirstName,
+                lastName: row.profileLastName,
+                gender: row.profileGender,
+                profileImage: row.profileImage,
+                profileCompletion: row.profileCompletion,
+                trustLevel: row.trustLevel,
+                isMarried: row.isMarried,
+              }
+            : null,
+        subscription: subsByUser.has(row.id)
+          ? {
+              plan: subsByUser.get(row.id)!.plan,
+              isActive: subsByUser.get(row.id)!.isActive,
+              endDate: subsByUser.get(row.id)!.endDate,
+            }
+          : null,
+      }));
+
+      return {
+        success: true,
+        data: { users: formattedUsers, total: totalResult.count },
+      };
+    }
+
+    // Simple query path (no profile filters)
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     const usersList = await db.query.users.findMany({
@@ -203,6 +404,7 @@ export async function getAdminUsers(
             profileImage: user.profile.profileImage,
             profileCompletion: user.profile.profileCompletion,
             trustLevel: user.profile.trustLevel,
+            isMarried: user.profile.isMarried,
           }
         : null,
       subscription: user.subscriptions[0]
@@ -296,6 +498,7 @@ export async function getAdminUserDetails(userId: number): Promise<
               profileImage: user.profile.profileImage,
               profileCompletion: user.profile.profileCompletion,
               trustLevel: user.profile.trustLevel,
+              isMarried: user.profile.isMarried,
             }
           : null,
         subscription: user.subscriptions[0]
@@ -352,6 +555,33 @@ export async function verifyUserProfile(
   } catch (error) {
     console.error("Verify profile error:", error);
     return { success: false, error: "Failed to verify profile" };
+  }
+}
+
+export async function adminToggleMarriedStatus(
+  userId: number,
+  isMarried: boolean
+): Promise<ActionResult> {
+  try {
+    const adminResult = await requireAdmin();
+    if (adminResult.error) return adminResult.error;
+
+    await db
+      .update(profiles)
+      .set({
+        isMarried,
+        hideProfile: isMarried ? true : false,
+        updatedAt: new Date(),
+      })
+      .where(eq(profiles.userId, userId));
+
+    return {
+      success: true,
+      message: isMarried ? "User marked as married" : "User unmarried status restored",
+    };
+  } catch (error) {
+    console.error("Toggle married status error:", error);
+    return { success: false, error: "Failed to update married status" };
   }
 }
 

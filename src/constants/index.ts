@@ -1,5 +1,5 @@
 import type { SubscriptionPlan } from "@/types";
-import { City } from "country-state-city";
+import { City, Country } from "country-state-city";
 
 const STATE_TO_ISO: Record<string, string> = {
   AndhraPradesh: "AP",
@@ -316,10 +316,16 @@ export const PARENT_OCCUPATION_OPTIONS = [
   "Passed Away",
 ] as const;
 
-export const COUNTRY_OPTIONS = [
-  { value: "India", label: "India" },
-  { value: "Other", label: "Other" },
-] as const;
+// India first, then all other countries alphabetically
+export const COUNTRY_OPTIONS: readonly { value: string; label: string }[] = (() => {
+  const all = Country.getAllCountries().map((c) => ({
+    value: c.name,
+    label: c.name,
+  }));
+  const india = all.find((c) => c.value === "India");
+  const rest = all.filter((c) => c.value !== "India");
+  return india ? [india, ...rest] : all;
+})();
 
 export const STATE_OPTIONS = [
   { value: "AndhraPradesh", label: "Andhra Pradesh" },

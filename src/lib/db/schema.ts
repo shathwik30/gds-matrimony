@@ -156,6 +156,7 @@ export const profiles = pgTable(
     }>(),
 
     hideProfile: boolean("hide_profile").default(false),
+    isMarried: boolean("is_married").default(false),
     showOnlineStatus: boolean("show_online_status").default(true),
     showLastActive: boolean("show_last_active").default(true),
 

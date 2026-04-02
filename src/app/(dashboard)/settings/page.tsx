@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { signOut } from "next-auth/react";
+import { useState, useEffect, Suspense } from "react";
+import { signOut, useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, User, Bell, Lock, Eye, Trash2 } from "lucide-react";
+import { Loader2, User, Bell, Lock, Eye, Trash2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,13 +28,36 @@ import {
   updateProfile,
   getNotificationPrefs,
   saveNotificationPrefs,
+  toggleMarriedStatus,
 } from "@/lib/actions/profile";
 
 export default function SettingsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Loader2 className="text-brand h-8 w-8 animate-spin" />
+        </div>
+      }
+    >
+      <SettingsContent />
+    </Suspense>
+  );
+}
+
+function SettingsContent() {
+  const { update: updateSession } = useSession();
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "privacy";
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingPrivacy, setIsSavingPrivacy] = useState(false);
   const [isSavingNotifications, setIsSavingNotifications] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isTogglingMarried, setIsTogglingMarried] = useState(false);
+
+  // Married status
+  const [isMarried, setIsMarried] = useState(false);
 
   // Profile settings
   const [hideProfile, setHideProfile] = useState(false);
@@ -67,6 +91,7 @@ export default function SettingsPage() {
       ]);
       if (profileResult.success && profileResult.data) {
         setHideProfile(profileResult.data.hideProfile || false);
+        setIsMarried(profileResult.data.isMarried || false);
         setShowOnlineStatus(profileResult.data.showOnlineStatus ?? true);
         setShowLastActive(profileResult.data.showLastActive ?? true);
       }
@@ -219,6 +244,25 @@ export default function SettingsPage() {
     }
   };
 
+  const handleToggleMarried = async (married: boolean) => {
+    setIsTogglingMarried(true);
+    try {
+      const result = await toggleMarriedStatus(married);
+      if (result.success) {
+        setIsMarried(married);
+        if (married) setHideProfile(true);
+        toast.success(result.message);
+        await updateSession({ isMarried: married });
+      } else {
+        toast.error(result.error || "Failed to update status");
+      }
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setIsTogglingMarried(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -238,7 +282,7 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="privacy" className="space-y-4 sm:space-y-6">
+      <Tabs defaultValue={defaultTab} className="space-y-4 sm:space-y-6">
         <TabsList className="grid h-auto w-full grid-cols-2 gap-1 sm:grid-cols-4">
           <TabsTrigger value="privacy">
             <Eye className="mr-2 hidden h-4 w-4 sm:inline" />
@@ -417,6 +461,88 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="account">
+          <Card variant="elevated" className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Heart className="h-5 w-5" />
+                Married Status
+              </CardTitle>
+              <CardDescription>
+                Mark yourself as married to suspend your profile on the platform
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isMarried ? (
+                <div className="space-y-4">
+                  <div className="border-brand/20 bg-brand/5 rounded-lg border p-4">
+                    <p className="text-brand mb-1 font-medium">
+                      You are currently marked as married
+                    </p>
+                    <p className="text-muted-foreground text-sm">
+                      Your profile is hidden and browsing is disabled. If your circumstances have
+                      changed, you can reactivate your profile below.
+                    </p>
+                  </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" disabled={isTogglingMarried}>
+                        {isTogglingMarried && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Reactivate My Profile
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Reactivate your profile?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will make your profile visible again and restore full access to the
+                          platform.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleToggleMarried(false)}>
+                          Yes, reactivate
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground text-sm">
+                    Found your life partner? Mark yourself as married to suspend your profile. You
+                    can log in anytime but browsing and messaging will be disabled. Your profile
+                    will be hidden from other members.
+                  </p>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button disabled={isTogglingMarried}>
+                        {isTogglingMarried && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        <Heart className="mr-2 h-4 w-4" />I Got Married
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Mark yourself as married?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Your profile will be hidden from all members and you won&apos;t be able to
+                          browse, send interests, or message anyone. You can revert this anytime
+                          from Settings.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleToggleMarried(true)}>
+                          Yes, I&apos;m married
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           <Card variant="elevated">
             <CardHeader>
               <CardTitle className="text-destructive">Danger Zone</CardTitle>

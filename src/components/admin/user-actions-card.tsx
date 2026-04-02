@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, UserCheck, UserX, Shield } from "lucide-react";
+import { Loader2, UserCheck, UserX, Shield, Heart, HeartOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -12,7 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AdminUser, toggleUserStatus, verifyUserProfile } from "@/lib/actions/admin";
+import {
+  AdminUser,
+  toggleUserStatus,
+  verifyUserProfile,
+  adminToggleMarriedStatus,
+} from "@/lib/actions/admin";
 
 interface UserActionsCardProps {
   user: AdminUser;
@@ -37,6 +42,25 @@ export function UserActionsCard({ user }: UserActionsCardProps) {
       }
     } catch {
       toast.error("Failed to update user status");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleMarried = async () => {
+    setIsLoading(true);
+    try {
+      const result = await adminToggleMarriedStatus(user.id, !user.profile?.isMarried);
+      if (result.success) {
+        toast.success(result.message);
+        startTransition(() => {
+          router.refresh();
+        });
+      } else {
+        toast.error(result.error);
+      }
+    } catch {
+      toast.error("Failed to update married status");
     } finally {
       setIsLoading(false);
     }
@@ -85,6 +109,28 @@ export function UserActionsCard({ user }: UserActionsCardProps) {
           )}
           {user.isActive ? "Suspend User" : "Activate User"}
         </Button>
+      </div>
+
+      <div>
+        <label className="mb-2 block text-sm font-medium text-slate-700">Married Status</label>
+        <Button
+          variant={user.profile?.isMarried ? "outline" : "default"}
+          className={user.profile?.isMarried ? "" : "bg-pink-600 hover:bg-pink-700"}
+          onClick={handleToggleMarried}
+          disabled={isLoading || isPending}
+        >
+          {isLoading || isPending ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : user.profile?.isMarried ? (
+            <HeartOff className="mr-2 h-4 w-4" />
+          ) : (
+            <Heart className="mr-2 h-4 w-4" />
+          )}
+          {user.profile?.isMarried ? "Unmark Married" : "Mark as Married"}
+        </Button>
+        {user.profile?.isMarried && (
+          <p className="mt-1 text-xs text-pink-600">Profile is suspended (married)</p>
+        )}
       </div>
 
       <div>

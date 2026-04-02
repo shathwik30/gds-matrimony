@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { getAdminUsers } from "@/lib/actions/admin";
+import type { AdminUserFilters } from "@/lib/actions/admin";
 import { UsersTable } from "@/components/admin/users-table";
 import { UsersSearch } from "@/components/admin/users-search";
 import { Loader2 } from "lucide-react";
@@ -11,6 +12,19 @@ interface UsersPageProps {
     page?: string;
     search?: string;
     filter?: string;
+    status?: string;
+    gender?: string;
+    subscription?: string;
+    trustLevel?: string;
+    married?: string;
+    profileCompletion?: string;
+    emailVerified?: string;
+    religion?: string;
+    country?: string;
+    state?: string;
+    joinedFrom?: string;
+    joinedTo?: string;
+    sort?: string;
   }>;
 }
 
@@ -20,7 +34,23 @@ async function UsersContent({ searchParams }: UsersPageProps) {
   const search = params.search || "";
   const filter = params.filter || "";
 
-  const result = await getAdminUsers(page, 20, search, filter);
+  const filters: AdminUserFilters = {
+    status: params.status,
+    gender: params.gender,
+    subscription: params.subscription,
+    trustLevel: params.trustLevel,
+    married: params.married,
+    profileCompletion: params.profileCompletion,
+    emailVerified: params.emailVerified,
+    religion: params.religion,
+    country: params.country,
+    state: params.state,
+    joinedFrom: params.joinedFrom,
+    joinedTo: params.joinedTo,
+    sort: params.sort,
+  };
+
+  const result = await getAdminUsers(page, 20, search, filter, filters);
 
   if (!result.success || !result.data) {
     return (
