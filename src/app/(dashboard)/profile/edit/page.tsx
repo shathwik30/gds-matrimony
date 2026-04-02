@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { calculateProfileCompletion } from "@/lib/utils";
+import { getFirstIncompleteStep, isStepComplete } from "@/lib/utils/profile-steps";
 import { getMyProfile, updateProfile } from "@/lib/actions/profile";
 import { BasicInfoStep } from "@/components/profile/basic-info-step";
 import { PhysicalDetailsStep } from "@/components/profile/physical-details-step";
@@ -44,32 +45,6 @@ const STEPS = [
   { id: 7, title: "About Me", description: "Describe yourself", icon: FileText },
   { id: 8, title: "Photos", description: "Profile & gallery photos", icon: Camera },
 ];
-
-// Required fields per step — used to detect the first incomplete step
-const STEP_REQUIRED_FIELDS: string[][] = [
-  ["firstName", "lastName", "gender", "dateOfBirth", "phoneNumber"], // Step 1
-  ["height"], // Step 2
-  ["religion", "motherTongue", "countryLivingIn", "residingState", "residingCity"], // Step 3
-  ["highestEducation"], // Step 4
-  ["maritalStatus"], // Step 5
-  [], // Step 6 — all optional
-  ["aboutMe"], // Step 7
-  ["profileImage"], // Step 8
-];
-
-function getFirstIncompleteStep(data: Record<string, unknown>): number {
-  for (let i = 0; i < STEP_REQUIRED_FIELDS.length; i++) {
-    const fields = STEP_REQUIRED_FIELDS[i];
-    const hasEmpty = fields.some((f) => {
-      const val = data[f];
-      if (val === null || val === undefined || val === "") return true;
-      if (f === "aboutMe" && typeof val === "string" && val.length < 50) return true;
-      return false;
-    });
-    if (hasEmpty) return i + 1;
-  }
-  return 1; // All complete — start at step 1 for review
-}
 
 export default function EditProfilePage() {
   return (
@@ -202,16 +177,8 @@ function EditProfileContent() {
         <div className="flex items-center">
           {STEPS.map((s, idx) => {
             const Icon = s.icon;
-            const stepFields = STEP_REQUIRED_FIELDS[s.id - 1];
-            const isStepComplete =
-              stepFields.length === 0 ||
-              stepFields.every((f) => {
-                const val = profileData[f];
-                if (val === null || val === undefined || val === "") return false;
-                if (f === "aboutMe" && typeof val === "string" && val.length < 50) return false;
-                return true;
-              });
-            const isDone = isStepComplete && s.id !== currentStep;
+            const stepComplete = isStepComplete(s.id - 1, profileData);
+            const isDone = stepComplete && s.id !== currentStep;
             const isActive = s.id === currentStep;
             const isPending = !isDone && !isActive;
             return (

@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import { registerUser } from "@/lib/actions/auth";
+import { generateStrongPassword } from "@/lib/utils/password";
 import { PROFILE_FOR_OPTIONS } from "@/constants";
 
 const MANDATORY_DECLARATIONS = [
@@ -51,28 +52,6 @@ const OPTIONAL_CONSENTS = [
   "I agree to receive SMS/WhatsApp notifications.",
   "I agree to receive promotional offers and marketing communications (optional).",
 ] as const;
-
-function generateStrongPassword(): string {
-  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
-  const lower = "abcdefghjkmnpqrstuvwxyz";
-  const digits = "23456789";
-  const special = "@#$%&*!?";
-  const all = upper + lower + digits + special;
-  // Ensure at least one of each required type
-  let password =
-    upper[Math.floor(Math.random() * upper.length)] +
-    lower[Math.floor(Math.random() * lower.length)] +
-    digits[Math.floor(Math.random() * digits.length)] +
-    special[Math.floor(Math.random() * special.length)];
-  for (let i = 4; i < 12; i++) {
-    password += all[Math.floor(Math.random() * all.length)];
-  }
-  // Shuffle
-  return password
-    .split("")
-    .sort(() => Math.random() - 0.5)
-    .join("");
-}
 
 export default function RegisterPage() {
   const router = useRouter();
