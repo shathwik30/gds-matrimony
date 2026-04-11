@@ -11,11 +11,11 @@ describe("AdminUserFilters", () => {
       married: "married",
       profileCompletion: "complete",
       emailVerified: "verified",
-      religion: "hindu",
+      subCaste: "iyengar",
       country: "India",
       state: "Telangana",
-      joinedFrom: "2024-01-01",
-      joinedTo: "2024-12-31",
+      birthYearFrom: "1996",
+      birthYearTo: "1999",
       sort: "name_asc",
     };
 
@@ -26,11 +26,11 @@ describe("AdminUserFilters", () => {
     expect(filters.married).toBe("married");
     expect(filters.profileCompletion).toBe("complete");
     expect(filters.emailVerified).toBe("verified");
-    expect(filters.religion).toBe("hindu");
+    expect(filters.subCaste).toBe("iyengar");
     expect(filters.country).toBe("India");
     expect(filters.state).toBe("Telangana");
-    expect(filters.joinedFrom).toBe("2024-01-01");
-    expect(filters.joinedTo).toBe("2024-12-31");
+    expect(filters.birthYearFrom).toBe("1996");
+    expect(filters.birthYearTo).toBe("1999");
     expect(filters.sort).toBe("name_asc");
   });
 
@@ -41,6 +41,8 @@ describe("AdminUserFilters", () => {
     expect(filters.subscription).toBeUndefined();
     expect(filters.married).toBeUndefined();
     expect(filters.country).toBeUndefined();
+    expect(filters.birthYearFrom).toBeUndefined();
+    expect(filters.birthYearTo).toBeUndefined();
   });
 
   it("accepts all valid status values", () => {
@@ -81,6 +83,11 @@ describe("AdminUserFilters", () => {
     }
   });
 
+  it("accepts a free-text subCaste filter", () => {
+    const f: AdminUserFilters = { subCaste: "iyengar" };
+    expect(f.subCaste).toBe("iyengar");
+  });
+
   it("accepts all valid married values", () => {
     const values = ["married", "unmarried"];
     for (const val of values) {
@@ -89,12 +96,12 @@ describe("AdminUserFilters", () => {
     }
   });
 
-  it("accepts date strings for joinedFrom and joinedTo", () => {
+  it("accepts year strings for birthYearFrom and birthYearTo", () => {
     const f: AdminUserFilters = {
-      joinedFrom: "2025-01-15",
-      joinedTo: "2025-06-30",
+      birthYearFrom: "1996",
+      birthYearTo: "1999",
     };
-    expect(f.joinedFrom).toBe("2025-01-15");
-    expect(f.joinedTo).toBe("2025-06-30");
+    expect(f.birthYearFrom).toBe("1996");
+    expect(f.birthYearTo).toBe("1999");
   });
 });

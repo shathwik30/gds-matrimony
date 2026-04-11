@@ -19,6 +19,7 @@ import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/actions/helpers";
 import type { ActionResult } from "@/types";
+import { calculateAge } from "@/lib/utils";
 
 export interface DashboardAnalytics {
   totalUsers: number;
@@ -155,12 +156,250 @@ export interface AdminUserFilters {
   married?: string;
   profileCompletion?: string;
   emailVerified?: string;
-  religion?: string;
+  subCaste?: string;
   country?: string;
   state?: string;
-  joinedFrom?: string;
-  joinedTo?: string;
+  birthYearFrom?: string;
+  birthYearTo?: string;
   sort?: string;
+}
+
+export interface AdminUserCsvRow {
+  userId: number;
+  email: string;
+  emailVerified: boolean | null;
+  phoneNumber: string | null;
+  secondaryPhoneNumber: string | null;
+  profileFor: string | null;
+  role: string | null;
+  createdByStaffId: number | null;
+  createdByStaffEmail: string | null;
+  isActive: boolean | null;
+  lastActive: Date | null;
+  failedLoginAttempts: number | null;
+  lockedUntil: Date | null;
+  userCreatedAt: Date | null;
+  userUpdatedAt: Date | null;
+  firstName: string | null;
+  lastName: string | null;
+  fullName: string | null;
+  gender: string | null;
+  dateOfBirth: string | Date | null;
+  age: number | null;
+  height: number | null;
+  weight: number | null;
+  bodyType: string | null;
+  complexion: string | null;
+  physicalStatus: string | null;
+  religion: string | null;
+  caste: string | null;
+  subCaste: string | null;
+  motherTongue: string | null;
+  gothra: string | null;
+  countryLivingIn: string | null;
+  residingState: string | null;
+  residingCity: string | null;
+  citizenship: string | null;
+  highestEducation: string | null;
+  educationDetail: string | null;
+  employedIn: string | null;
+  occupation: string | null;
+  jobTitle: string | null;
+  annualIncome: string | null;
+  maritalStatus: string | null;
+  diet: string | null;
+  smoking: string | null;
+  drinking: string | null;
+  hobbies: string | null;
+  familyStatus: string | null;
+  familyType: string | null;
+  familyValue: string | null;
+  fatherOccupation: string | null;
+  motherOccupation: string | null;
+  brothers: number | null;
+  brothersMarried: number | null;
+  sisters: number | null;
+  sistersMarried: number | null;
+  aboutMe: string | null;
+  profileImage: string | null;
+  profileCompletion: number | null;
+  trustScore: number | null;
+  trustLevel: string | null;
+  hideProfile: boolean | null;
+  isMarried: boolean | null;
+  showOnlineStatus: boolean | null;
+  showLastActive: boolean | null;
+  profileCreatedAt: Date | null;
+  profileUpdatedAt: Date | null;
+  subscriptionPlan: string | null;
+  subscriptionIsActive: boolean | null;
+  subscriptionStartDate: Date | null;
+  subscriptionEndDate: Date | null;
+  interestsPerDay: number | null;
+  contactViews: number | null;
+  profileBoosts: number | null;
+  interestsSentToday: number | null;
+  contactViewsUsed: number | null;
+  boostsUsed: number | null;
+  lastBoostAt: Date | null;
+  boostExpiresAt: Date | null;
+  subscriptionCreatedAt: Date | null;
+  subscriptionUpdatedAt: Date | null;
+}
+
+function parseBirthYearFilter(value?: string): number | undefined {
+  if (!value) return undefined;
+
+  const year = Number.parseInt(value, 10);
+  const currentYear = new Date().getFullYear();
+
+  if (!Number.isInteger(year) || year < 1900 || year > currentYear) {
+    return undefined;
+  }
+
+  return year;
+}
+
+function buildAdminUserConditions(
+  search?: string,
+  filter?: string,
+  filters?: AdminUserFilters
+): SQL[] {
+  const conditions: SQL[] = [];
+
+  // Legacy single filter (backwards compatible)
+  if (filter === "active") conditions.push(eq(users.isActive, true));
+  else if (filter === "inactive") conditions.push(eq(users.isActive, false));
+
+  if (filters) {
+    if (filters.status === "active") conditions.push(eq(users.isActive, true));
+    else if (filters.status === "inactive") conditions.push(eq(users.isActive, false));
+
+    if (filters.emailVerified === "verified") conditions.push(eq(users.emailVerified, true));
+    else if (filters.emailVerified === "unverified")
+      conditions.push(eq(users.emailVerified, false));
+
+    if (filters.gender && filters.gender !== "all")
+      conditions.push(sql`${profiles.gender} = ${filters.gender}`);
+
+    if (filters.subscription && filters.subscription !== "all") {
+      if (filters.subscription === "free") {
+        conditions.push(
+          sql`NOT EXISTS (SELECT 1 FROM subscriptions s WHERE s.user_id = ${users.id} AND s.is_active = true AND s.plan != 'free')`
+        );
+      } else {
+        conditions.push(
+          sql`EXISTS (SELECT 1 FROM subscriptions s WHERE s.user_id = ${users.id} AND s.is_active = true AND s.plan = ${filters.subscription})`
+        );
+      }
+    }
+
+    if (filters.trustLevel && filters.trustLevel !== "all")
+      conditions.push(sql`${profiles.trustLevel} = ${filters.trustLevel}`);
+
+    if (filters.married === "married") conditions.push(sql`${profiles.isMarried} = true`);
+    else if (filters.married === "unmarried")
+      conditions.push(sql`(${profiles.isMarried} = false OR ${profiles.isMarried} IS NULL)`);
+
+    if (filters.profileCompletion) {
+      if (filters.profileCompletion === "complete")
+        conditions.push(sql`${profiles.profileCompletion} >= 70`);
+      else if (filters.profileCompletion === "incomplete")
+        conditions.push(sql`${profiles.profileCompletion} < 70`);
+      else if (filters.profileCompletion === "empty")
+        conditions.push(
+          sql`(${profiles.profileCompletion} IS NULL OR ${profiles.profileCompletion} = 0)`
+        );
+    }
+
+    if (filters.subCaste && filters.subCaste.trim()) {
+      const subCasteTerm = `%${filters.subCaste.trim().toLowerCase()}%`;
+      conditions.push(sql`LOWER(COALESCE(${profiles.subCaste}, '')) LIKE ${subCasteTerm}`);
+    }
+
+    if (filters.country && filters.country !== "all")
+      conditions.push(sql`${profiles.countryLivingIn} = ${filters.country}`);
+
+    if (filters.state && filters.state !== "all")
+      conditions.push(sql`${profiles.residingState} = ${filters.state}`);
+
+    const birthYearFrom = parseBirthYearFilter(filters.birthYearFrom);
+    const birthYearTo = parseBirthYearFilter(filters.birthYearTo);
+    const effectiveBirthYearFrom = birthYearFrom ?? birthYearTo;
+    const effectiveBirthYearTo = birthYearTo ?? birthYearFrom;
+
+    if (effectiveBirthYearFrom && effectiveBirthYearTo) {
+      const startYear = Math.min(effectiveBirthYearFrom, effectiveBirthYearTo);
+      const endYear = Math.max(effectiveBirthYearFrom, effectiveBirthYearTo);
+
+      conditions.push(sql`${profiles.dateOfBirth} >= ${`${startYear}-01-01`}`);
+      conditions.push(sql`${profiles.dateOfBirth} <= ${`${endYear}-12-31`}`);
+    }
+  }
+
+  if (search && search.trim()) {
+    const searchTerm = `%${search.trim().toLowerCase()}%`;
+    conditions.push(
+      sql`(LOWER(${users.email}) LIKE ${searchTerm} OR LOWER(CONCAT(COALESCE(${profiles.firstName},''), ' ', COALESCE(${profiles.lastName},''))) LIKE ${searchTerm} OR LOWER(${users.phoneNumber}) LIKE ${searchTerm})`
+    );
+  }
+
+  return conditions;
+}
+
+function getAdminUserOrderByClause(sort?: string) {
+  switch (sort) {
+    case "name_asc":
+      return sql`${profiles.firstName} ASC NULLS LAST`;
+    case "name_desc":
+      return sql`${profiles.firstName} DESC NULLS LAST`;
+    case "oldest":
+      return sql`${users.createdAt} ASC`;
+    case "last_active":
+      return sql`${users.lastActive} DESC NULLS LAST`;
+    case "completion_desc":
+      return sql`${profiles.profileCompletion} DESC NULLS LAST`;
+    case "completion_asc":
+      return sql`${profiles.profileCompletion} ASC NULLS LAST`;
+    default:
+      return sql`${users.createdAt} DESC`;
+  }
+}
+
+function hasAdminUserProfileQuery(filters?: AdminUserFilters, search?: string) {
+  return Boolean(
+    (filters &&
+      (filters.gender ||
+        filters.trustLevel ||
+        filters.married ||
+        filters.profileCompletion ||
+        filters.subCaste ||
+        filters.country ||
+        filters.state ||
+        filters.birthYearFrom ||
+        filters.birthYearTo ||
+        filters.sort)) ||
+    (search && search.trim())
+  );
+}
+
+async function getFilteredAdminUserIds(
+  search?: string,
+  filter?: string,
+  filters?: AdminUserFilters
+): Promise<number[]> {
+  const conditions = buildAdminUserConditions(search, filter, filters);
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+  const orderByClause = getAdminUserOrderByClause(filters?.sort);
+
+  const userRows = await db
+    .select({ id: users.id })
+    .from(users)
+    .leftJoin(profiles, eq(users.id, profiles.userId))
+    .where(whereClause)
+    .orderBy(orderByClause);
+
+  return userRows.map((row) => row.id);
 }
 
 export async function getAdminUsers(
@@ -177,123 +416,12 @@ export async function getAdminUsers(
     const validatedLimit = Math.min(Math.max(1, limit), 100);
     const validatedPage = Math.max(1, page);
     const offset = (validatedPage - 1) * validatedLimit;
-
-    const conditions: SQL[] = [];
-
-    // Legacy single filter (backwards compatible)
-    if (filter === "active") conditions.push(eq(users.isActive, true));
-    else if (filter === "inactive") conditions.push(eq(users.isActive, false));
-
-    // Rich filters
-    if (filters) {
-      if (filters.status === "active") conditions.push(eq(users.isActive, true));
-      else if (filters.status === "inactive") conditions.push(eq(users.isActive, false));
-
-      if (filters.emailVerified === "verified") conditions.push(eq(users.emailVerified, true));
-      else if (filters.emailVerified === "unverified")
-        conditions.push(eq(users.emailVerified, false));
-
-      if (filters.gender && filters.gender !== "all")
-        conditions.push(sql`${profiles.gender} = ${filters.gender}`);
-
-      if (filters.subscription && filters.subscription !== "all") {
-        if (filters.subscription === "free") {
-          conditions.push(
-            sql`NOT EXISTS (SELECT 1 FROM subscriptions s WHERE s.user_id = ${users.id} AND s.is_active = true AND s.plan != 'free')`
-          );
-        } else {
-          conditions.push(
-            sql`EXISTS (SELECT 1 FROM subscriptions s WHERE s.user_id = ${users.id} AND s.is_active = true AND s.plan = ${filters.subscription})`
-          );
-        }
-      }
-
-      if (filters.trustLevel && filters.trustLevel !== "all")
-        conditions.push(sql`${profiles.trustLevel} = ${filters.trustLevel}`);
-
-      if (filters.married === "married") conditions.push(sql`${profiles.isMarried} = true`);
-      else if (filters.married === "unmarried")
-        conditions.push(sql`(${profiles.isMarried} = false OR ${profiles.isMarried} IS NULL)`);
-
-      if (filters.profileCompletion) {
-        if (filters.profileCompletion === "complete")
-          conditions.push(sql`${profiles.profileCompletion} >= 70`);
-        else if (filters.profileCompletion === "incomplete")
-          conditions.push(sql`${profiles.profileCompletion} < 70`);
-        else if (filters.profileCompletion === "empty")
-          conditions.push(
-            sql`(${profiles.profileCompletion} IS NULL OR ${profiles.profileCompletion} = 0)`
-          );
-      }
-
-      if (filters.religion && filters.religion !== "all")
-        conditions.push(sql`${profiles.religion} = ${filters.religion}`);
-
-      if (filters.country && filters.country !== "all")
-        conditions.push(sql`${profiles.countryLivingIn} = ${filters.country}`);
-
-      if (filters.state && filters.state !== "all")
-        conditions.push(sql`${profiles.residingState} = ${filters.state}`);
-
-      if (filters.joinedFrom) conditions.push(gte(users.createdAt, new Date(filters.joinedFrom)));
-
-      if (filters.joinedTo) {
-        const toDate = new Date(filters.joinedTo);
-        toDate.setHours(23, 59, 59, 999);
-        conditions.push(lte(users.createdAt, toDate));
-      }
-    }
-
-    // Search by name or email
-    if (search && search.trim()) {
-      const searchTerm = `%${search.trim().toLowerCase()}%`;
-      conditions.push(
-        sql`(LOWER(${users.email}) LIKE ${searchTerm} OR LOWER(CONCAT(COALESCE(${profiles.firstName},''), ' ', COALESCE(${profiles.lastName},''))) LIKE ${searchTerm} OR LOWER(${users.phoneNumber}) LIKE ${searchTerm})`
-      );
-    }
-
-    // Build sort
-    let orderByClause;
-    switch (filters?.sort) {
-      case "name_asc":
-        orderByClause = sql`${profiles.firstName} ASC NULLS LAST`;
-        break;
-      case "name_desc":
-        orderByClause = sql`${profiles.firstName} DESC NULLS LAST`;
-        break;
-      case "oldest":
-        orderByClause = sql`${users.createdAt} ASC`;
-        break;
-      case "last_active":
-        orderByClause = sql`${users.lastActive} DESC NULLS LAST`;
-        break;
-      case "completion_desc":
-        orderByClause = sql`${profiles.profileCompletion} DESC NULLS LAST`;
-        break;
-      case "completion_asc":
-        orderByClause = sql`${profiles.profileCompletion} ASC NULLS LAST`;
-        break;
-      default:
-        orderByClause = sql`${users.createdAt} DESC`;
-    }
-
-    // We need a join-based query because filters touch profiles table
-    const hasProfileFilter =
-      filters &&
-      (filters.gender ||
-        filters.trustLevel ||
-        filters.married ||
-        filters.profileCompletion ||
-        filters.religion ||
-        filters.country ||
-        filters.state ||
-        filters.sort);
-    const hasSearchName = search && search.trim();
+    const conditions = buildAdminUserConditions(search, filter, filters);
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+    const orderByClause = getAdminUserOrderByClause(filters?.sort);
 
     // Use join-based query when profile columns are involved in filters/search
-    if (hasProfileFilter || hasSearchName) {
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
+    if (hasAdminUserProfileQuery(filters, search)) {
       const userRows = await db
         .select({
           id: users.id,
@@ -370,8 +498,6 @@ export async function getAdminUsers(
     }
 
     // Simple query path (no profile filters)
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
     const usersList = await db.query.users.findMany({
       where: whereClause,
       with: {
@@ -426,6 +552,160 @@ export async function getAdminUsers(
   } catch (error) {
     console.error("Get admin users error:", error);
     return { success: false, error: "Failed to fetch users" };
+  }
+}
+
+export async function getAdminUsersCsvRows(
+  search?: string,
+  filter?: string,
+  filters?: AdminUserFilters
+): Promise<ActionResult<AdminUserCsvRow[]>> {
+  try {
+    const adminResult = await requireAdmin();
+    if (adminResult.error) return adminResult.error;
+
+    const userIds = await getFilteredAdminUserIds(search, filter, filters);
+
+    if (userIds.length === 0) {
+      return { success: true, data: [] };
+    }
+
+    const usersList = await db.query.users.findMany({
+      where: inArray(users.id, userIds),
+      with: {
+        profile: true,
+      },
+    });
+
+    const activeSubscriptions = await db.query.subscriptions.findMany({
+      where: and(inArray(subscriptions.userId, userIds), eq(subscriptions.isActive, true)),
+      orderBy: [desc(subscriptions.createdAt)],
+    });
+
+    const createdByStaffIds = Array.from(
+      new Set(
+        usersList
+          .map((user) => user.createdByStaffId)
+          .filter((createdByStaffId): createdByStaffId is number => createdByStaffId != null)
+      )
+    );
+
+    const staffUsers =
+      createdByStaffIds.length > 0
+        ? await db
+            .select({ id: users.id, email: users.email })
+            .from(users)
+            .where(inArray(users.id, createdByStaffIds))
+        : [];
+
+    const usersById = new Map(usersList.map((user) => [user.id, user]));
+    const subscriptionByUserId = new Map<number, (typeof activeSubscriptions)[number]>();
+    const staffEmailById = new Map(staffUsers.map((staffUser) => [staffUser.id, staffUser.email]));
+
+    for (const subscription of activeSubscriptions) {
+      if (!subscriptionByUserId.has(subscription.userId)) {
+        subscriptionByUserId.set(subscription.userId, subscription);
+      }
+    }
+
+    const rows: AdminUserCsvRow[] = userIds
+      .map((userId) => usersById.get(userId))
+      .filter((user): user is NonNullable<typeof user> => Boolean(user))
+      .map((user) => {
+        const profile = user.profile;
+        const subscription = subscriptionByUserId.get(user.id) || null;
+        const fullName = [profile?.firstName, profile?.lastName].filter(Boolean).join(" ").trim();
+
+        return {
+          userId: user.id,
+          email: user.email,
+          emailVerified: user.emailVerified,
+          phoneNumber: user.phoneNumber,
+          secondaryPhoneNumber: user.secondaryPhoneNumber,
+          profileFor: user.profileFor,
+          role: user.role,
+          createdByStaffId: user.createdByStaffId,
+          createdByStaffEmail: user.createdByStaffId
+            ? staffEmailById.get(user.createdByStaffId) || null
+            : null,
+          isActive: user.isActive,
+          lastActive: user.lastActive,
+          failedLoginAttempts: user.failedLoginAttempts,
+          lockedUntil: user.lockedUntil,
+          userCreatedAt: user.createdAt,
+          userUpdatedAt: user.updatedAt,
+          firstName: profile?.firstName ?? null,
+          lastName: profile?.lastName ?? null,
+          fullName: fullName || null,
+          gender: profile?.gender ?? null,
+          dateOfBirth: profile?.dateOfBirth ?? null,
+          age: profile?.dateOfBirth ? calculateAge(profile.dateOfBirth) : null,
+          height: profile?.height ?? null,
+          weight: profile?.weight ?? null,
+          bodyType: profile?.bodyType ?? null,
+          complexion: profile?.complexion ?? null,
+          physicalStatus: profile?.physicalStatus ?? null,
+          religion: profile?.religion ?? null,
+          caste: profile?.caste ?? null,
+          subCaste: profile?.subCaste ?? null,
+          motherTongue: profile?.motherTongue ?? null,
+          gothra: profile?.gothra ?? null,
+          countryLivingIn: profile?.countryLivingIn ?? null,
+          residingState: profile?.residingState ?? null,
+          residingCity: profile?.residingCity ?? null,
+          citizenship: profile?.citizenship ?? null,
+          highestEducation: profile?.highestEducation ?? null,
+          educationDetail: profile?.educationDetail ?? null,
+          employedIn: profile?.employedIn ?? null,
+          occupation: profile?.occupation ?? null,
+          jobTitle: profile?.jobTitle ?? null,
+          annualIncome: profile?.annualIncome ?? null,
+          maritalStatus: profile?.maritalStatus ?? null,
+          diet: profile?.diet ?? null,
+          smoking: profile?.smoking ?? null,
+          drinking: profile?.drinking ?? null,
+          hobbies: profile?.hobbies ?? null,
+          familyStatus: profile?.familyStatus ?? null,
+          familyType: profile?.familyType ?? null,
+          familyValue: profile?.familyValue ?? null,
+          fatherOccupation: profile?.fatherOccupation ?? null,
+          motherOccupation: profile?.motherOccupation ?? null,
+          brothers: profile?.brothers ?? null,
+          brothersMarried: profile?.brothersMarried ?? null,
+          sisters: profile?.sisters ?? null,
+          sistersMarried: profile?.sistersMarried ?? null,
+          aboutMe: profile?.aboutMe ?? null,
+          profileImage: profile?.profileImage ?? null,
+          profileCompletion: profile?.profileCompletion ?? null,
+          trustScore: profile?.trustScore ?? null,
+          trustLevel: profile?.trustLevel ?? null,
+          hideProfile: profile?.hideProfile ?? null,
+          isMarried: profile?.isMarried ?? null,
+          showOnlineStatus: profile?.showOnlineStatus ?? null,
+          showLastActive: profile?.showLastActive ?? null,
+          profileCreatedAt: profile?.createdAt ?? null,
+          profileUpdatedAt: profile?.updatedAt ?? null,
+          subscriptionPlan: subscription?.plan ?? null,
+          subscriptionIsActive: subscription?.isActive ?? null,
+          subscriptionStartDate: subscription?.startDate ?? null,
+          subscriptionEndDate: subscription?.endDate ?? null,
+          interestsPerDay: subscription?.interestsPerDay ?? null,
+          contactViews: subscription?.contactViews ?? null,
+          profileBoosts: subscription?.profileBoosts ?? null,
+          interestsSentToday: subscription?.interestsSentToday ?? null,
+          contactViewsUsed: subscription?.contactViewsUsed ?? null,
+          boostsUsed: subscription?.boostsUsed ?? null,
+          lastBoostAt: subscription?.lastBoostAt ?? null,
+          boostExpiresAt: subscription?.boostExpiresAt ?? null,
+          subscriptionCreatedAt: subscription?.createdAt ?? null,
+          subscriptionUpdatedAt: subscription?.updatedAt ?? null,
+        };
+      });
+
+    return { success: true, data: rows };
+  } catch (error) {
+    console.error("Get admin users CSV rows error:", error);
+    return { success: false, error: "Failed to export users" };
   }
 }
 

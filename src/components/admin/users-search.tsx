@@ -1,9 +1,17 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, type ReadonlyURLSearchParams } from "next/navigation";
 import { useState, useEffect, useTransition, useCallback } from "react";
 import { useDebounce } from "use-debounce";
-import { Search, SlidersHorizontal, X, RotateCcw, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Search,
+  SlidersHorizontal,
+  X,
+  RotateCcw,
+  ChevronDown,
+  ChevronUp,
+  Download,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RELIGION_OPTIONS, COUNTRY_OPTIONS, STATE_OPTIONS } from "@/constants";
+import { COUNTRY_OPTIONS, STATE_OPTIONS } from "@/constants";
+
+const CURRENT_YEAR = new Date().getFullYear();
 
 const FILTER_KEYS = [
   "status",
@@ -24,11 +34,11 @@ const FILTER_KEYS = [
   "married",
   "profileCompletion",
   "emailVerified",
-  "religion",
+  "subCaste",
   "country",
   "state",
-  "joinedFrom",
-  "joinedTo",
+  "birthYearFrom",
+  "birthYearTo",
   "sort",
 ] as const;
 
@@ -45,6 +55,9 @@ export function UsersSearch() {
   const [showFilters, setShowFilters] = useState(() => countActiveFilters(searchParams) > 0);
 
   const activeFilterCount = countActiveFilters(searchParams);
+  const exportParams = new URLSearchParams(searchParams.toString());
+  exportParams.delete("page");
+  const exportHref = `/api/admin/users/export${exportParams.toString() ? `?${exportParams.toString()}` : ""}`;
 
   const pushParams = useCallback(
     (params: URLSearchParams) => {
@@ -107,6 +120,13 @@ export function UsersSearch() {
         </div>
 
         <div className="flex gap-2">
+          <Button asChild variant="outline">
+            <a href={exportHref}>
+              <Download className="mr-2 h-4 w-4" />
+              Export CSV
+            </a>
+          </Button>
+
           <Button
             variant={showFilters ? "default" : "outline"}
             onClick={() => setShowFilters(!showFilters)}
@@ -143,7 +163,7 @@ export function UsersSearch() {
           {FILTER_KEYS.map((key) => {
             const value = searchParams.get(key);
             if (!value) return null;
-            const label = formatFilterLabel(key, value);
+            const label = formatFilterLabel(key, value, searchParams);
             return (
               <Badge key={key} variant="secondary" className="gap-1 pr-1 text-xs font-normal">
                 {label}
@@ -285,22 +305,16 @@ export function UsersSearch() {
               </Select>
             </div>
 
-            {/* Religion */}
+            {/* Sub Caste */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-600">Religion</label>
-              <Select value={getFilter("religion")} onValueChange={(v) => setFilter("religion", v)}>
-                <SelectTrigger className="h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  {RELIGION_OPTIONS.map((r) => (
-                    <SelectItem key={r} value={r.toLowerCase()}>
-                      {r}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <label className="text-xs font-medium text-slate-600">Sub Caste</label>
+              <Input
+                type="text"
+                className="h-9"
+                placeholder="Enter sub-caste"
+                value={searchParams.get("subCaste") || ""}
+                onChange={(e) => setFilter("subCaste", e.target.value || "all")}
+              />
             </div>
 
             {/* Country */}
@@ -339,25 +353,35 @@ export function UsersSearch() {
               </Select>
             </div>
 
-            {/* Joined From */}
+            {/* Birth Year */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-600">Joined From</label>
+              <label className="text-xs font-medium text-slate-600">Birth Year</label>
               <Input
-                type="date"
+                type="number"
+                inputMode="numeric"
+                min="1900"
+                max={CURRENT_YEAR}
+                step="1"
+                placeholder="1996"
                 className="h-9"
-                value={searchParams.get("joinedFrom") || ""}
-                onChange={(e) => setFilter("joinedFrom", e.target.value || "all")}
+                value={searchParams.get("birthYearFrom") || ""}
+                onChange={(e) => setFilter("birthYearFrom", e.target.value || "all")}
               />
             </div>
 
-            {/* Joined To */}
+            {/* Birth Year To */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-slate-600">Joined To</label>
+              <label className="text-xs font-medium text-slate-600">Birth Year To</label>
               <Input
-                type="date"
+                type="number"
+                inputMode="numeric"
+                min="1900"
+                max={CURRENT_YEAR}
+                step="1"
+                placeholder="1999"
                 className="h-9"
-                value={searchParams.get("joinedTo") || ""}
-                onChange={(e) => setFilter("joinedTo", e.target.value || "all")}
+                value={searchParams.get("birthYearTo") || ""}
+                onChange={(e) => setFilter("birthYearTo", e.target.value || "all")}
               />
             </div>
 
@@ -386,7 +410,11 @@ export function UsersSearch() {
   );
 }
 
-function formatFilterLabel(key: string, value: string): string {
+function formatFilterLabel(
+  key: string,
+  value: string,
+  searchParams?: URLSearchParams | ReadonlyURLSearchParams
+): string {
   const labels: Record<string, Record<string, string>> = {
     status: { active: "Active", inactive: "Suspended" },
     gender: { male: "Male", female: "Female" },
@@ -419,9 +447,13 @@ function formatFilterLabel(key: string, value: string): string {
     },
   };
 
-  if (key === "joinedFrom") return `From: ${value}`;
-  if (key === "joinedTo") return `To: ${value}`;
-  if (key === "religion") return value.charAt(0).toUpperCase() + value.slice(1);
+  if (key === "birthYearFrom") {
+    return searchParams?.get("birthYearTo") ? `Birth year from: ${value}` : `Birth year: ${value}`;
+  }
+  if (key === "birthYearTo") {
+    return searchParams?.get("birthYearFrom") ? `Birth year to: ${value}` : `Birth year: ${value}`;
+  }
+  if (key === "subCaste") return `Sub Caste: ${value}`;
   if (key === "country") return value;
   if (key === "state") {
     const stateLabel = STATE_OPTIONS.find((s) => s.value === value)?.label;

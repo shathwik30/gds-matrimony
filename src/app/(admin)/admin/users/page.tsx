@@ -19,11 +19,11 @@ interface UsersPageProps {
     married?: string;
     profileCompletion?: string;
     emailVerified?: string;
-    religion?: string;
+    subCaste?: string;
     country?: string;
     state?: string;
-    joinedFrom?: string;
-    joinedTo?: string;
+    birthYearFrom?: string;
+    birthYearTo?: string;
     sort?: string;
   }>;
 }
@@ -42,11 +42,11 @@ async function UsersContent({ searchParams }: UsersPageProps) {
     married: params.married,
     profileCompletion: params.profileCompletion,
     emailVerified: params.emailVerified,
-    religion: params.religion,
+    subCaste: params.subCaste,
     country: params.country,
     state: params.state,
-    joinedFrom: params.joinedFrom,
-    joinedTo: params.joinedTo,
+    birthYearFrom: params.birthYearFrom,
+    birthYearTo: params.birthYearTo,
     sort: params.sort,
   };
 
