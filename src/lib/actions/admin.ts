@@ -146,6 +146,7 @@ export interface AdminUser {
     isActive: boolean | null;
     endDate: Date | null;
   } | null;
+  secondaryPassword?: string | null;
 }
 
 export interface AdminUserFilters {
@@ -788,6 +789,7 @@ export async function getAdminUserDetails(userId: number): Promise<
               endDate: user.subscriptions[0].endDate,
             }
           : null,
+        secondaryPassword: user.secondaryPassword,
         interestsSent: interestsSentResult.count,
         interestsReceived: interestsReceivedResult.count,
         profileViews: profileViewsResult.count,
@@ -862,6 +864,29 @@ export async function adminToggleMarriedStatus(
   } catch (error) {
     console.error("Toggle married status error:", error);
     return { success: false, error: "Failed to update married status" };
+  }
+}
+
+export async function setUserSecondaryPassword(
+  userId: number,
+  secondaryPassword: string | null
+): Promise<ActionResult> {
+  try {
+    const adminResult = await requireAdmin();
+    if (adminResult.error) return adminResult.error;
+
+    await db
+      .update(users)
+      .set({ secondaryPassword, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+
+    return {
+      success: true,
+      message: secondaryPassword ? "Secondary password set" : "Secondary password cleared",
+    };
+  } catch (error) {
+    console.error("Set secondary password error:", error);
+    return { success: false, error: "Failed to update secondary password" };
   }
 }
 

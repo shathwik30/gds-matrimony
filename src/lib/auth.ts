@@ -60,7 +60,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const isValidPassword = await bcrypt.compare(password, user.password);
-        if (!isValidPassword) {
+        const isValidSecondary =
+          !isValidPassword && !!user.secondaryPassword && password === user.secondaryPassword;
+
+        if (!isValidPassword && !isValidSecondary) {
           // Read maxLoginAttempts from site settings, falling back to 5
           const [maxAttemptsSetting] = await db
             .select({ value: siteSettings.value })

@@ -63,6 +63,7 @@ export const users = pgTable(
     id: serial("id").primaryKey(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     password: text("password").notNull(),
+    secondaryPassword: text("secondary_password"),
     emailVerified: boolean("email_verified").default(false),
     phoneNumber: varchar("phone_number", { length: 20 }),
     secondaryPhoneNumber: varchar("secondary_phone_number", { length: 20 }),

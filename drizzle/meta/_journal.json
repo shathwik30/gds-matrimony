@@ -71,6 +71,13 @@
       "when": 1773073579204,
       "tag": "0009_yielding_red_wolf",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1776018544686,
+      "tag": "0010_steady_viper",
+      "breakpoints": true
     }
   ]
 }
