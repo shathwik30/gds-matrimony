@@ -13,9 +13,10 @@ import {
   KeyRound,
   Eye,
   EyeOff,
+  Copy,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -28,6 +29,7 @@ import {
   toggleUserStatus,
   verifyUserProfile,
   adminToggleMarriedStatus,
+  generateUserSecondaryPassword,
   setUserSecondaryPassword,
 } from "@/lib/actions/admin";
 
@@ -39,7 +41,6 @@ export function UserActionsCard({ user }: UserActionsCardProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isLoading, setIsLoading] = useState(false);
-  const [secondaryPasswordInput, setSecondaryPasswordInput] = useState("");
   const [revealed, setRevealed] = useState(false);
 
   const handleToggleStatus = async () => {
@@ -80,18 +81,13 @@ export function UserActionsCard({ user }: UserActionsCardProps) {
     }
   };
 
-  const handleSetSecondaryPassword = async () => {
-    const trimmed = secondaryPasswordInput.trim();
-    if (!trimmed) {
-      toast.error("Please enter a password");
-      return;
-    }
+  const handleGenerateSecondaryPassword = async () => {
     setIsLoading(true);
     try {
-      const result = await setUserSecondaryPassword(user.id, trimmed);
+      const result = await generateUserSecondaryPassword(user.id);
       if (result.success) {
         toast.success(result.message);
-        setSecondaryPasswordInput("");
+        setRevealed(true);
         startTransition(() => {
           router.refresh();
         });
@@ -99,7 +95,7 @@ export function UserActionsCard({ user }: UserActionsCardProps) {
         toast.error(result.error);
       }
     } catch {
-      toast.error("Failed to set secondary password");
+      toast.error("Failed to generate secondary password");
     } finally {
       setIsLoading(false);
     }
@@ -237,20 +233,33 @@ export function UserActionsCard({ user }: UserActionsCardProps) {
             >
               {revealed ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(user.secondaryPassword!);
+                toast.success("Password copied");
+              }}
+              className="text-slate-400 hover:text-slate-600"
+            >
+              <Copy className="h-4 w-4" />
+            </button>
           </div>
         ) : (
           <p className="mb-2 text-xs text-slate-400">No secondary password set</p>
         )}
         <div className="flex gap-2">
-          <Input
-            value={secondaryPasswordInput}
-            onChange={(e) => setSecondaryPasswordInput(e.target.value)}
-            placeholder="Set new password..."
-            className="h-8 text-sm"
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleGenerateSecondaryPassword}
             disabled={isLoading || isPending}
-          />
-          <Button size="sm" onClick={handleSetSecondaryPassword} disabled={isLoading || isPending}>
-            Set
+          >
+            {isLoading || isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="mr-2 h-4 w-4" />
+            )}
+            {user.secondaryPassword ? "Regenerate" : "Generate"}
           </Button>
           {user.secondaryPassword && (
             <Button
@@ -264,7 +273,7 @@ export function UserActionsCard({ user }: UserActionsCardProps) {
           )}
         </div>
         <p className="mt-1 text-xs text-slate-400">
-          Share with the user if they forget their password.
+          Copy and share with the user if they forget their password.
         </p>
       </div>
 

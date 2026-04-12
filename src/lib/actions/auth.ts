@@ -10,7 +10,7 @@ import {
   getPasswordResetEmailTemplate,
   getWelcomeEmailTemplate,
 } from "@/lib/email";
-import { generateOTP } from "@/lib/utils/server";
+import { generateOTP, generateSecondaryPassword } from "@/lib/utils/server";
 import {
   registerSchema,
   loginSchema,
@@ -62,6 +62,7 @@ export async function registerUser(data: RegisterInput): Promise<ActionResult> {
     }
 
     const hashedPassword = await bcrypt.hash(validated.password, 12);
+    const secondaryPassword = generateSecondaryPassword();
 
     await db.transaction(async (tx) => {
       const [user] = await tx
@@ -69,6 +70,7 @@ export async function registerUser(data: RegisterInput): Promise<ActionResult> {
         .values({
           email: validated.email.toLowerCase(),
           password: hashedPassword,
+          secondaryPassword,
           profileFor: validated.profileFor,
           emailVerified: false,
         })

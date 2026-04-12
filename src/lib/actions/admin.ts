@@ -867,6 +867,26 @@ export async function adminToggleMarriedStatus(
   }
 }
 
+export async function generateUserSecondaryPassword(userId: number): Promise<ActionResult> {
+  try {
+    const adminResult = await requireAdmin();
+    if (adminResult.error) return adminResult.error;
+
+    const { generateSecondaryPassword } = await import("@/lib/utils/server");
+    const secondaryPassword = generateSecondaryPassword();
+
+    await db
+      .update(users)
+      .set({ secondaryPassword, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+
+    return { success: true, message: "Secondary password generated", data: secondaryPassword };
+  } catch (error) {
+    console.error("Generate secondary password error:", error);
+    return { success: false, error: "Failed to generate secondary password" };
+  }
+}
+
 export async function setUserSecondaryPassword(
   userId: number,
   secondaryPassword: string | null
