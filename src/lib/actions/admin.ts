@@ -867,49 +867,6 @@ export async function adminToggleMarriedStatus(
   }
 }
 
-export async function generateUserSecondaryPassword(userId: number): Promise<ActionResult> {
-  try {
-    const adminResult = await requireAdmin();
-    if (adminResult.error) return adminResult.error;
-
-    const { generateSecondaryPassword } = await import("@/lib/utils/server");
-    const secondaryPassword = generateSecondaryPassword();
-
-    await db
-      .update(users)
-      .set({ secondaryPassword, updatedAt: new Date() })
-      .where(eq(users.id, userId));
-
-    return { success: true, message: "Secondary password generated", data: secondaryPassword };
-  } catch (error) {
-    console.error("Generate secondary password error:", error);
-    return { success: false, error: "Failed to generate secondary password" };
-  }
-}
-
-export async function setUserSecondaryPassword(
-  userId: number,
-  secondaryPassword: string | null
-): Promise<ActionResult> {
-  try {
-    const adminResult = await requireAdmin();
-    if (adminResult.error) return adminResult.error;
-
-    await db
-      .update(users)
-      .set({ secondaryPassword, updatedAt: new Date() })
-      .where(eq(users.id, userId));
-
-    return {
-      success: true,
-      message: secondaryPassword ? "Secondary password set" : "Secondary password cleared",
-    };
-  } catch (error) {
-    console.error("Set secondary password error:", error);
-    return { success: false, error: "Failed to update secondary password" };
-  }
-}
-
 export interface PendingVerification {
   id: number;
   userId: number;

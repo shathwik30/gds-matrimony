@@ -14,7 +14,6 @@ import {
   Eye,
   EyeOff,
   Copy,
-  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,8 +28,6 @@ import {
   toggleUserStatus,
   verifyUserProfile,
   adminToggleMarriedStatus,
-  generateUserSecondaryPassword,
-  setUserSecondaryPassword,
 } from "@/lib/actions/admin";
 
 interface UserActionsCardProps {
@@ -76,46 +73,6 @@ export function UserActionsCard({ user }: UserActionsCardProps) {
       }
     } catch {
       toast.error("Failed to update married status");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGenerateSecondaryPassword = async () => {
-    setIsLoading(true);
-    try {
-      const result = await generateUserSecondaryPassword(user.id);
-      if (result.success) {
-        toast.success(result.message);
-        setRevealed(true);
-        startTransition(() => {
-          router.refresh();
-        });
-      } else {
-        toast.error(result.error);
-      }
-    } catch {
-      toast.error("Failed to generate secondary password");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleClearSecondaryPassword = async () => {
-    setIsLoading(true);
-    try {
-      const result = await setUserSecondaryPassword(user.id, null);
-      if (result.success) {
-        toast.success(result.message);
-        setRevealed(false);
-        startTransition(() => {
-          router.refresh();
-        });
-      } else {
-        toast.error(result.error);
-      }
-    } catch {
-      toast.error("Failed to clear secondary password");
     } finally {
       setIsLoading(false);
     }
@@ -222,7 +179,7 @@ export function UserActionsCard({ user }: UserActionsCardProps) {
           </div>
         </label>
         {user.secondaryPassword ? (
-          <div className="mb-2 flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+          <div className="flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
             <span className="flex-1 font-mono">
               {revealed ? user.secondaryPassword : "••••••••"}
             </span>
@@ -245,33 +202,8 @@ export function UserActionsCard({ user }: UserActionsCardProps) {
             </button>
           </div>
         ) : (
-          <p className="mb-2 text-xs text-slate-400">No secondary password set</p>
+          <p className="text-xs text-slate-400">No secondary password set</p>
         )}
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleGenerateSecondaryPassword}
-            disabled={isLoading || isPending}
-          >
-            {isLoading || isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
-            )}
-            {user.secondaryPassword ? "Regenerate" : "Generate"}
-          </Button>
-          {user.secondaryPassword && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleClearSecondaryPassword}
-              disabled={isLoading || isPending}
-            >
-              Clear
-            </Button>
-          )}
-        </div>
         <p className="mt-1 text-xs text-slate-400">
           Copy and share with the user if they forget their password.
         </p>
